@@ -154,7 +154,10 @@ class Incoming_requests extends MY_Controller {
 				if($updated) {
 					$request_detail = $this->request->get_request_by_id($req_id);
 					if ($level == 'fco_monitor') {
-						$email_sent = $this->send_email_to_finance_teams($req_id, $approver_name);
+						$finance_teams = $this->base_model->get_finance_teams();
+						foreach($finance_teams as $user) {
+							$email_sent = $this->send_email_to_finance_teams($req_id, $approver_name, $user);
+						}
 					} else {
 						if($level == 'head_of_units') {
 							$ea_assosiate = $this->base_model->get_ea_assosiate();
@@ -382,7 +385,7 @@ class Incoming_requests extends MY_Controller {
 		}
     }
 
-	private function send_email_to_finance_teams($req_id, $approver_name) {
+	private function send_email_to_finance_teams($req_id, $approver_name, $user) {
         $this->load->library('Phpmailer_library');
         $mail = $this->phpmailer_library->load();
         $mail->isSMTP();
@@ -401,7 +404,7 @@ class Incoming_requests extends MY_Controller {
 						 <p>Please process payment request, check on following details</p>
 		 ';
 		 $data['content'] = '
-					 <p>Dear Finance Teams,</p> 
+					 <p>Dear '.$user['username'].',</p> 
 					 <p>'.$data['preview'].'</p>
 					 <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-detail">
 						 <tbody>
@@ -425,7 +428,7 @@ class Incoming_requests extends MY_Controller {
 							<table role="presentation" border="0" cellpadding="0" cellspacing="0">
 								<tbody>
 								<tr>
-									<td> <a <a href="'.base_url('ea_requests/requests_confirmation').'?req_id='.$enc_req_id.'&approver_id=null&status=3&level=finance" target="_blank">REJECT</a> </td>
+									<td> <a <a href="'.base_url('ea_requests/requests_confirmation').'?req_id='.$enc_req_id.'&approver_id='.$user['id'].'&status=3&level=finance" target="_blank">REJECT</a> </td>
 								</tr>
 								</tbody>
 							</table>
@@ -451,10 +454,7 @@ class Incoming_requests extends MY_Controller {
 					 ';
         $text = $this->load->view('template/email', $data, true);
         $mail->setFrom('no-reply@faster.bantuanteknis.id', 'FASTER-FHI360');
-		$finance_teams = $this->base_model->get_finance_teams();
-		foreach($finance_teams as $user) {
-			$mail->addAddress($user['email']);
-		}
+		$mail->addAddress($user['email']);
 		$payment_pdf = $this->attach_payment_request($req_id);
 		$mail->addStringAttachment($payment_pdf, 'Payment form request.pdf');
 		// $excel = $this->attach_ea_form($req_id);
@@ -590,14 +590,17 @@ class Incoming_requests extends MY_Controller {
 		ob_start();
 		$detail = $this->request->get_request_by_id($req_id);
 		$requestor = $this->request->get_requestor_data($detail['requestor_id']);
-		$requestor_signature = $this->get_signature_from_api($requestor['signature']);
-		$fco_signature = $this->get_signature_from_api($detail['fco_monitor_signature']);
+		$requestor_signature = $this->extractImageFromAPI($requestor['signature']);
+		$requestor_signature_path = $requestor_signature['image_path'];
+		$fco_signature = $this->extractImageFromAPI($detail['fco_monitor_signature']);
+		$fco_signature_path = $fco_signature['image_path'];
 		$data = [
 			'requestor' => $requestor,
 			'detail' => $detail,
-			'requestor_signature' => $requestor_signature,
-			'fco_signature' => $fco_signature,
+			'requestor_signature' => $requestor_signature_path,
+			'fco_signature' => $fco_signature_path,
 		];
+		// $this->load->view('template/form_payment_reimburstment', $data);
 		$content = $this->load->view('template/form_payment_reimburstment', $data, true);
         $html2pdf = new Html2Pdf('P', [210, 330], 'en', true, 'UTF-8', array(15, 10, 15, 10));
         $html2pdf->setDefaultFont('arial');
@@ -605,6 +608,7 @@ class Incoming_requests extends MY_Controller {
         $html2pdf->setTestTdInOnePage(false);
         $html2pdf->writeHTML($content, isset($_GET['vuehtml']));
         $html2pdf->Output('Payment Request Form.pdf');
+		$this->delete_signature();
 	}
 
 	private function send_payment_email($req_id) {
@@ -667,10 +671,6 @@ class Incoming_requests extends MY_Controller {
 			$receipt_path = FCPATH.'uploads/ea_payment_receipt/' . $detail['payment_receipt'];
 			$mail->addAttachment($receipt_path, 'Payment receipt_'.$detail['payment_receipt']);
 		}
-		// $excel = $this->attach_ea_form($req_id);
-		// if(!empty($excel)) {
-		// 	$mail->addAttachment($excel['path'], $excel['file_name']);
-		// }
         $mail->addAddress($requestor['email']);
         $mail->Subject = "EA Request Payment Confirmation";
         $mail->isHTML(true);

@@ -26,6 +26,7 @@ class Base_Model extends CI_Model
         return $this->db->select('id, username, email')
         ->from('tb_userapp')
         ->where('account_name', 'mlisna@fhi360.org')
+        // ->where('account_name', 'fadelassosiate')
         ->get()->row_array();
     }
 
@@ -40,6 +41,7 @@ class Base_Model extends CI_Model
         return $this->db->select('id, username, email')
         ->from('tb_userapp')
         ->where('is_budget_reviewer', 1)
+        // ->where('account_name', 'fadelfco')
         ->get()->row_array();
     }
 

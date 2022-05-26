@@ -733,7 +733,7 @@
 									</tr>
 									<tr data-row="3" class="kt-datatable__row" style="left: 0px;">
 										<td data-field="Order ID" class="kt-datatable__cell fw-bold"><span
-												style="width: 150px;"><?= ($detail['finance_name'] == null ? 'Finance Teams' : $detail['finance_name']) ?></span></td>
+												style="width: 150px;"><?= $detail['finance_name'] ?></span></td>
 										<td data-field="Status" data-autohide-disabled="false" class="kt-datatable__cell">
 											<span style="width: 110px;"><span
 													class="kt-badge kt-badge--dark kt-badge--inline kt-badge--pill">Finance

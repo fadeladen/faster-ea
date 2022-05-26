@@ -36,7 +36,10 @@ class Requests_Confirmation extends CI_Controller {
 				if($updated) {
 					if ($level == 'fco_monitor') {
 						$fco = $this->base_model->get_fco_monitor();
-						$email_sent = $this->send_email_to_finance_teams($req_id, $fco['username']);
+						$finance_teams = $this->base_model->get_finance_teams();
+						foreach($finance_teams as $user) {
+							$email_sent = $this->send_email_to_finance_teams($req_id, $fco['username'], $user);
+						}
 					} else {
 						if($level == 'head_of_units') {
 							$ea_assosiate = $this->base_model->get_ea_assosiate();
@@ -305,7 +308,7 @@ class Requests_Confirmation extends CI_Controller {
 		}
     }
 
-    private function send_email_to_finance_teams($req_id, $approver_name) {
+    private function send_email_to_finance_teams($req_id, $approver_name, $user) {
         $this->load->library('Phpmailer_library');
         $mail = $this->phpmailer_library->load();
         $mail->isSMTP();
@@ -324,7 +327,7 @@ class Requests_Confirmation extends CI_Controller {
 						 <p>Please process payment request, check on following details</p>
 		 ';
 		 $data['content'] = '
-					 <p>Dear Finance teams,</p> 
+					 <p>Dear '.$user['username'].',</p> 
 					 <p>'.$data['preview'].'</p>
 					 <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-detail">
 						 <tbody>
@@ -348,7 +351,7 @@ class Requests_Confirmation extends CI_Controller {
                             <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                                 <tbody>
                                 <tr>
-									<td> <a <a href="'.base_url('ea_requests/requests_confirmation').'?req_id='.$enc_req_id.'&approver_id=null&status=3&level=finance" target="_blank">REJECT</a> </td>
+									<td> <a <a href="'.base_url('ea_requests/requests_confirmation').'?req_id='.$enc_req_id.'&approver_id='.$user['id'].'&status=3&level=finance" target="_blank">REJECT</a> </td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -373,10 +376,7 @@ class Requests_Confirmation extends CI_Controller {
 					 </table>
 					 ';
 		$text = $this->load->view('template/email', $data, true);
-		$finance_teams = $this->base_model->get_finance_teams();
-		foreach($finance_teams as $user) {
-			$mail->addAddress($user['email']);
-		}
+		$mail->addAddress($user['email']);
         $payment_pdf = $this->attach_payment_request($req_id);
         // $excel = $this->attach_ea_form($req_id);
 		// if(!empty($excel)) {
@@ -398,13 +398,15 @@ class Requests_Confirmation extends CI_Controller {
         ob_start();
 		$detail = $this->request->get_request_by_id($req_id);
 		$requestor = $this->request->get_requestor_data($detail['requestor_id']);
-		$requestor_signature = $this->get_signature_from_api($requestor['signature']);
-		$fco_signature = $this->get_signature_from_api($detail['fco_monitor_signature']);
+		$requestor_signature = $this->extractImageFromAPI($requestor['signature']);
+		$requestor_signature_path = $requestor_signature['image_path'];
+		$fco_signature = $this->extractImageFromAPI($detail['fco_monitor_signature']);
+		$fco_signature_path = $fco_signature['image_path'];
 		$data = [
 			'requestor' => $requestor,
 			'detail' => $detail,
-			'requestor_signature' => $requestor_signature,
-			'fco_signature' => $fco_signature,
+			'requestor_signature' => $requestor_signature_path,
+			'fco_signature' => $fco_signature_path,
 		];
 		$content = $this->load->view('template/form_payment_reimburstment', $data, true);
         $html2pdf = new Html2Pdf('P', [210, 330], 'en', true, 'UTF-8', array(15, 10, 15, 10));

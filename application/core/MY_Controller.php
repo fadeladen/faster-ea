@@ -34,13 +34,15 @@ class MY_Controller extends CI_Controller
         ob_start();
 		$detail = $this->request->get_request_by_id($req_id);
 		$requestor = $this->request->get_requestor_data($detail['requestor_id']);
-		$requestor_signature = $this->get_signature_from_api($requestor['signature']);
-		$fco_signature = $this->get_signature_from_api($detail['fco_monitor_signature']);
+		$requestor_signature = $this->extractImageFromAPI($requestor['signature']);
+		$requestor_signature_path = $requestor_signature['image_path'];
+		$fco_signature = $this->extractImageFromAPI($detail['fco_monitor_signature']);
+		$fco_signature_path = $fco_signature['image_path'];
 		$data = [
 			'requestor' => $requestor,
 			'detail' => $detail,
-			'requestor_signature' => $requestor_signature,
-			'fco_signature' => $fco_signature,
+			'requestor_signature' => $requestor_signature_path,
+			'fco_signature' => $fco_signature_path,
 		];
 		$content = $this->load->view('template/form_payment_reimburstment', $data, true);
         $html2pdf = new Html2Pdf('P', [210, 330], 'en', true, 'UTF-8', array(15, 10, 15, 10));

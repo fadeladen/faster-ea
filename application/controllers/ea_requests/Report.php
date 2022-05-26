@@ -318,6 +318,7 @@ class Report extends MY_Controller {
 		$spreadsheet = $reader->load($inputFileName);
 		$sheet = $spreadsheet->getActiveSheet();
 		$sheet->setCellValue('B5', 'Name: ' . $detail['requestor_name']);
+		$sheet->setCellValue('G5', date('d-M-y'));
 		$sheet->setCellValue('K5', $detail['departure_date'] . ' - ' . $detail['return_date']);
 		$total_dest = count($detail['destinations']);
 		

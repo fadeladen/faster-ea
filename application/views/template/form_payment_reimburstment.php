@@ -27,7 +27,7 @@
 		}
 
 	</style>
-	<img src="<?= base_url('assets/images/logos/FHI_360.png') ?>" style='width:120px;position:absolute;left:0px'>
+	<img src="<?php echo FCPATH . 'assets/images/logos/FHI_360.png' ?>" style='width:120px;position:absolute;left:0px'>
 
 	<br>
 	<p style="font-weight: bold; text-align: center; font-size: 18px">EA PAYMENT REQUEST FORM</p>
@@ -104,7 +104,7 @@
 			<td style="width: 220px">
 				<div style="border-bottom: 1px solid">
 					<div style="text-align: center">
-						<img src="<?= $fco_signature ?>"
+					<img src="<?= $fco_signature ?>"
 							style='height: 60px; margin-bottom: -10px'>
 					</div>
 					<p style="font-size: 14px; text-align: center"><?= $detail['fco_monitor_name'] ?></p>
@@ -120,7 +120,7 @@
 	<br>
 	<p style="font-size: 14px">Please attach supporting document vendor’s invoice:</p>
 	<div style="margin-left: 230px">
-		<p style="font-size: 14px; margin: 0px"><input checked="checked" type="checkbox"> Invoice / Receipt</p>
+		<p style="font-size: 14px; margin: 0px"><input type="checkbox"> Invoice / Receipt</p>
 		<p style="font-size: 14px; margin: 0px"><input type="checkbox"> Timecard (for Consultants/other temporary help)
 		</p>
 		<p style="font-size: 14px; margin: 0px"><input type="checkbox"> Consultant Tax ID (on file)</p>

@@ -633,7 +633,11 @@ class Outcoming_requests extends MY_Controller {
 					'meals' => $clean_meals,
 					'lodging' => $clean_lodging,
 				];
-				$updated = $this->request->update_costs($dest_id, $payload);
+				if(is_ea_assosiate()) {
+					$updated = $this->request->update_max_budget($dest_id, $payload);
+				} else {
+					$updated = $this->request->update_costs($dest_id, $payload);
+				}
 				if($updated) {
 					$response['success'] = true;
 					$response['message'] = 'Data has been updated!';

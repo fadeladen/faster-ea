@@ -84,7 +84,8 @@ class Request_Model extends CI_Model
         $destinations = $this->db->select('*, format(meals,2,"de_DE") as d_meals, format(lodging,2,"de_DE") as d_lodging,
         format(total_lodging_and_meals,2,"de_DE") as d_total_lodging_and_meals, format(total,2,"de_DE") as d_total,
         DATE_FORMAT(departure_date, "%d %M %Y") as depar_date, DATE_FORMAT(arrival_date, "%d %M %Y") as arriv_date,
-        format(actual_meals,2,"de_DE") as d_actual_meals, format(actual_lodging,2,"de_DE") as d_actual_lodging
+        format(actual_meals,2,"de_DE") as d_actual_meals, format(actual_lodging,2,"de_DE") as d_actual_lodging,
+        format(max_lodging_budget,2,"de_DE") as d_max_lodging_budget, format(max_meals_budget,2,"de_DE") as d_max_meals_budget,
         ')
         ->from('ea_requests_destinations')
         ->where('request_id', $id)
@@ -289,6 +290,21 @@ class Request_Model extends CI_Model
             'lodging' => $lodging,
             'total_lodging_and_meals' => $total_lodging_and_meals,
             'total' => $total,
+        ];
+        $updated = $this->db->where('id', $dest_id)->update('ea_requests_destinations', $data);
+        if($updated) {
+            return true;
+        }
+        return false;
+    }
+
+    function update_max_budget($dest_id, $payload) {
+        $max_lodging_budget = $payload['lodging'];
+        $max_meals_budget = $payload['meals'];
+        $data = [
+            'max_lodging_budget' => $max_lodging_budget,
+            'max_meals_budget' => $max_meals_budget,
+            'is_edited_by_ea' => 1,
         ];
         $updated = $this->db->where('id', $dest_id)->update('ea_requests_destinations', $data);
         if($updated) {

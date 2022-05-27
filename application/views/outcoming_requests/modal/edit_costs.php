@@ -10,18 +10,16 @@
 			action="<?= base_url('ea_requests/outcoming_requests/update_costs/') ?><?= $detail['id'] ?>"
 			id="update-costs">
 			<div class="modal-body">
-				<?php if ($detail['requestor_id'] == $this->user_data->userId): ?>
-				<div class="form-group">
+				<div class="form-group <?= ($detail['requestor_id'] != $this->user_data->userId) ? 'd-none' : '' ?>">
 					<label for="actual_">Arrival date</label>
 					<input value="<?= $detail['arrival_date'] ?>" type="date" class="form-control" name="arrival_date"
 						id="arrival_date">
 				</div>
-				<div class="form-group">
+				<div class="form-group <?= ($detail['requestor_id'] != $this->user_data->userId) ? 'd-none' : '' ?>">
 					<label for="actual_">Departure</label>
 					<input value="<?= $detail['departure_date'] ?>" type="date" class="form-control"
 						name="departure_date" id="departure_date">
 				</div>
-				<?php endif; ?>
 				<div class="form-group">
 					<label for="actual_">Lodging</label>
 					<input value="<?= $detail['lodging'] ?>" type="text" class="form-control" name="lodging"

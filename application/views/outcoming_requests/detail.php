@@ -207,7 +207,7 @@
 							</div>
 						</div>
 
-						<form id="max-budget-form" class="mt-3" method="POST"
+						<!-- <form id="max-budget-form" class="mt-3" method="POST"
 							action="<?= base_url('ea_requests/incoming-requests/update_budget') ?>">
 							<input value="<?= $detail['r_id'] ?>" class="d-none" type="text" id="r_id" name="r_id">
 							<div class="row mb-2">
@@ -238,7 +238,7 @@
 									Update max budget
 								</button>
 							</div>
-						</form>
+						</form> -->
 
 					</div>
 				</div>
@@ -368,11 +368,20 @@
 									</p>
 									<p class="mb-1">Budget monitor: <span class="destination-project-number-val">
 											<?= $dest['budget_monitor'] ?></span> </p>
-									<p class="mb-1">Lodging: <span class="destination-lodging-val">Rp.
-											<?= $dest['d_lodging'] ?></span>
+									<p class="mb-1">Lodging: 
+										<span class="destination-lodging-val">Rp.
+											<?= $dest['d_lodging'] ?>
+										</span>
+										<?php if ($dest['is_edited_by_ea'] == 1): ?>
+											<span class="text-danger"> ( Max budget: Rp. <?= $dest['d_max_lodging_budget'] ?> )</span>
+										<?php endif; ?>	
 									</p>
-									<p class="mb-1">Meals: <span class="destination-meals-val">Rp.
-											<?= $dest['d_meals'] ?></span> </p>
+									<p class="mb-1">Meals: <span class="destination-meals-val">
+									Rp. <?= $dest['d_meals'] ?></span>
+									<?php if ($dest['is_edited_by_ea'] == 1): ?>
+											<span class="text-danger"> ( Max budget: Rp. <?= $dest['d_max_meals_budget'] ?> )</span>
+										<?php endif; ?>	
+									</p>
 									<p class="mb-1">Total (lodging+meals): <span
 											class="destination-meals-lodging-total-val">Rp.
 											<?= $dest['d_total_lodging_and_meals'] ?></span> </p>
@@ -660,11 +669,6 @@
 												style="width: 110px;"><?= $detail['ea_assosiate_status_at'] ?></span></td>
 										<td class="kt-datatable__cell">
 											<div style="width: 140px;" class="d-flex <?= $ea_assosiate_btn ?>">
-												<?php if ($detail['max_budget_idr'] == null || $detail['max_budget_usd'] == null ): ?>
-												<button id="btn-to-budget-form" class="btn btn-sm btn-dark">
-													Max budget form
-												</button>
-												<?php else : ?>
 												<button data-level='ea_assosiate' data-id=<?= $detail['r_id'] ?>
 													data-status="2" class="btn btn-status btn-success mr-1">
 													<div class="d-flex align-items-center justify-content-center">
@@ -687,7 +691,6 @@
 														Reject
 													</div>
 												</button>
-												<?php endif; ?>
 											</div>
 										</td>
 									</tr>

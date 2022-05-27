@@ -105,7 +105,7 @@ if (!function_exists('is_ea_assosiate')) {
     {   
         $ci = &get_instance();
 
-        if($ci->user_data->username == 'mlisna@fhi360.org' || $ci->user_data->username == 'fadelassosiate') {
+        if($ci->user_data->username == 'mlisna@fhi360.org' || $ci->user_data->fullName == 'Mega Lisna' || $ci->user_data->username == 'fadelassosiate') {
             return true;
         }
 

@@ -383,7 +383,11 @@ class Report extends MY_Controller {
 			$depar_date = strtotime($dest['departure_date']);
 			$datediff = $depar_date - $arriv_date;
 			$days = ($datediff / (60 * 60 * 24));
-			for ($x = 1; $x <= $days; $x++) {
+			$x = 1;
+			if($days == 1) {
+				$x = 0;
+			} 
+			for ($x; $x <= $days; $x++) {
 				$next_day = strtotime("+$day day", strtotime($dest['arrival_date']));
 				$sheet->setCellValue($row . '9', $dest['city']);
 				$sheet->setCellValue($row . '8', date('d/M/y', $next_day));
@@ -431,7 +435,11 @@ class Report extends MY_Controller {
 			$depar_date = strtotime($dest['departure_date']);
 			$datediff = $depar_date - $arriv_date;
 			$days = ($datediff / (60 * 60 * 24));
-			for ($x = 1; $x <= $days; $x++) {
+			$x = 1;
+			if($days == 1) {
+				$x = 0;
+			} 
+			for ($x; $x <= $days; $x++) {
 				$next_day = strtotime("+$day day", strtotime($dest['arrival_date']));
 				$sheet->setCellValue($row . '9', $dest['city']);
 				$sheet->setCellValue($row . '8', date('d/M/y', $next_day));

@@ -120,6 +120,13 @@
 									</div>
 								</div>
 								<div class="form-group row">
+									<label for="purpose" class="col-md-3 col-form-label">Purpose
+										</label>
+									<div class="col-md-9">
+										<textarea class="form-control" id="purpose" name="purpose" rows="2"></textarea>
+									</div>
+								</div>
+								<div class="form-group row">
 									<label class="col-md-3 col-form-label">Employment</label>
 									<div class="col-md-9">
 										<div id="employment" class="kt-radio-inline">
@@ -223,9 +230,7 @@
 										<select data-url="<?= site_url('api/cities') ?>" class="form-control"
 											name="originating_city" id="originating_city">
 											<option value="">Select originating city</option>
-											<?php foreach ($locations as $loc): ?>
-											<option value="<?= $loc['nama'] ?>"><?= $loc['nama'] ?></option>
-											<?php endforeach; ?>
+											
 										</select>
 									</div>
 								</div>
@@ -528,8 +533,8 @@
 									<div class="pb-2 mb-2 border-bottom">
 										<p class="mb-1"><?= $requestor_data['username'] ?></p>
 										<p class="mb-1">Email: <?= $requestor_data['email'] ?></p>
-										<p class="mb-1">Division: <?= $requestor_data['project_name'] ?></p>
-										<p class="mb-1">Purpose: <?= $requestor_data['unit_name'] ?></p>
+										<p class="mb-1">Division: <?= $requestor_data['unit_name'] ?></p>
+										<p class="mb-1">Purpose: <span id="purpose_review"></span></p>
 									</div>
 									<div class="pt-2 mb-2 pb-2">
 										<p class="mb-1">Request base: <span class="review-request-base-val"></span>
@@ -672,6 +677,7 @@
 					const step = wizardObj.currentStep
 					$('p.error').remove();
 					if (step == 1) {
+						$('#purpose_review').text($('#purpose').val())
 						if (!validateStep1()) {
 							wizardObj.stop();
 							swal.fire({
@@ -717,27 +723,27 @@
 
 		KTWizard3.init();
 
-		// $('#originating_city').select2({
-		// 	placeholder: 'Select originating city',
-		// 	ajax: {
-		// 		'url': `${base_url}api/cities`,
-		// 		data: function (params) {
-		// 			return {
-		// 				q: params.term,
-		// 				select2: true,
-		// 			}
-		// 		},
-		// 		processResults: function (response) {
-		// 			return {
-		// 				results: response.result
-		// 			}
-		// 		}
-		// 	}
-		// })
-
 		$('#originating_city').select2({
-			placeholder: 'Select Originating city',
+			placeholder: 'Select originating city',
+			ajax: {
+				'url': `${base_url}api/cities`,
+				data: function (params) {
+					return {
+						q: params.term,
+						select2: true,
+					}
+				},
+				processResults: function (response) {
+					return {
+						results: response.result
+					}
+				}
+			}
 		})
+
+		// $('#originating_city').select2({
+		// 	placeholder: 'Select Originating city',
+		// })
 		$('#head_of_units_id').select2({
 			placeholder: 'Select head of units',
 		})
@@ -835,6 +841,7 @@
 			const hotelRes = $('input[name=hotel_reservations]:checked').val()
 			const otherTran = $('input[name=other_transportation]:checked').val()
 			const specialInstr = $('#special_instructions').val()
+			const purpose = $('#purpose').val()
 			const errors = []
 
 			if (requestBase) {
@@ -966,6 +973,13 @@
 				errors.push({
 					type: 1,
 					field: 'travel_advance'
+				})
+			}
+
+			if (!purpose) {
+				errors.push({
+					type: 1,
+					field: 'purpose'
 				})
 			}
 

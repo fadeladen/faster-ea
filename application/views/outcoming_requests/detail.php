@@ -37,13 +37,13 @@
 						<div class="row">
 							<label class="col-3 mb-2 col-form-label fw-bold">Division</label>
 							<div class="col-9">
-								<span class="badge badge-dark fw-bold"><?= $requestor_data['project_name'] ?></span>
+								<span class="badge badge-dark fw-bold"><?= $requestor_data['unit_name'] ?></span>
 							</div>
 						</div>
 						<div class="row">
 							<label class="col-3 mb-2 col-form-label fw-bold">Purpose</label>
 							<div class="col-9">
-								<span class="badge badge-info fw-bold"><?= $requestor_data['unit_name'] ?></span>
+								<textarea readonly class="form-control" id="" rows="2"><?= $detail['purpose'] ?></textarea>
 							</div>
 						</div>
 						<div class="p-2 mb-2 border-bottom"></div>
@@ -206,40 +206,6 @@
 								<span class="badge badge-light fw-bold"><?= $detail['travel_advance'] ?></span>
 							</div>
 						</div>
-
-						<!-- <form id="max-budget-form" class="mt-3" method="POST"
-							action="<?= base_url('ea_requests/incoming-requests/update_budget') ?>">
-							<input value="<?= $detail['r_id'] ?>" class="d-none" type="text" id="r_id" name="r_id">
-							<div class="row mb-2">
-								<label class="col-3 col-form-label fw-bold">Max budget</label>
-								<div class="col-md-4 mt-2">
-									<small for="max_budget_idr" class="col-form-label">
-										IDR
-									</small>
-									<input <?= (!is_ea_assosiate() ? 'readonly' : '') ?>
-										value="<?= $detail['clean_max_budget_idr'] ?>" class="form-control mt-2"
-										type="text" id="max_budget_idr" name="max_budget_idr">
-								</div>
-								<div class="col-md-1">
-								</div>
-								<div class="col-md-4 mt-2">
-									<small for="departure_date" class="col-form-label">
-										USD
-									</small>
-									<input <?= (!is_ea_assosiate() ? 'readonly' : '') ?>
-										value="<?= $detail['clean_max_budget_usd'] ?>" class="form-control mt-2"
-										type="text" id="max_budget_usd" name="max_budget_usd">
-								</div>
-							</div>
-							<div class="justify-content-end mt-3 <?= (!is_ea_assosiate() ? 'd-none' : 'd-flex') ?>">
-								<button id="btn-update-budget" type="submit"
-									class="btn btn-success btn-sm kt-font-bold kt-font-transform-u"
-									data-ktwizard-type="action-submit">
-									Update max budget
-								</button>
-							</div>
-						</form> -->
-
 					</div>
 				</div>
 			</div>
@@ -368,19 +334,21 @@
 									</p>
 									<p class="mb-1">Budget monitor: <span class="destination-project-number-val">
 											<?= $dest['budget_monitor'] ?></span> </p>
-									<p class="mb-1">Lodging: 
+									<p class="mb-1">Lodging:
 										<span class="destination-lodging-val">Rp.
 											<?= $dest['d_lodging'] ?>
 										</span>
 										<?php if ($dest['is_edited_by_ea'] == 1): ?>
-											<span class="text-danger"> ( Max budget: Rp. <?= $dest['d_max_lodging_budget'] ?> )</span>
-										<?php endif; ?>	
+										<span class="text-danger"> ( Max budget: Rp. <?= $dest['d_max_lodging_budget'] ?>
+											)</span>
+										<?php endif; ?>
 									</p>
 									<p class="mb-1">Meals: <span class="destination-meals-val">
-									Rp. <?= $dest['d_meals'] ?></span>
-									<?php if ($dest['is_edited_by_ea'] == 1): ?>
-											<span class="text-danger"> ( Max budget: Rp. <?= $dest['d_max_meals_budget'] ?> )</span>
-										<?php endif; ?>	
+											Rp. <?= $dest['d_meals'] ?></span>
+										<?php if ($dest['is_edited_by_ea'] == 1): ?>
+										<span class="text-danger"> ( Max budget: Rp. <?= $dest['d_max_meals_budget'] ?>
+											)</span>
+										<?php endif; ?>
 									</p>
 									<p class="mb-1">Total (lodging+meals): <span
 											class="destination-meals-lodging-total-val">Rp.
@@ -655,7 +623,7 @@
 									</tr>
 									<tr data-row="1" class="kt-datatable__row" style="left: 0px;">
 										<td data-field="Order ID" class="kt-datatable__cell fw-bold"><span
-												style="width: 150px;"><?= $detail['ea_assosiate_name'] ?></span></td>
+												style="width: 150px;"><?= $ea_assosiate['username'] ?></span></td>
 										<td data-field="Status" data-autohide-disabled="false" class="kt-datatable__cell">
 											<span style="width: 110px;"><span
 													class="kt-badge kt-badge--dark kt-badge--inline kt-badge--pill">
@@ -786,12 +754,12 @@
 								<textarea class="form-control" readonly id=""
 									rows="3"><?= $detail['rejected_reason'] ?></textarea>
 							</div>
-								<?php if ($detail['requestor_id'] == $this->user_data->userId): ?>
-								<div class="mt-3 d-flex justify-content-end align-items-center">
-									<button id="btn-resubmit" data-id="<?= $detail['r_id'] ?>"
-										class="btn btn btn-success">RESUBMIT REQUEST</button>
-								</div>
-								<?php endif; ?>
+							<?php if ($detail['requestor_id'] == $this->user_data->userId): ?>
+							<div class="mt-3 d-flex justify-content-end align-items-center">
+								<button id="btn-resubmit" data-id="<?= $detail['r_id'] ?>"
+									class="btn btn btn-success">RESUBMIT REQUEST</button>
+							</div>
+							<?php endif; ?>
 							<?php endif; ?>
 						</div>
 					</div>

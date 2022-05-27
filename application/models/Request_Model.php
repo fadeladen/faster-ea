@@ -33,6 +33,7 @@ class Request_Model extends CI_Model
         "requestor_id",
         "exteral_invitation_file",
         "car_rental_memo",
+        "purpose",
     ];
 
     function get_request_by_id($id) {

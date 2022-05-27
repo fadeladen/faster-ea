@@ -90,6 +90,7 @@ class Outcoming_requests extends MY_Controller {
 				'fco_monitor_btn' => $fco_monitor_btn,
 				'finance_btn' => $finance_btn,
 				'request_status' => get_requests_status($detail['r_id']),
+				'ea_assosiate' => $this->base_model->get_ea_assosiate(),
 			];
 			$this->template->set('pageParent', 'Requests');
 			$this->template->set('page', 'Requests detail');

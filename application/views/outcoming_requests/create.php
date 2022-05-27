@@ -121,7 +121,7 @@
 								</div>
 								<div class="form-group row">
 									<label for="purpose" class="col-md-3 col-form-label">Purpose
-										</label>
+									</label>
 									<div class="col-md-9">
 										<textarea class="form-control" id="purpose" name="purpose" rows="2"></textarea>
 									</div>
@@ -177,7 +177,7 @@
 													<input class="form-control participant_email" type="text"
 														placeholder="Email" name="participant_email[]">
 												</div>
-												<div class="col-4">
+												<div class="col-3">
 													<input class="form-control participant_title" type="text"
 														placeholder="Title" name="participant_title[]">
 												</div>
@@ -230,7 +230,7 @@
 										<select data-url="<?= site_url('api/cities') ?>" class="form-control"
 											name="originating_city" id="originating_city">
 											<option value="">Select originating city</option>
-											
+
 										</select>
 									</div>
 								</div>
@@ -741,9 +741,6 @@
 			}
 		})
 
-		// $('#originating_city').select2({
-		// 	placeholder: 'Select Originating city',
-		// })
 		$('#head_of_units_id').select2({
 			placeholder: 'Select head of units',
 		})
@@ -1185,12 +1182,27 @@
                             <input class="form-control participant_email" type="text" placeholder="Email"
                                  name="participant_email[]">
                         </div>
-                        <div class="col-4">
+                        <div class="col-3">
                             <input class="form-control participant_title" type="text" placeholder="Title"
                              name="participant_title[]">
                         </div>
+						<div class="col-1">
+							<button class="btn btn-sm btn-danger btn-delete-participant">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16"
+									height="16" fill="currentColor" class="bi bi-trash"
+									viewBox="0 0 16 16">
+									<path
+										d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+									<path fill-rule="evenodd"
+										d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+								</svg>
+							</button>
+						</div>
                     </div>`;
 			$('.participants-lists').append(html);
+			$(document).on('click', '.btn-delete-participant', function () {
+				$(this).parent().parent().remove()
+			});
 		})
 
 		$(document).on('click', '#btn-more-destination', function (e) {
@@ -1211,7 +1223,18 @@
 			// }
 
 			const html = `<div class="destination pb-2 mb-5 border-bottom">
-										<h5 class="mb-3"><span>${order}</span> Destination</h5>
+										<div class="d-flex align-items-center justify-content-between mb-2">
+											<h5 class="mb-3"><span>${order}</span> Destination</h5>
+											<button class="btn btn-sm btn-danger btn-delete-destination">
+												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+													class="bi bi-trash" viewBox="0 0 16 16">
+													<path
+														d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+													<path fill-rule="evenodd"
+														d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+												</svg>
+											</button>
+										</div>
 										<input type="text" class="d-none destination_order" value="${order}" name="destination_order[]">
 										<div class="form-group row">
 											<label for="example-search-input"
@@ -1302,6 +1325,10 @@
 			$('.meals').number(true, 0, '', '.');
 			$('.meals_lodging_total').number(true, 0, '', '.');
 			$('.total').number(true, 0, '', '.');
+			$(document).on('click', '.btn-delete-destination', function () {
+				$(this).parent().parent().remove()
+				$('#btn-more-destination').removeClass('d-none')
+			});
 		})
 
 		$("#kt_form").submit(function (e) {

@@ -146,17 +146,23 @@ class Request_Model extends CI_Model
         ]);
 
         // Save destinations
-        $destinations_city = $data['destination_city'];
-        for ($i = 0; $i < count($destinations_city); $i++) {
+        $destinations = $data['destination_country'];
+        for ($i = 0; $i < count($destinations); $i++) {
             // Remove number formatting
             $clean_lodging = str_replace('.', '',  $data['lodging'][$i]);
             $clean_meals = str_replace('.', '',  $data['meals'][$i]);
             $clean_meals_lodging_total = str_replace('.', '',  $data['meals_lodging_total'][$i]);
             $clean_total = str_replace('.', '',  $data['total'][$i]);
+            $country = $data['destination_country'][$i];
+            $city = $data['destination_city'][$i];
+            if($country == 2) {
+                $city = $data['destination_country_name'][$i];
+            }
             $this->db->insert('ea_requests_destinations', [
                 'request_id' => $request_id,
                 'order' => $data['destination_order'][$i],
-                'city' => $data['destination_city'][$i],
+                'country' => $country,
+                'city' => $city,
                 'departure_date' => date('Y-m-d', strtotime($data['destination_departure_date'][$i])),
                 'arrival_date' => date('Y-m-d', strtotime($data['destination_arrival_date'][$i])),
                 'project_number' => $data['project_number'][$i],
@@ -278,8 +284,11 @@ class Request_Model extends CI_Model
     }
 
     function update_costs($dest_id, $payload) {
-        $detail = $this->db->select('*')->from('ea_requests_destinations')->where('id', $dest_id)->get()->row_array();
-        $night = $detail['night'];
+        $range = strtotime($payload['departure_date']) - strtotime($payload['arrival_date']);
+        $night = round($range / (60 * 60 * 24));
+        if($night == 0) {
+            $night = 1;
+        }
         $meals = $payload['meals'];
         $lodging = $payload['lodging'];
         $total_lodging_and_meals = $meals + $lodging;
@@ -289,6 +298,7 @@ class Request_Model extends CI_Model
             'departure_date' => date('Y-m-d', strtotime($payload['departure_date'])),
             'meals' => $meals,
             'lodging' => $lodging,
+            'night' => $night,
             'total_lodging_and_meals' => $total_lodging_and_meals,
             'total' => $total,
         ];

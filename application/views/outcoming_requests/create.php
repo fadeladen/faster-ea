@@ -424,11 +424,37 @@
 											name="destination_order[]">
 										<div class="form-group row">
 											<label for="example-search-input"
-												class="col-md-3 col-form-label">City/country</label>
+												class="col-md-3 col-form-label">Country</label>
 											<div class="col-md-9">
-												<input placeholder="Enter city/country"
-													class="form-control destination_city" type="text"
-													name="destination_city[]">
+												<select class="form-control destination_country"
+													name="destination_country[]">
+													<option value="">Select country</option>
+													<option value="1">Indonesia</option>
+													<option value="2">Other country</option>
+												</select>
+											</div>
+										</div>
+										<div class="form-group row domistic-form d-none">
+											<label for="example-search-input"
+												class="col-md-3 col-form-label">City</label>
+											<div class="col-md-9">
+												<select placeholder="Select city"
+													data-url="<?= site_url('api/cities') ?>"
+													class="form-control destination_city" name="destination_city[]">
+													<option value="">Select originating city</option>
+
+												</select>
+											</div>
+										</div>
+										<div class="international-form d-none">
+											<div class="form-group row">
+												<label for="example-search-input"
+													class="col-md-3 col-form-label">Country name</label>
+												<div class="col-md-9">
+													<input placeholder="Enter country name"
+														class="form-control destination_country_name" type="text"
+														name="destination_country_name[]">
+												</div>
 											</div>
 										</div>
 										<div class="form-group row">
@@ -497,7 +523,7 @@
 											<label for="example-search-input"
 												class="col-md-3 col-form-label">Night</label>
 											<div class="col-md-9">
-												<input placeholder="# of nights" class="form-control night"
+												<input readonly placeholder="0" class="form-control night"
 													type="number" name="night[]">
 											</div>
 										</div>
@@ -806,24 +832,87 @@
 			}
 		});
 
+		$(document).on('change', '.destination_country', function () {
+			const value = $(this).val();
+			const domisticForm = $(this).parent().parent().parent().find('.domistic-form')
+			const interForm = $(this).parent().parent().parent().find('.international-form')
+			if (value == '1') {
+				domisticForm.removeClass('d-none')
+				interForm.addClass('d-none')
+			} else {
+				interForm.removeClass('d-none')
+				domisticForm.addClass('d-none')
+			}
+		});
+
+		$('.destination_city').select2({
+			placeholder: 'Select city',
+			ajax: {
+				'url': `${base_url}api/cities`,
+				data: function (params) {
+					return {
+						q: params.term,
+						select2: true,
+					}
+				},
+				processResults: function (response) {
+					return {
+						results: response.result
+					}
+				}
+			}
+		})
+
 		$('.lodging').number(true, 0, '', '.');
 		$('.meals').number(true, 0, '', '.');
 		$('.meals_lodging_total').number(true, 0, '', '.');
 		$('.total').number(true, 0, '', '.');
 		$('.destination-lodging-val').number(true, 0, '', '.');
 
+		function days_between(date1, date2) {
+
+			// The number of milliseconds in one day
+			const ONE_DAY = 1000 * 60 * 60 * 24;
+
+			// Calculate the difference in milliseconds
+			const differenceMs = Math.abs(date1 - date2);
+
+			// Convert back to days and return
+			let days = Math.round(differenceMs / ONE_DAY)
+			if(days == 0) days = 1
+			return days;
+
+		}
+
 		const updateCosts = (el) => {
 			const parent = el.parent().parent().parent()
 			const lodging = parent.find('.lodging').val()
 			const meals = parent.find('.meals').val()
-			const night = parent.find('.night').val()
+			let night = parent.find('.night').val()
 			const mealsLodgingEl = parent.find('.meals_lodging_total')
 			const mealsLodging = Number(lodging) + Number(meals)
 			mealsLodgingEl.val(mealsLodging)
 			const totalEl = parent.find('.total')
+			if(night == 0) {
+				night = 1
+			}
 			const total = Number(night) * mealsLodging
+
 			totalEl.val(total)
 		}
+		
+		const updateNight = (el) => {
+			const parent = el.parent().parent().parent()
+			const night = parent.find('.night')
+			const arrivalDate = parent.find('.destination_arrival_date').val()
+			const departureDate = parent.find('.destination_departure_date').val()
+			const arrival = new Date(arrivalDate);
+			const departure = new Date(departureDate);
+			const numNight = days_between(arrival, departure)
+			night.val(numNight)
+		}
+
+
 
 		const validateStep1 = () => {
 			const requestBase = $('input[name=request_base]:checked').val()
@@ -1050,13 +1139,6 @@
 				})
 			}
 
-			// if (!specialInstr) {
-			// 	errors.push({
-			// 		type: 2,
-			// 		field: 'special_instructions'
-			// 	})
-			// }
-
 			if (errors.length > 0) {
 				showErrors(errors)
 				return false
@@ -1067,12 +1149,48 @@
 
 		const validateStep2 = () => {
 			let valid = true
-			$('#step-2-form input:not([readonly])').each(function () {
-				let value = $(this).val()
-				if (!value) {
+
+			$('#step-2-form .destination').each(function () {
+				const country = $(this).find('.destination_country').val()
+				$('foo').not(".someClass")
+				if (country == 1) {
+					$(this).find('input:not([readonly]), .destination_city').not(
+						'.destination_country_name').each(function () {
+						let value = $(this).val()
+						if (!value) {
+							valid = false
+							$(this).parent().append(
+								'<p class="error mt-1 mb-0">This field is required</p>')
+						}
+					});
+				} else if (country == 2) {
+					$(this).find('input:not([readonly])').each(function () {
+						let value = $(this).val()
+						if (!value) {
+							valid = false
+							$(this).parent().append(
+								'<p class="error mt-1 mb-0">This field is required</p>')
+						}
+					});
+				} else if (!country) {
 					valid = false
-					$(this).parent().append(
-						'<p class="error mt-1 mb-0">This field is required</p>')
+					$(this).find('input:not([readonly])').not('.destination_country_name').each(
+						function () {
+							let value = $(this).val()
+							if (!value) {
+								valid = false
+								$(this).parent().append(
+									'<p class="error mt-1 mb-0">This field is required</p>')
+							}
+						});
+					$(this).find('select').not('.destination_city').each(function () {
+						let value = $(this).val()
+						if (!value) {
+							valid = false
+							$(this).parent().append(
+								'<p class="error mt-1 mb-0">This field is required</p>')
+						}
+					});
 				}
 			});
 			return valid
@@ -1095,7 +1213,13 @@
 			$('.destinations-review-lists').html('');
 			$('.destination').each(function () {
 				const order = $(this).find('.destination_order').val()
+				const country = $(this).find('.destination_country').val()
 				const city = $(this).find('.destination_city').val()
+				const countryName = $(this).find('.destination_country_name').val()
+				let countryCity = `${city}/Indonesia`
+				if (country == '2') {
+					countryCity = countryName
+				}
 				let arrival = $(this).find('.destination_arrival_date').val()
 				let departure = $(this).find('.destination_departure_date').val()
 				arrival = dayjs(arrival).format('DD MMMM YYYY')
@@ -1110,7 +1234,7 @@
 
 				const html = `<div class="col-md-6 destination-review border p-3">
 								<h6 class="pb-2 border-bottom font-weight-bold">${order} destination </h6>
-								<p class="mb-1">City/country: <span class="destination-city-val">${city}</span> </p>
+								<p class="mb-1">City/country: <span class="destination-city-val">${countryCity}</span> </p>
 								<div class="mb-1 d-flex">
 									<p class="mr-3 mb-0">Departure date: ${departure},</p>
 									<p class="mb-0">Arrival date: ${arrival}</p>
@@ -1166,9 +1290,15 @@
 			updateDestinationsReview()
 		}
 
-		$(document).on('keyup', '.lodging, .meals, .night', function () {
+		$(document).on('keyup', '.lodging, .meals', function () {
 			updateCosts($(this))
 		});
+
+		$(document).on('change', '.destination_arrival_date, .destination_departure_date', function () {
+			updateNight($(this))
+			updateCosts($(this))
+		});
+
 
 		$(document).on('click', '#btn-more-participant', function (e) {
 			e.preventDefault()
@@ -1238,10 +1368,37 @@
 										<input type="text" class="d-none destination_order" value="${order}" name="destination_order[]">
 										<div class="form-group row">
 											<label for="example-search-input"
-												class="col-md-3 col-form-label">City/country</label>
+												class="col-md-3 col-form-label">Country</label>
 											<div class="col-md-9">
-												<input placeholder="Enter city/country" class="form-control destination_city" type="text"
-													name="destination_city[]">
+												<select class="form-control destination_country"
+													name="destination_country[]">
+													<option value="">Select country</option>
+													<option value="1">Indonesia</option>
+													<option value="2">Other country</option>
+												</select>
+											</div>
+										</div>
+										<div class="form-group row domistic-form d-none">
+											<label for="example-search-input"
+												class="col-md-3 col-form-label">City</label>
+											<div class="col-md-9">
+												<select placeholder="Select city"
+													data-url="<?= site_url('api/cities') ?>"
+													class="form-control destination_city" name="destination_city[]">
+													<option value="">Select originating city</option>
+
+												</select>
+											</div>
+										</div>
+										<div class="international-form d-none">
+											<div class="form-group row">
+												<label for="example-search-input"
+													class="col-md-3 col-form-label">Country name</label>
+												<div class="col-md-9">
+													<input placeholder="Enter country name"
+														class="form-control destination_country_name" type="text"
+														name="destination_country_name[]">
+												</div>
 											</div>
 										</div>
 										<div class="form-group row">
@@ -1308,7 +1465,7 @@
 											<label for="example-search-input"
 												class="col-md-3 col-form-label">Night</label>
 											<div class="col-md-9">
-												<input placeholder="# of nights" class="form-control night"
+												<input readonly placeholder="0" class="form-control night"
 													type="number" name="night[]">
 											</div>
 										</div>
@@ -1329,6 +1486,23 @@
 				$(this).parent().parent().remove()
 				$('#btn-more-destination').removeClass('d-none')
 			});
+			$('.destination_city').select2({
+				placeholder: 'Select city',
+				ajax: {
+					'url': `${base_url}api/cities`,
+					data: function (params) {
+						return {
+							q: params.term,
+							select2: true,
+						}
+					},
+					processResults: function (response) {
+						return {
+							results: response.result
+						}
+					}
+				}
+			})
 		})
 
 		$("#kt_form").submit(function (e) {

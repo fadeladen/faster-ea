@@ -324,7 +324,7 @@
 								<h6 class="pb-2 border-bottom font-weight-bold"><?= $dest['order'] ?> destination </h6>
 								<div class="text-dark">
 									<p class="mb-1">City/country: <span
-											class="destination-city-val"><?= $dest['city'] ?></span> </p>
+											class="destination-city-val"><?= $dest['city'] ?></span><span><?= ($dest['country'] == 1) ? '/Indonesia' : '' ?></span> </p>
 									<div class="mb-1 d-flex">
 										<p class="mb-0">Arrival date: <?= $dest['arriv_date'] ?></p>
 										<p class="ml-3 mb-0">Departure date: <?= $dest['depar_date'] ?>,</p>

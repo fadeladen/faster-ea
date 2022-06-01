@@ -111,7 +111,7 @@ class Report_Model extends CI_Model
             $night = $destinations[$i]['night'];
             $other_items_arr = [];
             for ($x = 0; $x < $night; $x++) {
-                $other_items = $this->get_other_items_by_night($destinations[$i]['id'], $x + 1);
+                $other_items = $this->get_excel_other_items_by_night($destinations[$i]['id'], $x + 1);
                 if($other_items) {
                     array_push($other_items_arr, $other_items);
                 }
@@ -152,7 +152,19 @@ class Report_Model extends CI_Model
     }
 
     function get_other_items_by_night($dest_id, $night) {
-        $data = $this->db->select('id, dest_id, night, receipt, item_type, item_name, cost ,format(cost,2,"de_DE") as d_cost')
+        $data = $this->db->select('id, dest_id, night, receipt, item_type, item_name, cost , format(cost,2,"de_DE") as d_cost')
+        ->from('ea_actual_costs')
+        ->where('dest_id', $dest_id)
+        ->where('item_type', 3)
+        ->where('night', $night)
+        ->where('item_name !=', 'List meals')
+        ->order_by('item_name', 'asc')
+        ->get()->result_array();
+        return $data;
+    }
+
+    function get_excel_other_items_by_night($dest_id, $night) {
+        $data = $this->db->select('id, dest_id, night, receipt, item_type, item_name, meals_text, cost ,format(cost,2,"de_DE") as d_cost')
         ->from('ea_actual_costs')
         ->where('dest_id', $dest_id)
         ->where('item_type', 3)

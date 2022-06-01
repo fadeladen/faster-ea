@@ -77,7 +77,8 @@
 					?>
 					<div class="py-2 border-bottom ml-2">
 						<h5 class="text-dark fw-bold">
-							<?= ordinal($night) ?> night
+							<?= ordinal($night) ?> night,
+							<?= date('d M Y',strtotime($dest['d_arriv_date'] . "+" . $day++ ." days")) ?>
 						</h5>
 					</div>
 					<div
@@ -138,9 +139,7 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
-											<button data-max-budget="<?= $dest['total_lodging_and_meals'] ?>"
-												data-current-meals="<?= (isset($dest['actual_meals_items'][$night-1]['cost']) == '' ? 0 : $dest['actual_meals_items'][$night-1]['cost']) ?>"
-												data-current-lodging="<?= (isset($dest['actual_lodging_items'][$night-1]['cost']) == '' ? 0 : $dest['actual_lodging_items'][$night-1]['cost']) ?>"
+											<button
 												data-item-id="<?= (isset($dest['actual_lodging_items'][$night-1]['id']) ? $dest['actual_lodging_items'][$night-1]['id'] : 0) ?>"
 												data-item-type="1" data-night="<?= $night ?>"
 												data-dest-id="<?= $dest['id'] ?>"
@@ -178,7 +177,7 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
-											<?php if (isset($dest['actual_meals_items'][$night-1]['cost']) == null): ?>
+											<?php if (isset($dest['actual_meals_items'][$night-1]['receipt']) == null): ?>
 											<span class="badge badge-pill badge-secondary fw-bold">
 												-
 											</span>
@@ -197,9 +196,7 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
-											<button data-max-budget="<?= $dest['total_lodging_and_meals'] ?>"
-												data-current-meals="<?= (isset($dest['actual_meals_items'][$night-1]['cost']) == '' ? 0 : $dest['actual_meals_items'][$night-1]['cost']) ?>"
-												data-current-lodging="<?= (isset($dest['actual_lodging_items'][$night-1]['cost']) == '' ? 0 : $dest['actual_lodging_items'][$night-1]['cost']) ?>"
+											<button
 												data-item-id="<?= (isset($dest['actual_meals_items'][$night-1]['id']) ? $dest['actual_meals_items'][$night-1]['id'] : 0) ?>"
 												data-item-type="2" data-night="<?= $night ?>"
 												data-dest-id="<?= $dest['id'] ?>"
@@ -251,17 +248,32 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
-											<button data-night="<?= $night ?>" data-dest-id="<?= $dest['id'] ?>"
-												data-id="<?= $items['id'] ?>" class="btn btn-add-items btn-sm btn-info">
-												<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-													fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-													<path
-														d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-													<path fill-rule="evenodd"
-														d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-												</svg>
-												<span class="ml-1">Edit</span>
-											</button>
+											<div class="d-flex flex-column">
+												<button data-night="<?= $night ?>" data-dest-id="<?= $dest['id'] ?>"
+													data-id="<?= $items['id'] ?>"
+													class="btn btn-add-items btn-sm btn-info">
+													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+														fill="currentColor" class="bi bi-pencil-square"
+														viewBox="0 0 16 16">
+														<path
+															d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+														<path fill-rule="evenodd"
+															d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+													</svg>
+													<span class="ml-1">Edit</span>
+												</button>
+												<button data-id="<?= $items['id'] ?>"
+													class="btn btn-delete-items btn-sm btn-danger mt-1">
+													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+														fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+														<path
+															d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+														<path fill-rule="evenodd"
+															d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+													</svg>
+													<span class="ml-1">Delete</span>
+												</button>
+											</div>
 										</span>
 									</td>
 								</tr>
@@ -310,20 +322,36 @@
 					<?php endfor; ?>
 				</div>
 				<?php endforeach; ?>
-				<a id="excel_report_btn" target="_blank"
-					href="<?= base_url('ea_report/outgoing/excel_report/') . $detail['r_id'] ?>"
-					class="btn btn btn-success">
-					<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
-						class="bi bi-file-earmark-spreadsheet" viewBox="0 0 16 16">
-						<path
-							d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V9H3V2a1 1 0 0 1 1-1h5.5v2zM3 12v-2h2v2H3zm0 1h2v2H4a1 1 0 0 1-1-1v-1zm3 2v-2h3v2H6zm4 0v-2h3v1a1 1 0 0 1-1 1h-2zm3-3h-3v-2h3v2zm-7 0v-2h3v2H6z" />
-					</svg>
-					<span class="ml-1">
-						Download Excel
-					</span>
-				</a>
-				<p id="report_notes" class="pl-3 ml-3 text-danger">Please report all meals and lodging actual costs to
-					download excel report</p>
+				<div id="finished_btn" class="ml-3 pl-4">
+					<a target="_blank" href="<?= base_url('ea_report/outgoing/excel_report/') . $detail['r_id'] ?>"
+						class="btn btn btn-success">
+						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+							class="bi bi-file-earmark-spreadsheet" viewBox="0 0 16 16">
+							<path
+								d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V9H3V2a1 1 0 0 1 1-1h5.5v2zM3 12v-2h2v2H3zm0 1h2v2H4a1 1 0 0 1-1-1v-1zm3 2v-2h3v2H6zm4 0v-2h3v1a1 1 0 0 1-1 1h-2zm3-3h-3v-2h3v2zm-7 0v-2h3v2H6z" />
+						</svg>
+						<span class="ml-1">
+							Download Excel
+						</span>
+					</a>
+					<button data-id="<?= $detail['r_id'] ?>" type="button" id="btn_submit_report"
+						class="btn btn-primary ml-2">
+						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+							class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
+							<path fill-rule="evenodd"
+								d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z" />
+							<path fill-rule="evenodd"
+								d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z" />
+						</svg>
+						<span class="ml-1">
+							Submit report
+						</span>
+					</button>
+				</div>
+				<div id="report_notes">
+					<p class="pl-3 ml-3 text-danger">Please report all meals and lodging actual costs to
+						download excel report</p>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -406,6 +434,45 @@
 			<h5 class="mt-2">Please wait</h5>
 			<p>Saving data ...</p>`
 
+		$(document).on('click', '#btn_submit_report', function (e) {
+			e.preventDefault()
+			const request_id = $(this).attr('data-id')
+			Swal.fire({
+				title: 'Submit report?',
+				text: "",
+				type: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#3085d6',
+				cancelButtonColor: '#d33',
+				confirmButtonText: `Yes!`
+			}).then((result) => {
+				if (result.value) {
+					$.get(base_url + `ea_report/outgoing/submit_report/${request_id}`,
+						function (response) {
+							if (response.success) {
+								Swal.fire({
+									"title": "Success!",
+									"text": response.message,
+									"type": "success",
+									"confirmButtonClass": "btn btn-dark"
+								}).then((result) => {
+									if (result.value) {
+										location.reload();
+									}
+								})
+							} else {
+								Swal.fire({
+									"title": response.message,
+									"text": '',
+									"type": "error",
+									"confirmButtonClass": "btn btn-dark"
+								});
+							}
+						});
+				}
+			})
+		});
+
 		$(document).on("submit", '#meals-lodging-form', function (e) {
 			e.preventDefault()
 			const formData = new FormData(this);
@@ -424,6 +491,7 @@
 						url: $(this).attr("action"),
 						data: formData,
 						beforeSend: function () {
+							$('p.error').remove()
 							Swal.fire({
 								html: loader,
 								showConfirmButton: false,
@@ -433,10 +501,13 @@
 						},
 						error: function (xhr) {
 							const response = xhr.responseJSON;
-							console.log(response)
 							if (response.errors) {
 								for (const err in response.errors) {
-									$(`#${err}`).parent().append(
+									let eId = err
+									if (err == 'meals[]') {
+										eId = 'meals'
+									}
+									$(`#${eId}`).parent().append(
 										`<p class="error mt-1 mb-0">This field is required</p>`
 									)
 								}
@@ -483,16 +554,15 @@
 
 			$('#meals_lodging_table .lodging_meals_budget').each(function () {
 				const budget = $(this).text()
-				console.log(budget)
 				if (budget == '-') {
 					valid = false;
 				}
 			});
 			if (!valid) {
-				$('#excel_report_btn').addClass('d-none')
+				$('#finished_btn').addClass('d-none')
 				$('#report_notes').removeClass('d-none')
 			} else {
-				$('#excel_report_btn').removeClass('d-none')
+				$('#finished_btn').removeClass('d-none')
 				$('#report_notes').addClass('d-none')
 			}
 		}

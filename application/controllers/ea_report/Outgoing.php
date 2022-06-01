@@ -67,24 +67,38 @@ class Outgoing extends MY_Controller {
 		$dest_id = $this->input->get('dest_id');
 		$night = $this->input->get('night');
 		$item_id = $this->input->get('item_id');
-		$max_budget = $this->input->get('max_budget') + 0;
-		$current_lodging = $this->input->get('current_lodging_budget');
-		$current_meals = $this->input->get('current_meals_budget');
 		$item_type = $this->input->get('item_type');
 		$max_budget = $this->report->get_dest_max_budget($dest_id);
 		$max_lodging_budget = $max_budget['max_lodging_budget'] + 0;
+		$max_meals_budget = $max_budget['max_meals_budget'] + 0;
+		$meals = [];
+		if($item_id != 0 && $item_type == 2) {
+			$item = $this->db->select('meals_text')->from('ea_actual_costs')->where([
+				'dest_id' => $dest_id,
+				'night' => $night,
+				'item_type' => 3,
+			])->get()->row_array();
+			$meals = explode(',', $item['meals_text']);
+		}
 		$data = [
 			'dest_id' => $dest_id,
 			'item_type' => $item_type,
 			'night' => $night,
 			'max_budget' => $max_budget,
 			'max_lodging_budget' => $max_lodging_budget,
-			'current_budget' => $current_lodging + $current_meals,
-			'current_lodging' => $current_lodging,
-			'current_meals' => $current_meals,
+			'max_meals_budget' => $max_meals_budget,
+			'meals' => $meals,
 		];
 		if($item_id != 0) {
 			$data['detail'] = $this->report->get_actual_cost_detail($item_id);
+			if($item_type == 2) {
+				$item = $this->db->select('meals_text')->from('ea_actual_costs')->where([
+					'dest_id' => $dest_id,
+					'night' => $night,
+					'item_type' => 3,
+				])->get()->row_array();
+				$meals = explode(',', $item['meals_text']);
+			}
 		}
 		$this->load->view('ea_report/modal/meals_lodging', $data);
 	}
@@ -119,10 +133,15 @@ class Outgoing extends MY_Controller {
 			if($item_type == 3) {
 				$this->form_validation->set_rules('item_name', 'Items', 'required');
 			}
-			if ($this->input->post('method_') != 'PUT') {
-				if (empty($_FILES['receipt']['name']))
-				{
-					$this->form_validation->set_rules('receipt', 'Receipt', 'required');
+			if($item_type == 2) {
+				$this->form_validation->set_rules('meals[]', 'Items', 'required');
+			}
+			if ($item_type != 2) {
+				if($this->input->post('method_') != 'PUT') {
+					if (empty($_FILES['receipt']['name']))
+					{
+						$this->form_validation->set_rules('receipt', 'Receipt', 'required');
+					}
 				}
 			}
 
@@ -172,10 +191,36 @@ class Outgoing extends MY_Controller {
 						'cost' => $clean_actual_cost,
 						'receipt' => $receipt,
 					];
-					$updated = $this->report->update_actual_costs($item_id, $payload);
+					if($item_type == 2) {
+						$meals = $this->input->post('meals');
+						$night = $this->input->post('night');
+						$update_meals = $this->update_provided_meals($dest_id, $night, $meals);
+						if($update_meals) {
+							$updated = $this->report->update_actual_costs($item_id, $payload);
+						} else {
+							$updated = false;
+						}
+					} else {
+						$updated = $this->report->update_actual_costs($item_id, $payload);
+					}
 				} else {
-					if($this->upload->do_upload('receipt')) {
-						$receipt = $this->upload->data('file_name');
+					if($item_type != 2) {
+						$uploaded = $this->upload->do_upload('receipt');
+						if($uploaded) {
+							$receipt = $this->upload->data('file_name');
+						} else {
+							$uploaded = false;
+						}
+					} else {
+						if(empty($_FILES['receipt']['name'])) {
+							$uploaded = true;
+							$receipt = null;
+						} else {
+							$uploaded = $this->upload->do_upload('receipt');
+							$receipt = $this->upload->data('file_name');;
+						}
+					}
+					if($uploaded) {
 						$item_id = $this->input->post('item_id');
 						$item_detail = $this->db->select('*')->from('ea_actual_costs')->where('id', $item_id)->get()->row_array();
 						if($this->input->post('method_') == 'PUT') {
@@ -184,8 +229,21 @@ class Outgoing extends MY_Controller {
 								'cost' => $clean_actual_cost,
 								'receipt' => $receipt,
 							];
-							unlink(FCPATH . 'uploads/ea_items_receipt/' . $item_detail['receipt']);
-							$updated = $this->report->update_actual_costs($item_id, $payload);
+							if($item_type == 2) {
+								$meals = $this->input->post('meals');
+								$night = $this->input->post('night');
+								$update_meals = $this->update_provided_meals($dest_id, $night, $meals);
+								if($update_meals) {
+									$updated = $this->report->update_actual_costs($item_id, $payload);
+								} else {
+									$updated = false;
+								}
+							} else {
+								$updated = $this->report->update_actual_costs($item_id, $payload);
+							}
+							if($item_detail['receipt'] !== null) {
+								unlink(FCPATH . 'uploads/ea_items_receipt/' . $item_detail['receipt']);
+							}
 						} else {
 							$night = $this->input->post('night');
 							$payload = [
@@ -196,7 +254,17 @@ class Outgoing extends MY_Controller {
 								'night' => $night,
 								'receipt' => $receipt,
 							];
-							$updated = $this->report->insert_actual_costs($payload);
+							if($item_type == 2) {
+								$meals = $this->input->post('meals');
+								$insert_meals = $this->insert_provided_meals($dest_id, $night, $meals);
+								if($insert_meals) {
+									$updated = $this->report->insert_actual_costs($payload);
+								} else {
+									$updated = false;
+								}
+							} else {
+								$updated = $this->report->insert_actual_costs($payload);
+							}
 						}
 					} else {
 						$response = [
@@ -227,6 +295,41 @@ class Outgoing extends MY_Controller {
 		} else {
 			exit('No direct script access allowed');
 		}
+	}
+
+	private function insert_provided_meals($dest_id, $night, $meals) {
+		$text = implode(',', $meals);
+		$payload = [
+			'dest_id' => $dest_id,
+			'cost' => 0,
+			'item_type' => 3,
+			'item_name' => 'List meals',
+			'meals_text' => $text,
+			'night' => $night,
+		];
+		$updated = $this->report->insert_actual_costs($payload);
+		if($updated) {
+			return true;
+		}
+		return false;
+	}
+
+	private function update_provided_meals($dest_id, $night, $meals) {
+		$text = implode(',', $meals);
+		$payload = [
+			'item_name' => 'List meals',
+			'meals_text' => $text,
+		];
+		$updated = $this->db->where([
+			'dest_id' => $dest_id,
+			'item_type' => 3,
+			'item_name' => 'List meals',
+			'night' => $night,
+		])->update('ea_actual_costs', $payload);
+		if($updated) {
+			return true;
+		}
+		return false;
 	}
 
 	public function insert_other_items() {
@@ -354,7 +457,7 @@ class Outgoing extends MY_Controller {
 	}
 
 	public function delete_other_items($id) {
-		$deleted = $this->db->where('id', $id)->delete('ea_requests_other_items');
+		$deleted = $this->db->where('id', $id)->delete('ea_actual_costs');
 		if($deleted) {
 			$response['success'] = true;
 			$response['message'] = 'Item has been deleted';
@@ -403,7 +506,7 @@ class Outgoing extends MY_Controller {
 			$row++;
 		}
 		if(!empty($dest1['other_items'][0])) {
-			$current_night_items = $this->report->get_other_items_by_night($dest1['id'], 1);
+			$current_night_items = $this->report->get_excel_other_items_by_night($dest1['id'], 1);
 			$other_items_cell = $this->get_other_items_cell($current_night_items, $dest1Row);
 			foreach($other_items_cell as $item) {
 				$sheet->setCellValue($item['cell'],  $item['value']);
@@ -418,7 +521,7 @@ class Outgoing extends MY_Controller {
 				if($lodging_meals_row == 'I') {
 					$lodging_meals_row = 'B';
 				}
-				$current_night_items = $this->report->get_other_items_by_night($dest1['id'], $night++);
+				$current_night_items = $this->report->get_excel_other_items_by_night($dest1['id'], $night++);
 				$other_items_cell = $this->get_other_items_cell($current_night_items, $lodging_meals_row);
 				foreach($other_items_cell as $item) {
 					$sheet->setCellValue($item['cell'],  $item['value']);
@@ -461,7 +564,7 @@ class Outgoing extends MY_Controller {
 				$row++;
 			}
 			if(!empty($dest['other_items'][0])) {
-				$current_night_items = $this->report->get_other_items_by_night($dest['id'], 1);
+				$current_night_items = $this->report->get_excel_other_items_by_night($dest['id'], 1);
 				$other_items_cell = $this->get_other_items_cell($current_night_items, $destRow);
 				// echo json_encode($current_night_items);
 				foreach($other_items_cell as $item) {
@@ -477,7 +580,7 @@ class Outgoing extends MY_Controller {
 					if($lodging_meals_row == 'I') {
 						$lodging_meals_row = 'B';
 					}
-					$current_night_items = $this->report->get_other_items_by_night($dest['id'], $night++);
+					$current_night_items = $this->report->get_excel_other_items_by_night($dest['id'], $night++);
 					$other_items_cell = $this->get_other_items_cell($current_night_items, $lodging_meals_row);
 					foreach($other_items_cell as $item) {
 						$sheet->setCellValue($item['cell'],  $item['value']);
@@ -521,7 +624,7 @@ class Outgoing extends MY_Controller {
 				$row++;
 			}
 			if(!empty($dest['other_items'][0])) {
-				$current_night_items = $this->report->get_other_items_by_night($dest['id'], 1);
+				$current_night_items = $this->report->get_excel_other_items_by_night($dest['id'], 1);
 				$other_items_cell = $this->get_other_items_cell($current_night_items, $destRow);
 				foreach($other_items_cell as $item) {
 					$sheet->setCellValue($item['cell'],  $item['value']);
@@ -536,7 +639,7 @@ class Outgoing extends MY_Controller {
 					if($lodging_meals_row == 'I') {
 						$lodging_meals_row = 'B';
 					}
-					$current_night_items = $this->report->get_other_items_by_night($dest['id'], $night++);
+					$current_night_items = $this->report->get_excel_other_items_by_night($dest['id'], $night++);
 					$other_items_cell = $this->get_other_items_cell($current_night_items, $lodging_meals_row);
 					foreach($other_items_cell as $item) {
 						$sheet->setCellValue($item['cell'],  $item['value']);
@@ -578,6 +681,7 @@ class Outgoing extends MY_Controller {
 	private function get_other_items_cell($items, $row) {
 		$cells = [];
 		$total_parking = $total_ticket_cost = $total_mileage = $total_airport = $total_visa = $total_rental = $total_registration = $total_communication = $total_internet = $total_taxi_home = $total_taxi_hotel = $total_other = 0;
+		$meals_text = '';
 		foreach($items as $item) {
 			$item_name = $item['item_name'];
 			if($item_name == 'Parking') {
@@ -616,6 +720,9 @@ class Outgoing extends MY_Controller {
 			if($item_name == 'Other') {
 				$total_other += $item['cost'];				
 			}
+			if($item_name == 'List meals') {
+				$meals_text = $item['meals_text'];				
+			}
 		}
 		if($total_ticket_cost != 0) {
 			array_push($cells, ['cell' => $row . '15', 'value' => $total_ticket_cost]);
@@ -652,6 +759,9 @@ class Outgoing extends MY_Controller {
 		}
 		if($total_other != 0) {
 			array_push($cells, ['cell' => $row . '29', 'value' => $total_other]);
+		}
+		if($meals_text != '') {
+			array_push($cells, ['cell' => $row . '22', 'value' => $meals_text]);
 		}
 		return $cells;
 	}

@@ -320,7 +320,68 @@
 										</ul>
 									</div>
 								</li>
-								<li class="kt-menu__item  kt-menu__item--submenu <?= ($pageParent == 'Report' ? 'kt-menu__item--open' : '') ?>"
+								<li class="kt-menu__section ">
+									<h4 class="kt-menu__section-text">Travel Expenses Report</h4>
+									<i class="kt-menu__section-icon flaticon-more-v2"></i>
+								</li>
+								<?php if (is_head_of_units() || is_line_supervisor() || $this->user_data->username == 'root'): ?>
+									<li class="kt-menu__item  kt-menu__item--submenu <?= ($pageParent == 'Incoming report' ? 'kt-menu__item--open' : '') ?>"
+										aria-haspopup="true" data-ktmenu-submenu-toggle="hover"><a href="javascript:;"
+											class="kt-menu__link kt-menu__toggle">
+											<span class="kt-menu__link-icon">
+												<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="gray"
+													class="bi bi-file-earmark-text" viewBox="0 0 16 16">
+													<path
+														d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z" />
+													<path
+														d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5L9.5 0zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z" />
+												</svg>
+											</span>
+											<span class="kt-menu__link-text">Incoming </span><i
+												class="kt-menu__ver-arrow la la-angle-right"></i></a>
+										<div class="kt-menu__submenu "><span class="kt-menu__arrow"></span>
+											<ul class="kt-menu__subnav">
+												<li class="kt-menu__item  kt-menu__item--parent" aria-haspopup="true"><span
+														class="kt-menu__link"><span
+															class="kt-menu__link-text">Subheaders</span></span></li>
+												<li class="kt-menu__item <?= ($page == 'New report' ? 'kt-menu__item--active' : '') ?>"
+													aria-haspopup="true">
+													<a href="<?= base_url('ea_report/incoming') ?>" class="kt-menu__link"><i
+															class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+															class="kt-menu__link-text">
+															New Report</span>
+													</a>
+												</li>
+												<li class="kt-menu__item <?= ($page == 'Pending report' ? 'kt-menu__item--active' : '') ?>"
+													aria-haspopup="true">
+													<a href="<?= base_url('ea_report/incoming/pending') ?>" class="kt-menu__link"><i
+															class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+															class="kt-menu__link-text">
+															Rejected</span>
+													</a>
+												</li>
+												<li class="kt-menu__item <?= ($page == 'Approved report' ? 'kt-menu__item--active' : '') ?>"
+													aria-haspopup="true">
+													<a href="<?= base_url('ea_report/incoming/approved') ?>" class="kt-menu__link"><i
+															class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+															class="kt-menu__link-text">
+															Approved</span>
+													</a>
+												</li>
+												<li class="kt-menu__item <?= ($page == 'Paid report' ? 'kt-menu__item--active' : '') ?>"
+													aria-haspopup="true">
+													<a href="<?= base_url('ea_report/outgoing/paid') ?>" class="kt-menu__link"><i
+															class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+															class="kt-menu__link-text">
+															Paid</span>
+													</a>
+												</li>
+											</ul>
+										</div>
+									</li>
+								<?php endif; ?>
+
+								<li class="kt-menu__item  kt-menu__item--submenu <?= ($pageParent == 'Outgoing report' ? 'kt-menu__item--open' : '') ?>"
 									aria-haspopup="true" data-ktmenu-submenu-toggle="hover"><a href="javascript:;"
 										class="kt-menu__link kt-menu__toggle">
 										<span class="kt-menu__link-icon">
@@ -332,19 +393,43 @@
 													d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5L9.5 0zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z" />
 											</svg>
 										</span>
-										<span class="kt-menu__link-text">Report</span><i
+										<span class="kt-menu__link-text">Outgoing </span><i
 											class="kt-menu__ver-arrow la la-angle-right"></i></a>
 									<div class="kt-menu__submenu "><span class="kt-menu__arrow"></span>
 										<ul class="kt-menu__subnav">
 											<li class="kt-menu__item  kt-menu__item--parent" aria-haspopup="true"><span
 													class="kt-menu__link"><span
 														class="kt-menu__link-text">Subheaders</span></span></li>
-											<li class="kt-menu__item <?= ($page == 'Request report' ? 'kt-menu__item--active' : '') ?>"
+											<li class="kt-menu__item <?= ($page == 'New report' ? 'kt-menu__item--active' : '') ?>"
 												aria-haspopup="true">
-												<a href="<?= base_url('ea_requests/report') ?>" class="kt-menu__link"><i
+												<a href="<?= base_url('ea_report/outgoing') ?>" class="kt-menu__link"><i
 														class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
 														class="kt-menu__link-text">
-														Request Report</span>
+														New Report</span>
+												</a>
+											</li>
+											<li class="kt-menu__item <?= ($page == 'Pending report' ? 'kt-menu__item--active' : '') ?>"
+												aria-haspopup="true">
+												<a href="<?= base_url('ea_report/outgoing/pending') ?>" class="kt-menu__link"><i
+														class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+														class="kt-menu__link-text">
+														Pending</span>
+												</a>
+											</li>
+											<li class="kt-menu__item <?= ($page == 'Approved report' ? 'kt-menu__item--active' : '') ?>"
+												aria-haspopup="true">
+												<a href="<?= base_url('ea_report/outgoing/approved') ?>" class="kt-menu__link"><i
+														class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+														class="kt-menu__link-text">
+														Approved</span>
+												</a>
+											</li>
+											<li class="kt-menu__item <?= ($page == 'Paid report' ? 'kt-menu__item--active' : '') ?>"
+												aria-haspopup="true">
+												<a href="<?= base_url('ea_report/outgoing/paid') ?>" class="kt-menu__link"><i
+														class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+														class="kt-menu__link-text">
+														Paid</span>
 												</a>
 											</li>
 										</ul>

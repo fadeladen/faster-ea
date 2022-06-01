@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 use Spipu\Html2Pdf\Html2Pdf;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-class Report extends MY_Controller {
+class Outgoing extends MY_Controller {
 
 
     function __construct()
@@ -19,8 +19,7 @@ class Report extends MY_Controller {
 	public function index()
 	{   
         $this->template->set('page', 'New report');
-        $data['status'] = 'done';
-		$this->template->render('report/index', $data);
+		$this->template->render('ea_report/outgoing/index');
 	}
 
     public function reporting($id = null)
@@ -37,7 +36,7 @@ class Report extends MY_Controller {
 				'reporting_is_finished' => true,
 			];
 			$this->template->set('page', 'Reporting #' . $detail['ea_number']);
-			$this->template->render('report/reporting', $data);
+			$this->template->render('ea_report/outgoing/reporting', $data);
 		} else {
 			show_404();
 		}
@@ -72,11 +71,14 @@ class Report extends MY_Controller {
 		$current_lodging = $this->input->get('current_lodging_budget');
 		$current_meals = $this->input->get('current_meals_budget');
 		$item_type = $this->input->get('item_type');
+		$max_budget = $this->report->get_dest_max_budget($dest_id);
+		$max_lodging_budget = $max_budget['max_lodging_budget'] + 0;
 		$data = [
 			'dest_id' => $dest_id,
 			'item_type' => $item_type,
 			'night' => $night,
 			'max_budget' => $max_budget,
+			'max_lodging_budget' => $max_lodging_budget,
 			'current_budget' => $current_lodging + $current_meals,
 			'current_lodging' => $current_lodging,
 			'current_meals' => $current_meals,
@@ -84,7 +86,7 @@ class Report extends MY_Controller {
 		if($item_id != 0) {
 			$data['detail'] = $this->report->get_actual_cost_detail($item_id);
 		}
-		$this->load->view('report/modal/meals_lodging', $data);
+		$this->load->view('ea_report/modal/meals_lodging', $data);
 	}
 
 	public function add_items_modal() {
@@ -98,7 +100,7 @@ class Report extends MY_Controller {
 		if($item_id != 0) {
 			$data['detail'] = $this->report->get_actual_cost_detail($item_id);
 		}
-		$this->load->view('report/modal/add_items', $data);
+		$this->load->view('ea_report/modal/add_items', $data);
 	}
 
 	public function edit_items_modal() {
@@ -107,7 +109,7 @@ class Report extends MY_Controller {
 		$data = [
 			'detail' => $detail,
 		];
-		$this->load->view('report/modal/edit_items', $data);
+		$this->load->view('ea_report/modal/edit_items', $data);
 	}
 
 	public function insert_actual_costs() {
@@ -128,18 +130,14 @@ class Report extends MY_Controller {
 				$actual_cost = $this->input->post('cost');
 				$clean_actual_cost = str_replace('.', '',  $actual_cost);
 				if($item_type == 1) {
-					$max_budget = str_replace('.', '',  $this->input->post('max_budget')) + 0;
-					$current_lodging = str_replace('.', '',  $this->input->post('current_lodging') + 0);
-					// $current_meals = str_replace('.', '',  $this->input->post('current_meals') + 0);
-					// if($item_type == 1) {
-					// 	$total_budget = $current_meals + $clean_actual_cost;
-					// } else {
-					// 	$total_budget = $current_lodging + $clean_actual_cost;
-					// }
-					$total_budget = $current_lodging + $clean_actual_cost;
-					if($current_lodging > $max_budget ) {
+					$dest_id = $this->input->post('dest_id');
+					$dest_max_budget = $this->report->get_dest_max_budget($dest_id);
+					$max_lodging_budget = $dest_max_budget['max_lodging_budget'];
+					if($clean_actual_cost > $max_lodging_budget ) {
 						$response['success'] = false;
 						$response['max_budget_error'] = true;
+						$max = number_format($max_lodging_budget,2,',','.');
+						$response['max_budget_message'] = "Only IDR $max allowed!";
 						$response['message'] = 'Not enough budget!';
 						$status_code = 400;
 						return $this->send_json($response, $status_code);

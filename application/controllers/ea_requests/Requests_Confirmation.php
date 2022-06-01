@@ -818,7 +818,11 @@ class Requests_Confirmation extends CI_Controller {
 
 		$destinations= $detail['destinations'];
 		// 1st destination
-		$sheet->setCellValue('G26', $destinations[0]['city']);
+		$cityCountry = $destinations[0]['city'];
+		if($destinations[0]['country'] == 1) {
+			$cityCountry =  $destinations[0]['city'] . '/Indonesia'; 
+		} 
+		$sheet->setCellValue('G26', $cityCountry);
 		$sheet->setCellValue('P26', $destinations[0]['arriv_date']);
 		$sheet->setCellValue('W26', $destinations[0]['depar_date']);
 		$sheet->setCellValue('C29', $destinations[0]['project_number']);
@@ -830,7 +834,11 @@ class Requests_Confirmation extends CI_Controller {
 
 		if(count($destinations) > 1) {
 			// 2nd destination
-			$sheet->setCellValue('G39', $destinations[1]['city']);
+			$cityCountry = $destinations[1]['city'];
+			if($destinations[1]['country'] == 1) {
+				$cityCountry =  $destinations[1]['city'] . '/Indonesia'; 
+			} 
+			$sheet->setCellValue('G39', $cityCountry);
 			$sheet->setCellValue('P39', $destinations[1]['arriv_date']);
 			$sheet->setCellValue('W39', $destinations[1]['depar_date']);
 			$sheet->setCellValue('C42', $destinations[1]['project_number']);
@@ -853,7 +861,11 @@ class Requests_Confirmation extends CI_Controller {
 
 		if(count($destinations) > 2) {
 			// 3rd destination
-			$sheet->setCellValue('G52', $destinations[2]['city']);
+			$cityCountry = $destinations[2]['city'];
+			if($destinations[2]['country'] == 1) {
+				$cityCountry =  $destinations[2]['city'] . '/Indonesia'; 
+			} 
+			$sheet->setCellValue('G52', $cityCountry);
 			$sheet->setCellValue('P52', $destinations[2]['arriv_date']);
 			$sheet->setCellValue('W52', $destinations[2]['depar_date']);
 			$sheet->setCellValue('C55', $destinations[2]['project_number']);

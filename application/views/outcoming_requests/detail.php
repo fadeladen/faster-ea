@@ -447,7 +447,7 @@
 										</svg>
 									</div>
 									<div class="mt-3">
-										<h6 class="fw-bold">Exteral invitation</h6>
+										<h6 class="fw-bold">External invitation</h6>
 										<a target="_blank"
 											href="<?= base_url('uploads/exteral_invitation/') ?><?= $detail['exteral_invitation_file'] ?>"
 											class="badge badge-primary"><span class="mr-1"><svg

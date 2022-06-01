@@ -83,7 +83,7 @@
 											</label>
 											<label class="kt-radio">
 												<input value="Exteral Invitation" type="radio" name="request_base">
-												Exteral Invitation
+												External Invitation
 												<span></span>
 											</label>
 
@@ -1236,8 +1236,8 @@
 								<h6 class="pb-2 border-bottom font-weight-bold">${order} destination </h6>
 								<p class="mb-1">City/country: <span class="destination-city-val">${countryCity}</span> </p>
 								<div class="mb-1 d-flex">
-									<p class="mr-3 mb-0">Departure date: ${departure},</p>
-									<p class="mb-0">Arrival date: ${arrival}</p>
+									<p class="mb-0 mr-3">Arrival date: ${arrival},</p>
+									<p class="mb-0">Departure date: ${departure}</p>
 								</div>
 								<p class="mb-1">Project number: <span
 										class="destination-project-number-val">${projectNumber}</span> </p>

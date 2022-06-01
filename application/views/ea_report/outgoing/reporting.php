@@ -1,6 +1,6 @@
 <div class="details-container">
 	<div class="kt-portlet">
-		<div class="kt-portlet__body">
+		<div id="meals_lodging_table" class="kt-portlet__body">
 			<div class="kt-infobox">
 				<div class="kt-infobox__header border-bottom ml-4 pb-1">
 					<h3 class="text-dark fw-600">Reporting EA request <span
@@ -22,13 +22,14 @@
 						<div class="row">
 							<label class="col-5 mb-2 col-form-label fw-bold">Division</label>
 							<div class="col-7">
-								<span class="badge badge-dark fw-bold"><?= $requestor_data['project_name'] ?></span>
+								<span class="badge badge-dark fw-bold"><?= $requestor_data['unit_name'] ?></span>
 							</div>
 						</div>
-						<div class="row">
+						<div class="row mb-2">
 							<label class="col-5 mb-2 col-form-label fw-bold">Purpose</label>
 							<div class="col-7">
-								<span class="badge badge-info fw-bold"><?= $requestor_data['unit_name'] ?></span>
+								<textarea readonly class="form-control" id=""
+									rows="2"><?= $detail['purpose'] ?></textarea>
 							</div>
 						</div>
 						<div class="row">
@@ -47,7 +48,8 @@
 				<div class="kt-infobox">
 					<div class="kt-infobox__header border-bottom pb-1">
 						<h4 class="text-dark fw-600"><?= $dest['order'] ?> destination
-							<span>(<?= $dest['city'] ?>, <?= $dest['night'] ?> night)</span></h4>
+							<span>(<?= ($dest['country'] == 1 ? $dest['city'] .'/Indonesia' : $dest['city']) ?>,
+								<?= $dest['night'] ?> night)</span></h4>
 					</div>
 					<div class="kt-infobox__body">
 						<div class="row mb-2">
@@ -68,13 +70,23 @@
 						</div>
 						<div class="p-2 mb-2 border-bottom"></div>
 					</div>
+					<?php $day = 0 ?>
+					<?php for ($night = 1; $night <= $dest['night']; $night++): ?>
+					<?php
+						$total_cost_per_night = $dest['actual_lodging_items'][$night-1]['cost'] + $dest['actual_meals_items'][$night-1]['cost'];
+					?>
+					<div class="py-2 border-bottom ml-2">
+						<h5 class="text-dark fw-bold">
+							<?= ordinal($night) ?> night
+						</h5>
+					</div>
 					<div
 						class="kt-datatable kt-datatable--default kt-datatable--brand kt-datatable--loaded border-bottom">
 						<table class="kt-datatable__table" id="html_table" width="100%" style="display: block;">
 							<thead class="kt-datatable__head">
 								<tr class="kt-datatable__row" style="left: 0px;">
 									<th class="kt-datatable__cell kt-datatable__cell--sort"><span
-											style="width: 100px;">Item</span></th>
+											style="width: 120px;">Item</span></th>
 									<th class="kt-datatable__cell kt-datatable__cell--sort"><span
 											style="width: 110px;">Cost</span></th>
 									<th class="kt-datatable__cell kt-datatable__cell--sort">
@@ -83,13 +95,12 @@
 										<span style="width: 90px;">Receipt</span></th>
 									<th class="kt-datatable__cell kt-datatable__cell--sort">
 										<span style="width: 90px;">Action</span></th>
-
 								</tr>
 							</thead>
 							<tbody class="kt-datatable__body">
 								<tr data-row="0" class="kt-datatable__row" style="left: 0px;">
 									<td class="kt-datatable__cell fw-bold">
-										<span style="width: 100px;">
+										<span style="width: 120px;">
 											Lodging
 										</span>
 									</td>
@@ -102,20 +113,19 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 110px;">
-											<span class="badge badge-pill badge-secondary fw-bold">
-												<?= ($dest['d_actual_lodging'] == '' ? '-' : $dest['d_actual_lodging']) ?>
-											</span>
+											<span
+												class="badge badge-pill badge-secondary fw-bold lodging_meals_budget"><?= (isset($dest['actual_lodging_items'][$night-1]['cost']) == '' ? '-' : $dest['actual_lodging_items'][$night-1]['d_cost']) ?></span>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
-											<?php if ($dest['lodging_receipt'] == null): ?>
+											<?php if (isset($dest['actual_lodging_items'][$night-1]['cost']) == null): ?>
 											<span class="badge badge-pill badge-secondary fw-bold">
 												-
 											</span>
 											<?php else : ?>
 											<a target="_blank" class="badge badge-warning text-light"
-												href="<?= base_url('uploads/ea_items_receipt/') ?><?= $dest['lodging_receipt'] ?>">
+												href="<?= base_url('uploads/ea_items_receipt/') ?><?= $dest['actual_lodging_items'][$night-1]['receipt']  ?>">
 												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
 													fill="currentColor" class="bi bi-card-image" viewBox="0 0 16 16">
 													<path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
@@ -128,7 +138,12 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
-											<button data-field="lodging" data-dest-id="<?= $dest['id'] ?>"
+											<button data-max-budget="<?= $dest['total_lodging_and_meals'] ?>"
+												data-current-meals="<?= (isset($dest['actual_meals_items'][$night-1]['cost']) == '' ? 0 : $dest['actual_meals_items'][$night-1]['cost']) ?>"
+												data-current-lodging="<?= (isset($dest['actual_lodging_items'][$night-1]['cost']) == '' ? 0 : $dest['actual_lodging_items'][$night-1]['cost']) ?>"
+												data-item-id="<?= (isset($dest['actual_lodging_items'][$night-1]['id']) ? $dest['actual_lodging_items'][$night-1]['id'] : 0) ?>"
+												data-item-type="1" data-night="<?= $night ?>"
+												data-dest-id="<?= $dest['id'] ?>"
 												class="btn btn-meals-lodging btn-sm btn-info">
 												<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
 													fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
@@ -144,7 +159,7 @@
 								</tr>
 								<tr data-row="0" class="kt-datatable__row" style="left: 0px;">
 									<td class="kt-datatable__cell fw-bold">
-										<span style="width: 100px;">
+										<span style="width: 120px;">
 											Meals
 										</span>
 									</td>
@@ -157,20 +172,19 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 110px;">
-											<span class="badge badge-pill badge-secondary fw-bold">
-												<?= ($dest['d_actual_meals'] == '' ? '-' : $dest['d_actual_meals']) ?>
-											</span>
+											<span
+												class="badge badge-pill badge-secondary fw-bold lodging_meals_budget"><?= (isset($dest['actual_meals_items'][$night-1]['cost']) == '' ? '-' : $dest['actual_meals_items'][$night-1]['d_cost']) ?></span>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
-											<?php if ($dest['meals_receipt'] == null): ?>
+											<?php if (isset($dest['actual_meals_items'][$night-1]['cost']) == null): ?>
 											<span class="badge badge-pill badge-secondary fw-bold">
 												-
 											</span>
 											<?php else : ?>
 											<a target="_blank" class="badge badge-warning text-light"
-												href="<?= base_url('uploads/ea_items_receipt/') ?><?= $dest['meals_receipt'] ?>">
+												href="<?= base_url('uploads/ea_items_receipt/') ?><?= $dest['actual_meals_items'][$night-1]['receipt'] ?>">
 												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
 													fill="currentColor" class="bi bi-card-image" viewBox="0 0 16 16">
 													<path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
@@ -183,7 +197,12 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
-											<button data-field="meals" data-dest-id="<?= $dest['id'] ?>"
+											<button data-max-budget="<?= $dest['total_lodging_and_meals'] ?>"
+												data-current-meals="<?= (isset($dest['actual_meals_items'][$night-1]['cost']) == '' ? 0 : $dest['actual_meals_items'][$night-1]['cost']) ?>"
+												data-current-lodging="<?= (isset($dest['actual_lodging_items'][$night-1]['cost']) == '' ? 0 : $dest['actual_lodging_items'][$night-1]['cost']) ?>"
+												data-item-id="<?= (isset($dest['actual_meals_items'][$night-1]['id']) ? $dest['actual_meals_items'][$night-1]['id'] : 0) ?>"
+												data-item-type="2" data-night="<?= $night ?>"
+												data-dest-id="<?= $dest['id'] ?>"
 												class="btn btn-meals-lodging btn-sm btn-info">
 												<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
 													fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
@@ -197,36 +216,30 @@
 										</span>
 									</td>
 								</tr>
-								<?php foreach ($dest['other_items'] as $item): ?>
-								<tr class="kt-datatable__row" style="left: 0px;">
+								<?php if (!empty($dest['other_items'][$night-1])): ?>
+								<?php foreach ($dest['other_items'][$night-1] as $items): ?>
+								<tr data-row="0" class="kt-datatable__row" style="left: 0px;">
 									<td class="kt-datatable__cell fw-bold">
-										<span style="width: 100px;">
-											<?= $item['item'] ?>
+										<span style="width: 120px;">
+											<?= $items['item_name'] ?>
+										</span>
+									</td>
+									<td class="kt-datatable__cell">
+										<span style="width: 110px;">
+
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 110px;">
 											<span class="badge badge-pill badge-secondary fw-bold">
-												<?= $item['text_cost'] ?>
-											</span>
-										</span>
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 110px;">
-											<span class="badge badge-pill badge-secondary fw-bold">
-												<?= $item['text_cost'] ?>
+												<?= $items['d_cost'] ?>
 											</span>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
-											<?php if ($item['receipt'] == null): ?>
-											<span class="badge badge-pill badge-secondary fw-bold">
-												-
-											</span>
-											<?php else : ?>
 											<a target="_blank" class="badge badge-warning text-light"
-												href="<?= base_url('uploads/ea_items_receipt/') ?><?= $item['receipt'] ?>">
+												href="<?= base_url('uploads/ea_items_receipt/') ?><?= $items['receipt'] ?>">
 												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
 													fill="currentColor" class="bi bi-card-image" viewBox="0 0 16 16">
 													<path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
@@ -234,13 +247,12 @@
 														d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13zm13 1a.5.5 0 0 1 .5.5v6l-3.775-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12v.54A.505.505 0 0 1 1 12.5v-9a.5.5 0 0 1 .5-.5h13z" />
 												</svg>
 											</a>
-											<?php endif; ?>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
-										<span class="d-flex flex-column" style="width: 90px;">
-											<button data-id="<?= $item['id'] ?>"
-												class="btn btn-edit-other-items btn-sm btn-info">
+										<span style="width: 90px;">
+											<button data-night="<?= $night ?>" data-dest-id="<?= $dest['id'] ?>"
+												data-id="<?= $items['id'] ?>" class="btn btn-add-items btn-sm btn-info">
 												<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
 													fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
 													<path
@@ -250,24 +262,14 @@
 												</svg>
 												<span class="ml-1">Edit</span>
 											</button>
-											<button data-id="<?= $item['id'] ?>"
-												class="btn btn-delete-items btn-sm btn-danger mt-2">
-												<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
-													fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-													<path
-														d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-													<path fill-rule="evenodd"
-														d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
-												</svg>
-												<span class="ml-1">Delete</span>
-											</button>
 										</span>
 									</td>
 								</tr>
 								<?php endforeach; ?>
+								<?php endif; ?>
 								<tr data-row="0" class="kt-datatable__row" style="left: 0px;">
 									<td class="kt-datatable__cell fw-bold">
-										<span style="width: 100px;">
+										<span style="width: 120px;">
 
 										</span>
 									</td>
@@ -286,66 +288,42 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
-											<button data-dest-id="<?= $dest['id'] ?>"
+											<button data-id="0" data-night="<?= $night ?>"
+												data-dest-id="<?= $dest['id'] ?>"
 												class="btn btn-add-items btn-sm btn-success">
 												Add items
 											</button>
 										</span>
 									</td>
 								</tr>
-								<!-- <tr class="kt-datatable__row" style="left: 0px;">
-									<td class="kt-datatable__cell fw-bold"><span style="width: 110px;">Total: </td>
-									<td data-field="Status" data-autohide-disabled="false" class="kt-datatable__cell">
-										<span style="width: 280px;">
-											<span class="badge badge-pill badge-secondary fw-bold">
-												<?= $dest['d_total_lodging_and_meals'] ?>
-											</span>
-											x <?= $dest['night'] ?> (number of nights)
-										</span>
-									<td class="kt-datatable__cell">
-
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 170px;">
-
-										</span>
-									</td>
-								</tr> -->
-								<!-- <tr class="kt-datatable__row bg-dark" style="left: 0px;">
-									<td class="kt-datatable__cell fw-bold "><span class="text-light"
-											style="width: 110px;">Total costs:</td>
-									<td data-field="Status" data-autohide-disabled="false" class="kt-datatable__cell">
-										<span style="width: 280px;">
-											<span class="badge badge-pill badge-secondary fw-bold">
-												<?= $dest['d_total'] ?>
-											</span>
-									<td class="kt-datatable__cell">
-
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 170px;">
-
-										</span>
-									</td>
-								</tr> -->
 							</tbody>
 						</table>
+						<div class="ml-2 py-3 border-bottom d-flex">
+							<!-- <h6 class="text-danger mr-2">Max lodging and meals budget: <span
+									class="badge badge-pill badge-secondary fw-bold"
+									id="max-budget"><?= $dest['d_total_lodging_and_meals'] ?></span></h6> -->
+							<h6 class="text-dark mb-2">Total actual lodging and meals: <span
+									class="total_current_budget badge badge-pill badge-secondary fw-bold"><?= number_format($total_cost_per_night,2,',','.')  ?></span>
+							</h6>
+						</div>
 					</div>
+					<?php endfor; ?>
 				</div>
 				<?php endforeach; ?>
-				<div class="ml-5">
-					<a target="_blank" href="<?= base_url('ea_requests/report/excel_report/') . $detail['r_id'] ?>"
-						class="btn btn btn-success">
-						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
-							class="bi bi-file-earmark-spreadsheet" viewBox="0 0 16 16">
-							<path
-								d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V9H3V2a1 1 0 0 1 1-1h5.5v2zM3 12v-2h2v2H3zm0 1h2v2H4a1 1 0 0 1-1-1v-1zm3 2v-2h3v2H6zm4 0v-2h3v1a1 1 0 0 1-1 1h-2zm3-3h-3v-2h3v2zm-7 0v-2h3v2H6z" />
-						</svg>
-						<span class="ml-1">
-							Download Excel
-						</span>
-					</a>
-				</div>
+				<a id="excel_report_btn" target="_blank"
+					href="<?= base_url('ea_report/outgoing/excel_report/') . $detail['r_id'] ?>"
+					class="btn btn btn-success">
+					<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+						class="bi bi-file-earmark-spreadsheet" viewBox="0 0 16 16">
+						<path
+							d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V9H3V2a1 1 0 0 1 1-1h5.5v2zM3 12v-2h2v2H3zm0 1h2v2H4a1 1 0 0 1-1-1v-1zm3 2v-2h3v2H6zm4 0v-2h3v1a1 1 0 0 1-1 1h-2zm3-3h-3v-2h3v2zm-7 0v-2h3v2H6z" />
+					</svg>
+					<span class="ml-1">
+						Download Excel
+					</span>
+				</a>
+				<p id="report_notes" class="pl-3 ml-3 text-danger">Please report all meals and lodging actual costs to
+					download excel report</p>
 			</div>
 		</div>
 	</div>
@@ -356,28 +334,29 @@
 		$(document).on('click', '.btn-meals-lodging', function (e) {
 			e.preventDefault()
 			const dest_id = $(this).attr('data-dest-id')
-			const field = $(this).attr('data-field')
-			$.get(base_url + `ea_requests/report/meals_lodging_modal?dest_id=${dest_id}&field=${field}`,
+			const item_type = $(this).attr('data-item-type')
+			const item_id = $(this).attr('data-item-id')
+			const night = $(this).attr('data-night')
+			const max_budget = $(this).attr('data-max-budget')
+			const current_lodging_budget = $(this).attr('data-current-lodging')
+			const current_meals_budget = $(this).attr('data-current-meals')
+			$.get(base_url +
+				`ea_report/outgoing/meals_lodging_modal?dest_id=${dest_id}&item_type=${item_type}&night=${night}&item_id=${item_id}&max_budget=${max_budget}&current_meals_budget=${current_meals_budget}&current_lodging_budget=${current_lodging_budget}`,
 				function (html) {
 					$('#myModal').html(html)
-					$('#actual_cost').number(true, 0, '', '.');
+					$('#cost').number(true, 0, '', '.');
+					$('#max_budget').number(true, 0, '', '.');
+					$('#current_budget').number(true, 0, '', '.');
 					$('#myModal').modal('show')
 				});
 		});
 		$(document).on('click', '.btn-add-items', function (e) {
 			e.preventDefault()
 			const dest_id = $(this).attr('data-dest-id')
-			$.get(base_url + `ea_requests/report/add_items_modal?dest_id=${dest_id}`,
-				function (html) {
-					$('#myModal').html(html)
-					$('#cost').number(true, 0, '', '.');
-					$('#myModal').modal('show')
-				});
-		});
-		$(document).on('click', '.btn-edit-other-items', function (e) {
-			e.preventDefault()
+			const night = $(this).attr('data-night')
 			const item_id = $(this).attr('data-id')
-			$.get(base_url + `ea_requests/report/edit_items_modal?item_id=${item_id}`,
+			$.get(base_url +
+				`ea_report/outgoing/add_items_modal?dest_id=${dest_id}&night=${night}&item_id=${item_id}`,
 				function (html) {
 					$('#myModal').html(html)
 					$('#cost').number(true, 0, '', '.');
@@ -397,7 +376,7 @@
 				confirmButtonText: `Yes!`
 			}).then((result) => {
 				if (result.value) {
-					$.get(base_url + `ea_requests/report/delete_other_items/${id}`,
+					$.get(base_url + `ea_report/outgoing/delete_other_items/${id}`,
 						function (response) {
 							if (response.success) {
 								Swal.fire({
@@ -445,7 +424,6 @@
 						url: $(this).attr("action"),
 						data: formData,
 						beforeSend: function () {
-							$('p.error').remove();
 							Swal.fire({
 								html: loader,
 								showConfirmButton: false,
@@ -455,6 +433,7 @@
 						},
 						error: function (xhr) {
 							const response = xhr.responseJSON;
+							console.log(response)
 							if (response.errors) {
 								for (const err in response.errors) {
 									$(`#${err}`).parent().append(
@@ -462,12 +441,21 @@
 									)
 								}
 							}
-							Swal.fire({
-								"title": response.message,
-								"text": '',
-								"type": "error",
-								"confirmButtonClass": "btn btn-dark"
-							});
+							if (response.max_budget_error) {
+								Swal.fire({
+									"title": response.message,
+									"text": response.max_budget_message,
+									"type": "error",
+									"confirmButtonClass": "btn btn-dark"
+								});
+							} else {
+								Swal.fire({
+									"title": response.message,
+									"text": '',
+									"type": "error",
+									"confirmButtonClass": "btn btn-dark"
+								});
+							}
 						},
 						success: function (response) {
 							Swal.fire({
@@ -489,71 +477,26 @@
 				}
 			})
 		});
-		$(document).on("submit", '#other-items-form', function (e) {
-			e.preventDefault()
-			const formData = new FormData(this);
-			let title = 'Add item?';
-			if ($('#method_').val() == 'PUT') {
-				title = 'Edit item ?'
-			}
-			Swal.fire({
-				title: title,
-				text: "",
-				type: 'warning',
-				showCancelButton: true,
-				confirmButtonColor: '#3085d6',
-				cancelButtonColor: '#d33',
-				confirmButtonText: `Yes!`
-			}).then((result) => {
-				if (result.value) {
-					$.ajax({
-						type: 'POST',
-						url: $(this).attr("action"),
-						data: formData,
-						beforeSend: function () {
-							$('p.error').remove();
-							Swal.fire({
-								html: loader,
-								showConfirmButton: false,
-								allowEscapeKey: false,
-								allowOutsideClick: false,
-							});
-						},
-						error: function (xhr) {
-							const response = xhr.responseJSON;
-							if (response.errors) {
-								for (const err in response.errors) {
-									$(`#${err}`).parent().append(
-										`<p class="error mt-1 mb-0">This field is required</p>`
-									)
-								}
-							}
-							Swal.fire({
-								"title": response.message,
-								"text": '',
-								"type": "error",
-								"confirmButtonClass": "btn btn-dark"
-							});
-						},
-						success: function (response) {
-							Swal.fire({
-								"title": "Success!",
-								"text": response.message,
-								"type": "success",
-								"confirmButtonClass": "btn btn-dark"
-							}).then((result) => {
-								if (result.value) {
-									location.reload();
-								}
-							})
-						},
-						cache: false,
-						contentType: false,
-						processData: false
-					});
+
+		const reportIsFinished = () => {
+			let valid = true
+
+			$('#meals_lodging_table .lodging_meals_budget').each(function () {
+				const budget = $(this).text()
+				console.log(budget)
+				if (budget == '-') {
+					valid = false;
 				}
-			})
-		});
+			});
+			if (!valid) {
+				$('#excel_report_btn').addClass('d-none')
+				$('#report_notes').removeClass('d-none')
+			} else {
+				$('#excel_report_btn').removeClass('d-none')
+				$('#report_notes').addClass('d-none')
+			}
+		}
+		reportIsFinished()
 	});
 
 </script>

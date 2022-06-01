@@ -916,4 +916,89 @@ class Outcoming_requests extends MY_Controller {
 			return false;
 		}
 	}
+
+	public function upload_test(){
+
+		$curl = curl_init();
+		$cfile = new CURLFile($_FILES['file']['tmp_name'], $_FILES['file']['type'], $_FILES['file']['name']);
+
+		curl_setopt_array($curl, array(
+			CURLOPT_URL => $_ENV['ASSETS_URL'].'ea',
+			CURLOPT_HTTPHEADER => array(
+				'token:'.$_ENV['ASSETS_TOKEN'],
+			),
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING => '',
+			CURLOPT_MAXREDIRS => 10,
+			CURLOPT_TIMEOUT => 0,
+			CURLOPT_FOLLOWLOCATION => true,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			CURLOPT_CUSTOMREQUEST => 'POST',
+			CURLOPT_POSTFIELDS =>  ['file'=>$cfile],
+		));
+
+		$response = curl_exec($curl);
+
+		if (curl_errno($curl)) {
+			$error_msg = curl_error($curl);
+		}
+
+		curl_close($curl);
+
+		if (isset($error_msg)) {
+				print_r($error_msg);
+		}
+		$encodeResponse = json_decode($response);
+		if($encodeResponse->status == true){
+			$fileName = $encodeResponse->data->filename;
+			$this->db->where("id",$_SESSION['us_id']);
+			$this->db->update("tb_userapp",["signature"=>$fileName]);
+		}
+		echo $response;
+	}
+
+	public function upload_file($tmp_name, $type, $filename){
+
+		$curl = curl_init();
+		$cfile = new CURLFile($tmp_name, $type, $filename);
+
+		curl_setopt_array($curl, array(
+			CURLOPT_URL => $_ENV['ASSETS_URL'].'ea',
+			CURLOPT_HTTPHEADER => array(
+				'token:'.$_ENV['ASSETS_TOKEN'],
+			),
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING => '',
+			CURLOPT_MAXREDIRS => 10,
+			CURLOPT_TIMEOUT => 0,
+			CURLOPT_FOLLOWLOCATION => true,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			CURLOPT_CUSTOMREQUEST => 'POST',
+			CURLOPT_POSTFIELDS =>  ['file'=>$cfile],
+		));
+
+		$response = curl_exec($curl);
+
+		if (curl_errno($curl)) {
+			$error_msg = curl_error($curl);
+		}
+
+		curl_close($curl);
+
+		if (isset($error_msg)) {
+				$response['errors'] = $error_msg;
+				$response['success'] = false;
+				$response['message'] = 'Failed to upload data';
+		}
+		$encodeResponse = json_decode($response);
+		if($encodeResponse->status == true){
+			$response['success'] = true;
+			$response['message'] = 'File uploaded!';
+			$response['file_name'] = $encodeResponse->data->filename;
+		} else {
+			$response['success'] = false;
+			$response['message'] = 'Failed to upload data';
+		}
+		return $response;
+	}
 }

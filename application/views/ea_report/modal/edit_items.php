@@ -7,7 +7,7 @@
 			</button>
 		</div>
 		<form enctype="multipart/form-data" method="POST"
-			action="<?= base_url('ea_requests/report/update_other_items') ?>/<?= $detail['id'] ?>" id="other-items-form">
+			action="<?= base_url('ea_report/outgoing/insert_actual_costs') ?>" id="other-items-form">
 			<div class="modal-body">
 				<input type="text" class="d-none" id="method_" value="PUT">
 				<div class="form-group">

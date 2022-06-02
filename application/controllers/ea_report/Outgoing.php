@@ -56,7 +56,7 @@ class Outgoing extends MY_Controller {
 				'detail' => $detail,
 				'requestor_data' => $requestor_data,
 			];
-			$this->template->set('page', 'Reporting #' . $detail['ea_number']);
+			$this->template->set('page', 'Reporting TER #' . $detail['ea_number']);
 			$this->template->render('ea_report/outgoing/reporting', $data);
 		} else {
 			show_404();
@@ -469,8 +469,8 @@ class Outgoing extends MY_Controller {
 
 	public function insert_other_items() {
 		if ($this->input->is_ajax_request() && $this->input->server('REQUEST_METHOD') === 'POST') {
-			$this->form_validation->set_rules('item', 'Item', 'required');
-			$this->form_validation->set_rules('cost', 'Cost', 'required');
+			$this->form_validation->set_rules('item_name', 'Item', 'required');
+			$this->form_validation->set_rules('cost[]', 'Cost', 'required');
 			$dest_id = $this->input->post('dest_id');
 			if (empty($_FILES['receipt']['name']))
 			{
@@ -478,46 +478,65 @@ class Outgoing extends MY_Controller {
 			}
 
 			if ($this->form_validation->run()) {
+				$receipts = [];
+				$filesCount = count($_FILES['receipt']['name']); 
 				$dir = './uploads/ea_items_receipt/';
 				if (!is_dir($dir)) {
 					mkdir($dir, 0777, true);
-				}
-				$config['upload_path']          = $dir;
-				$config['allowed_types']        = 'pdf|jpg|png|jpeg';
-				$config['max_size']             = 10048;
-				$config['encrypt_name']         = true;
-				$this->load->library('upload', $config);
-				$this->upload->initialize($config);
-
-				if($this->upload->do_upload('receipt')) {
-					$receipt = $this->upload->data('file_name');
-					$item = $this->input->post('item');
-					$cost = $this->input->post('cost');
-					$clean_cost = str_replace('.', '',  $cost);
-					$payload = [
-						'destination_id' => $dest_id,
-						'item' => $item,
-						'cost' => $clean_cost,
-						'receipt' => $receipt,
-					];
-					$saved = $this->report->insert_other_items($payload);
-					if($saved) {
-						$response['success'] = true;
-						$response['message'] = 'Data has been saved!';
-						$status_code = 200;
-					} else {
-						$response['success'] = false;
-						$response['message'] = 'Failed to saving data, please try again later';
-						$status_code = 400;
+				} 
+                for($i = 0; $i < $filesCount; $i++){ 
+                    $_FILES['file']['name']     = $_FILES['receipt']['name'][$i]; 
+                    $_FILES['file']['type']     = $_FILES['receipt']['type'][$i]; 
+                    $_FILES['file']['tmp_name'] = $_FILES['receipt']['tmp_name'][$i]; 
+                    $_FILES['file']['error']     = $_FILES['receipt']['error'][$i]; 
+                    $_FILES['file']['size']     = $_FILES['receipt']['size'][$i]; 
+                     
+                    // File upload configuration 
+                    $config['upload_path']          = $dir;
+					$config['allowed_types']        = 'pdf|jpg|png|jpeg';
+					$config['max_size']             = 10048;
+					$config['encrypt_name']         = true;
+					$this->load->library('upload', $config);
+					$this->upload->initialize($config);
+                     
+                    // Upload file to server 
+                    if($this->upload->do_upload('file')){ 
+                        // Uploaded file data 
+                        $fileData = $this->upload->data(); 
+                        $receipts[$i] = $fileData['file_name']; 
+                    } else {
+						$response = [
+							'errors' => $this->upload->display_errors(),
+							'success' => false, 
+							'message' => strip_tags($this->upload->display_errors()),
+						];
+						$status_code = 422;
+						return $this->send_json($response, $status_code);
 					}
-				} else {
-					$response = [
-						'errors' => $this->upload->display_errors(),
-						'success' => false, 
-						'message' => strip_tags($this->upload->display_errors()),
+                } 
+				$item_name = $this->input->post('item_name');
+				$night = $this->input->post('night');
+				$costs = $this->input->post('cost');
+				for($i = 0; $i < count($costs); $i++) {
+					$clean_cost = str_replace('.', '',  $costs[$i]);
+					$payload = [
+						'dest_id' => $dest_id,
+						'item_type' => 3,
+						'item_name' => $item_name,
+						'cost' => $clean_cost,
+						'night' => $night,
+						'receipt' => $receipts[$i],
 					];
+					$saved = $this->report->insert_actual_costs($payload);
+				}
+				if($saved) {
+					$response['success'] = true;
+					$response['message'] = 'Data has been saved!';
+					$status_code = 200;
+				} else {
+					$response['success'] = false;
+					$response['message'] = 'Failed to saving data, please try again later';
 					$status_code = 400;
-					return $this->send_json($response, $status_code);
 				}
 			} else {
 				$response['errors'] = $this->form_validation->error_array();

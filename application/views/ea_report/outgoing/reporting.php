@@ -3,7 +3,7 @@
 		<div id="meals_lodging_table" class="kt-portlet__body">
 			<div class="kt-infobox">
 				<div class="kt-infobox__header border-bottom ml-4 pb-1">
-					<h3 class="text-dark fw-600">Reporting EA request <span
+					<h3 class="text-dark fw-600">Reporting TER <span
 							class="badge badge-success fw-bold ml-3">#<?= $detail['ea_number'] ?></span></h3>
 				</div>
 
@@ -333,8 +333,8 @@
 							Download Excel
 						</span>
 					</a>
-					<button <?= ($detail['is_ter_submitted'] == 1 ? 'disabled' : '') ?> data-id="<?= $detail['r_id'] ?>" type="button" id="btn_submit_report"
-						class="btn btn-primary ml-2">
+					<button <?= ($detail['is_ter_submitted'] == 1 ? 'disabled' : '') ?> data-id="<?= $detail['r_id'] ?>"
+						type="button" id="btn_submit_report" class="btn btn-primary ml-2">
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
 							class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
 							<path fill-rule="evenodd"
@@ -541,6 +541,84 @@
 									"confirmButtonClass": "btn btn-dark"
 								});
 							}
+						},
+						success: function (response) {
+							Swal.fire({
+								"title": "Success!",
+								"text": response.message,
+								"type": "success",
+								"confirmButtonClass": "btn btn-dark"
+							}).then((result) => {
+								console.log(response)
+								if (result.value) {
+									location.reload();
+								}
+							})
+						},
+						cache: false,
+						contentType: false,
+						processData: false
+					});
+				}
+			})
+		});
+
+		$(document).on('click', '#btn-add-more-items', function (e) {
+			e.preventDefault()
+			$('#items-lists').append(`<div class="row">
+						<div class="col-md-7 form-group">
+							<label for="cost">Cost</label>
+							<input value="" type="text" class="form-control cost"
+								name="cost[]">
+						</div>
+						<div class="col-md-5 form-group">
+							<label for="receipt">Receipt<small class="text-danger">*(pdf|jpg|png|jpeg)</small></label>
+							<div class="custom-file receipt">
+								<input type="file" class="custom-file-input" name="receipt[]">
+								<label class="custom-file-label" for="receipt">Choose file</label>
+							</div>
+						</div>
+					</div>`)
+			$('.cost').number(true, 0, '', '.');
+			$('input[type="file"]').change(function (e) {
+				var fileName = e.target.files[0].name;
+				$(this).next('.custom-file-label').html(fileName);
+			});
+		})
+
+		$(document).on("submit", '#other-items-form', function (e) {
+			e.preventDefault()
+			const formData = new FormData(this);
+			Swal.fire({
+				title: 'Reporting actual costs?',
+				text: "",
+				type: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#3085d6',
+				cancelButtonColor: '#d33',
+				confirmButtonText: `Yes!`
+			}).then((result) => {
+				if (result.value) {
+					$.ajax({
+						type: 'POST',
+						url: $(this).attr("action"),
+						data: formData,
+						beforeSend: function () {
+							Swal.fire({
+								html: loader,
+								showConfirmButton: false,
+								allowEscapeKey: false,
+								allowOutsideClick: false,
+							});
+						},
+						error: function (xhr) {
+							const response = xhr.responseJSON;
+							Swal.fire({
+								"title": response.message,
+								"text": 'All cost and receipt are required!',
+								"type": "error",
+								"confirmButtonClass": "btn btn-dark"
+							});
 						},
 						success: function (response) {
 							Swal.fire({

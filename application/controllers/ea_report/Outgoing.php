@@ -29,11 +29,9 @@ class Outgoing extends MY_Controller {
 		if($detail) {
 			$requestor_data = $this->request->get_requestor_data($detail['requestor_id']);
 			$this->load->helper('report');
-			// $reporting_is_finished = reporting_is_finished($detail);
 			$data = [
 				'detail' => $detail,
 				'requestor_data' => $requestor_data,
-				'reporting_is_finished' => true,
 			];
 			$this->template->set('page', 'Reporting #' . $detail['ea_number']);
 			$this->template->render('ea_report/outgoing/reporting', $data);
@@ -764,5 +762,130 @@ class Outgoing extends MY_Controller {
 			array_push($cells, ['cell' => $row . '22', 'value' => $meals_text]);
 		}
 		return $cells;
+	}
+
+	public function submit_report() {
+		if ($this->input->is_ajax_request() && $this->input->server('REQUEST_METHOD') === 'POST') {
+			$req_id = $this->input->post('req_id');
+			$head_of_units = $this->db->select('head_of_units_id')->from('ea_requests_status')->where('request_id', $req_id)->get()->row_array();
+			$email_sent = $this->send_ter_to_head_of_units($req_id);
+			if($email_sent) {
+				$payload = [
+					'request_id' => $req_id,
+					'head_of_units_id' => $head_of_units['head_of_units_id'],
+					'head_of_units_status' => 1,
+				];
+				$reported = $this->report->submit_report($payload);
+				if($reported) {
+					$response['success'] = true;
+					$response['message'] = 'Report has been submitted and email has been sent!';
+					$status_code = 200;
+				} else {
+					$response['success'] = false;
+					$response['message'] = 'Something wrong, please try again later';
+					$status_code = 400;
+				}
+			} else {
+				$response['success'] = false;
+				$response['message'] = 'Something wrong, please try again later';
+				$status_code = 400;
+			}
+			$this->send_json($response, $status_code);
+		} else {
+			exit('No direct script access allowed');
+		}
+	}
+
+	private function send_ter_to_head_of_units($request_id) {
+		$this->load->library('Phpmailer_library');
+        $mail = $this->phpmailer_library->load();
+        $mail->isSMTP();
+		$email_config = $this->config->item('email');
+        $mail->SMTPSecure = 'ssl';
+        $mail->Host = $email_config['host'];
+        $mail->Port = 465;
+        $mail->SMTPDebug = 0; 
+        $mail->SMTPAuth = true;
+        $mail->Username = $email_config['username'];
+        $mail->Password = $email_config['password'];
+		$detail = $this->request->get_request_by_id($request_id);
+		$requestor = $this->request->get_requestor_data($detail['requestor_id']);
+		$approver_name = $detail['head_of_units_name'];
+		$enc_req_id = encrypt($detail['r_id']);
+		$approver_id = $detail['head_of_units_id'];
+
+		$data['preview'] = '<p>You have TER #EA-'.$detail['r_id'].' from <b>'.$requestor['username'].'</b> and it need your review. Please check on attachment</p>';
+        
+        $data['content'] = '
+            <tr>
+                <td>
+                    <p>Hi <b>'.$approver_name.'</b>,</p>
+                    <p>'.$data['preview'].'</p>
+
+					<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
+                        <tbody>
+                        <tr>
+                            <td align="left">
+                            <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                                <tbody>
+                                <tr>
+									<td> <a href="'.base_url('ea_report/report_confirmation').'?req_id='.$enc_req_id.'&approver_id='.$approver_id.'&status=2&level=head_of_units" target="_blank">APPROVE</a> </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+					
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-danger">
+                        <tbody>
+                        <tr>
+                            <td align="left">
+                            <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                                <tbody>
+                                <tr>
+									<td> <a <a href="'.base_url('ea_report/report_confirmation').'?req_id='.$enc_req_id.'&approver_id='.$approver_id.'&status=3&level=head_of_units" target="_blank">REJECT</a> </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+					<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-detail">
+						<tbody>
+							<tr>
+								<td align="left">
+								<table role="presentation" border="0" cellpadding="0" cellspacing="0">
+									<tbody>
+									<tr>
+										<td> <a <a href="'.base_url('ea_report/report_confirmation/ter_form/'). $request_id . '" target="_blank">DOWNLOAD TER FORM</a> </td>
+									</tr>
+									</tbody>
+								</table>
+								</td>
+							</tr>
+						</tbody>
+					 </table>
+
+                    
+                </td>
+            </tr>';
+
+        $text = $this->load->view('template/email', $data, true);
+        $mail->setFrom('no-reply@faster.bantuanteknis.id', 'FASTER-FHI360');
+        $mail->addAddress($detail['head_of_units_email']);
+        $mail->Subject = "TER";
+        $mail->isHTML(true);
+        $mail->Body = $text;
+        $sent=$mail->send();
+
+		if ($sent) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }

@@ -239,4 +239,27 @@ class Report_Model extends CI_Model
         }
         return $data;
     }
+
+    function submit_report($payload) {
+        $this->db->where('id', $payload['request_id'])->update('ea_requests', ['is_ter_submitted' => 1]);
+        $this->db->insert('ea_report_status', $payload);
+        return $this->db->insert_id();
+    }
+
+    function update_status($request_id, $approver_id, $status, $level, $rejected_reason = null) {
+        if($status == 3) {
+            $this->db->where('id', $request_id)->update('ea_requests', ['is_ter_submitted' => 0]);
+        }
+        $this->db->where('request_id', $request_id)->update('ea_report_status', [
+            $level . '_status' => $status,
+            $level . '_status_at' => date("Y-m-d H:i:s"),
+            $level . '_id' => $approver_id,
+            'rejected_reason' => $rejected_reason,
+        ]);
+        return $this->db->affected_rows() === 1;
+    }
+
+    function get_report_status($req_id) {
+        return $this->db->select('*')->from('ea_report_status')->where('request_id', $req_id)->get()->row_array();
+    }
 }

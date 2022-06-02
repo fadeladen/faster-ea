@@ -334,7 +334,7 @@
 							Download Excel
 						</span>
 					</a>
-					<button data-id="<?= $detail['r_id'] ?>" type="button" id="btn_submit_report"
+					<button <?= ($detail['is_ter_submitted'] == 1 ? 'disabled' : '') ?> data-id="<?= $detail['r_id'] ?>" type="button" id="btn_submit_report"
 						class="btn btn-primary ml-2">
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
 							class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
@@ -436,7 +436,7 @@
 
 		$(document).on('click', '#btn_submit_report', function (e) {
 			e.preventDefault()
-			const request_id = $(this).attr('data-id')
+			const req_id = $(this).attr('data-id')
 			Swal.fire({
 				title: 'Submit report?',
 				text: "",
@@ -447,28 +447,43 @@
 				confirmButtonText: `Yes!`
 			}).then((result) => {
 				if (result.value) {
-					$.get(base_url + `ea_report/outgoing/submit_report/${request_id}`,
-						function (response) {
-							if (response.success) {
-								Swal.fire({
-									"title": "Success!",
-									"text": response.message,
-									"type": "success",
-									"confirmButtonClass": "btn btn-dark"
-								}).then((result) => {
-									if (result.value) {
-										location.reload();
-									}
-								})
-							} else {
-								Swal.fire({
-									"title": response.message,
-									"text": '',
-									"type": "error",
-									"confirmButtonClass": "btn btn-dark"
-								});
-							}
-						});
+					$.ajax({
+						type: 'POST',
+						url: base_url + 'ea_report/outgoing/submit_report',
+						data: {
+							req_id
+						},
+						beforeSend: function () {
+							Swal.fire({
+								html: loader,
+								showConfirmButton: false,
+								allowEscapeKey: false,
+								allowOutsideClick: false,
+							});
+						},
+						error: function (xhr) {
+							const response = xhr.responseJSON;
+							Swal.fire({
+								"title": response.message,
+								"text": '',
+								"type": "error",
+								"confirmButtonClass": "btn btn-dark"
+							});
+						},
+						success: function (response) {
+							Swal.fire({
+								"title": "Success!",
+								"text": response.message,
+								"type": "success",
+								"confirmButtonClass": "btn btn-dark"
+							}).then((result) => {
+								console.log(response)
+								if (result.value) {
+									location.reload();
+								}
+							})
+						},
+					});
 				}
 			})
 		});

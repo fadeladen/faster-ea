@@ -22,6 +22,29 @@ class Outgoing extends MY_Controller {
 		$this->template->render('ea_report/outgoing/index');
 	}
 
+	public function pending()
+	{   
+        $this->template->set('page', 'Pending report');
+		$this->template->render('ea_report/outgoing/pending');
+	}
+
+	public function rejected()
+	{   
+        $this->template->set('page', 'Rejected report');
+		$this->template->render('ea_report/outgoing/rejected');
+	}
+	public function approved()
+	{   
+        $this->template->set('page', 'Approved report');
+		$this->template->render('ea_report/outgoing/approved');
+	}
+
+	public function paid()
+	{   
+        $this->template->set('page', 'Paid report');
+		$this->template->render('ea_report/outgoing/paid');
+	}
+
     public function reporting($id = null)
 	{
 		$id = decrypt($id);
@@ -35,6 +58,40 @@ class Outgoing extends MY_Controller {
 			];
 			$this->template->set('page', 'Reporting #' . $detail['ea_number']);
 			$this->template->render('ea_report/outgoing/reporting', $data);
+		} else {
+			show_404();
+		}
+	}
+	
+    public function ter_detail($id = null)
+	{
+		$id = decrypt($id);
+		$detail = $this->report->get_ter_details($id);
+		if($detail) {
+			$requestor_data = $this->request->get_requestor_data($detail['requestor_id']);
+			$user_id = $this->user_data->userId;
+			$head_of_units_btn = '';
+			if($detail['head_of_units_status'] != 1 || $detail['head_of_units_id'] != $user_id) {
+				$head_of_units_btn = 'invisible';
+			}
+			$country_director_btn = '';
+			if($detail['country_director_status'] != 1 || $detail['head_of_units_status'] != 2  || !is_country_director()) {
+				$country_director_btn = 'invisible';
+			}
+			$finance_btn = '';
+			if($detail['finance_status'] != 1 || $detail['country_director_status'] != 2  || !is_finance_teams()) {
+				$finance_btn = 'invisible';
+			}
+			$data = [
+				'detail' => $detail,
+				'requestor_data' => $requestor_data,
+				'head_of_units_btn' => $head_of_units_btn,
+				'country_director_btn' => $country_director_btn,
+				'finance_btn' => $finance_btn,
+				'total_actual_costs' => get_total_actual_costs($id),
+			];
+			$this->template->set('page', 'TER detail #' . $detail['ea_number']);
+			$this->template->render('ea_report/outgoing/ter_detail', $data);
 		} else {
 			show_404();
 		}
@@ -53,9 +110,77 @@ class Outgoing extends MY_Controller {
         $this->datatable->where('st.fco_monitor_status =', 2);
         $this->datatable->where('st.finance_status =', 2);
 		$this->datatable->where('ea.requestor_id =', $this->user_data->userId);
+        $this->datatable->where('ea.is_ter_submitted =', 0);
+        $this->datatable->where('ea.is_ter_rejected =', 0);
 		$this->datatable->edit_column('id', "$1", 'encrypt(id)');
 		$this->datatable->edit_column('total_cost', '<span style="font-size: 1rem;"
 		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_request_costs(total_cost)');
+		$this->datatable->edit_column('ea_number', '<span style="font-size: 1rem;"
+		class="badge badge-success fw-bold">$1</span>', 'ea_number');
+        echo $this->datatable->generate();
+    }
+
+    public function ter_datatable($status = null)
+    {	
+
+		$this->datatable->select('CONCAT("EA", ea.id) AS ea_number, u.username as requestor_name, ea.request_base,
+        ea.originating_city, ea.id as total_cost, DATE_FORMAT(srt.submitted_at, "%d %M %Y - %H:%i") as created_at ,ea.id', true);
+        $this->datatable->from('ea_requests ea');
+        $this->datatable->join('tb_userapp u', 'u.id = ea.requestor_id');
+        $this->datatable->join('ea_requests_status st', 'ea.id = st.request_id');
+        $this->datatable->join('ea_report_status srt', 'ea.id = srt.request_id', 'LEFT');
+        $this->datatable->where('st.head_of_units_status =', 2);
+        $this->datatable->where('st.ea_assosiate_status =', 2);
+        $this->datatable->where('st.fco_monitor_status =', 2);
+        $this->datatable->where('st.finance_status =', 2);
+		if($status == 'pending') {
+			$this->datatable->where('srt.head_of_units_status !=', 3);
+			$this->datatable->where('srt.country_director_status !=', 3);
+			$this->datatable->where('srt.country_director_status !=', 2);
+			$this->datatable->where('srt.finance_status !=', 3);
+			$this->datatable->where('srt.finance_status !=', 2);
+		}
+		if($status == 'approved') {
+			$this->datatable->where('srt.head_of_units_status =', 2);
+			$this->datatable->where('srt.country_director_status =', 2);
+			$this->datatable->where('srt.finance_status !=', 2);
+		}
+		if($status == 'paid') {
+			$this->datatable->where('srt.head_of_units_status =', 2);
+			$this->datatable->where('srt.country_director_status =', 2);
+			$this->datatable->where('srt.finance_status =', 2);
+		}
+		$this->datatable->where('ea.requestor_id =', $this->user_data->userId);
+        $this->datatable->where('ea.is_ter_submitted =', 1);
+		$this->datatable->edit_column('id', "$1", 'encrypt(id)');
+		$this->datatable->edit_column('total_cost', '<span style="font-size: 1rem;"
+		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_actual_costs(total_cost)');
+		$this->datatable->edit_column('ea_number', '<span style="font-size: 1rem;"
+		class="badge badge-success fw-bold">$1</span>', 'ea_number');
+        echo $this->datatable->generate();
+    }
+
+    public function rejected_datatable()
+    {	
+
+		$this->datatable->select('CONCAT("EA", ea.id) AS ea_number, u.username as requestor_name, ea.request_base,
+        ea.originating_city, ea.id as total_cost,srt.rejected_reason , DATE_FORMAT(srt.submitted_at, "%d %M %Y - %H:%i") as created_at ,ea.id', true);
+        $this->datatable->from('ea_requests ea');
+        $this->datatable->join('tb_userapp u', 'u.id = ea.requestor_id');
+        $this->datatable->join('ea_requests_status st', 'ea.id = st.request_id');
+        $this->datatable->join('ea_report_status srt', 'ea.id = srt.request_id', 'LEFT');
+		$this->datatable->where('st.head_of_units_status =', 2);
+        $this->datatable->where('st.ea_assosiate_status =', 2);
+        $this->datatable->where('st.fco_monitor_status =', 2);
+        $this->datatable->where('st.finance_status =', 2);
+		$this->datatable->where('ea.requestor_id =', $this->user_data->userId);
+        $this->datatable->where('ea.is_ter_rejected =', 1);
+		$this->datatable->where('srt.head_of_units_status =', 3);
+		$this->datatable->or_where('srt.country_director_status =', 3);
+		$this->datatable->or_where('srt.finance_status =', 3);
+		$this->datatable->edit_column('id', "$1", 'encrypt(id)');
+		$this->datatable->edit_column('total_cost', '<span style="font-size: 1rem;"
+		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_actual_costs(total_cost)');
 		$this->datatable->edit_column('ea_number', '<span style="font-size: 1rem;"
 		class="badge badge-success fw-bold">$1</span>', 'ea_number');
         echo $this->datatable->generate();
@@ -122,6 +247,18 @@ class Outgoing extends MY_Controller {
 			'detail' => $detail,
 		];
 		$this->load->view('ea_report/modal/edit_items', $data);
+	}
+
+	public function other_items_detail() {
+		$dest_id =$this->input->get('dest_id');
+		$item_name =$this->input->get('item_name');
+		$night =$this->input->get('night');
+		$dest_id =$this->input->get('dest_id');
+		$items = $this->report->get_other_items_by_name($dest_id, $item_name, $night);	
+		$data = [
+			'items' => $items,
+		];
+		$this->load->view('ea_report/modal/other_items_detail', $data);
 	}
 
 	public function insert_actual_costs() {
@@ -775,7 +912,12 @@ class Outgoing extends MY_Controller {
 					'head_of_units_id' => $head_of_units['head_of_units_id'],
 					'head_of_units_status' => 1,
 				];
-				$reported = $this->report->submit_report($payload);
+				$already_reported = $this->report->get_report_status($req_id);
+				if($already_reported) {
+					$reported = $this->report->resubmit_report($req_id);
+				} else {
+					$reported = $this->report->submit_report($payload);
+				}
 				if($reported) {
 					$response['success'] = true;
 					$response['message'] = 'Report has been submitted and email has been sent!';
@@ -796,7 +938,7 @@ class Outgoing extends MY_Controller {
 		}
 	}
 
-	private function send_ter_to_head_of_units($request_id) {
+	public function send_ter_to_head_of_units($request_id) {
 		$this->load->library('Phpmailer_library');
         $mail = $this->phpmailer_library->load();
         $mail->isSMTP();

@@ -61,3 +61,21 @@ if (!function_exists('is_expired_report')) {
         return $expired;
     }
 }
+
+if (!function_exists('get_total_actual_costs')) {
+    function get_total_actual_costs($req_id)
+    {   
+        $ci = &get_instance();
+        $costs = $ci->db->select('ac.cost')
+        ->from('ea_actual_costs ac')
+        ->join('ea_requests_destinations ed', 'ac.dest_id = ed.id')
+        ->join('ea_requests ea', 'ea.id = ed.request_id')
+        ->where('ea.id', $req_id)
+        ->get()->result_array();
+        $actual_costs = 0;
+        foreach($costs as $cost) {
+            $actual_costs += $cost['cost'];
+        }
+        return number_format($actual_costs,2,',','.');
+    }
+}

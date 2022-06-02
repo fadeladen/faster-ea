@@ -115,7 +115,6 @@ class Report_Confirmation extends CI_Controller {
         $sent=$mail->send();
 
 		if ($sent) {
-			$this->delete_signature();
 			return true;
 		} else {
 			return false;
@@ -139,10 +138,10 @@ class Report_Confirmation extends CI_Controller {
 						$response['message'] = 'Request has been rejected and email has been sent';
 						$status_code = 200;
 					} else {
-						$this->report->update_status($req_id, $approver_id, 1, $level);
 						$response['success'] = false;
-						$response['message'] = 'Something wrong, please try again later';
+						$response['message'] = 'Failed to send email, please check your connection!';
 						$status_code = 400;
+						$this->report->update_status($req_id, $approver_id, 1, $level);
 					}
 				} else {
 					$response['success'] = false;

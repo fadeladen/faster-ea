@@ -11,22 +11,23 @@
 				</svg>
 			</span>
 			<h3 class="kt-portlet__head-title">
-				Request report
-				<small>All requests that you must report</small>
+				Rejected TER
+				<small>All TER has been rejected</small>
 			</h3>
 		</div>
 	</div>
 
 	<div class="kt-portlet__body">
-		<table id="table-report" class="table table-striped"
-			data-url="<?= base_url('ea_report/outgoing/datatable') ?>">
+		<table id="table-ter" class="table table-striped"
+			data-url="<?= base_url('ea_report/outgoing/rejected_datatable')?>">
 			<thead>
 				<tr>
 					<th style="width: 80px;">EA Number</th>
 					<th style="min-width: 110px;">Requestor</th>
 					<th style="min-width: 90px;">Request base</th>
 					<th style="min-width: 90px;">Originating City</th>
-					<th style="min-width: 100px;">Total costs</th>
+					<th style="min-width: 100px;">Total actual costs</th>
+					<th style="min-width: 100px;">Rejected reason</th>
 					<th style="min-width: 120px;">Request date</th>
 					<th style="min-width: 100px;" class="action-col">Action</th>
 				</tr>
@@ -39,7 +40,7 @@
 </div>
 
 <script>
-	initDatatable('#table-report', {
+	initDatatable('#table-ter', {
 		order: [[5, 'desc']],
 		columnDefs: [{
 			targets: 'action-col',
@@ -48,7 +49,7 @@
 			render: function (data) {
 				return `
 						<div class="d-flex flex-column align-items-start">
-                            <a href="${base_url}ea_report/outgoing/reporting/${data}"
+							<a href="${base_url}ea_report/outgoing/reporting/${data}"
 								 class="btn btn-sm btn-danger mb-2">
 								<div class="d-flex align-items-center justify-content-center">
 								<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
@@ -58,17 +59,16 @@
 									<span class="ml-2">Report</span>
 								</div>
 							</a>
-							<a href="${base_url}ea_requests/outcoming-requests/detail/${data}"
-								 class="btn btn-sm btn-info">
+							<a href="${base_url}ea_report/outgoing/ter_detail/${data}"
+								 class="btn btn-sm btn-primary mb-2">
 								<div class="d-flex align-items-center justify-content-center">
 								<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
 								<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
 								<path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
 								</svg>
-									<span class="ml-2">Details</span>
+									<span class="ml-2">TER Detail</span>
 								</div>
 							</a>
-                            
 	                   </div>
 	                `
 			}

@@ -50,6 +50,7 @@
 
 <script>
 	initDatatable('#table-requests', {
+		order: [[7, 'desc']],
 		columnDefs: [{
 			targets: 'action-col',
 			orderable: false,

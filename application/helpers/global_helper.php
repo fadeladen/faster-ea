@@ -126,6 +126,18 @@ if (!function_exists('is_finance_teams')) {
     }
 }
 
+if (!function_exists('is_country_director')) {
+    function is_country_director()
+    {   
+        $ci = &get_instance();
+        if($ci->user_data->isCountryDirector == 1) {
+            return true;
+        }
+
+        return false;
+    }
+}
+
 if (!function_exists('get_total_request_costs')) {
     function get_total_request_costs($req_id)
     {   

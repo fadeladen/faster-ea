@@ -324,7 +324,7 @@
 									<h4 class="kt-menu__section-text">Travel Expenses Report</h4>
 									<i class="kt-menu__section-icon flaticon-more-v2"></i>
 								</li>
-								<?php if (is_head_of_units() || is_line_supervisor() || $this->user_data->username == 'root'): ?>
+								<?php if (is_head_of_units() || is_country_director() || is_finance_teams() ||$this->user_data->username == 'root'): ?>
 									<li class="kt-menu__item  kt-menu__item--submenu <?= ($pageParent == 'Incoming report' ? 'kt-menu__item--open' : '') ?>"
 										aria-haspopup="true" data-ktmenu-submenu-toggle="hover"><a href="javascript:;"
 											class="kt-menu__link kt-menu__toggle">
@@ -414,6 +414,14 @@
 														class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
 														class="kt-menu__link-text">
 														Pending</span>
+												</a>
+											</li>
+											<li class="kt-menu__item <?= ($page == 'Rejected report' ? 'kt-menu__item--active' : '') ?>"
+												aria-haspopup="true">
+												<a href="<?= base_url('ea_report/outgoing/rejected') ?>" class="kt-menu__link"><i
+														class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+														class="kt-menu__link-text">
+														Rejected</span>
 												</a>
 											</li>
 											<li class="kt-menu__item <?= ($page == 'Approved report' ? 'kt-menu__item--active' : '') ?>"

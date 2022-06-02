@@ -77,8 +77,7 @@
 					?>
 					<div class="py-2 border-bottom ml-2">
 						<h5 class="text-dark fw-bold">
-							<?= ordinal($night) ?> night,
-							<?= date('d M Y',strtotime($dest['d_arriv_date'] . "+" . $day++ ." days")) ?>
+							<?= ordinal($night) ?> night:
 						</h5>
 					</div>
 					<div
@@ -218,7 +217,7 @@
 								<tr data-row="0" class="kt-datatable__row" style="left: 0px;">
 									<td class="kt-datatable__cell fw-bold">
 										<span style="width: 120px;">
-											<?= $items['item_name'] ?>
+											<?= (isset($items['item_name']) ? $items['item_name'] : '')  ?>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
@@ -229,14 +228,14 @@
 									<td class="kt-datatable__cell">
 										<span style="width: 110px;">
 											<span class="badge badge-pill badge-secondary fw-bold">
-												<?= $items['d_cost'] ?>
+												<?= (isset($items['d_cost']) ? $items['d_cost'] : '')  ?>
 											</span>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
 											<a target="_blank" class="badge badge-warning text-light"
-												href="<?= base_url('uploads/ea_items_receipt/') ?><?= $items['receipt'] ?>">
+												href="<?= base_url('uploads/ea_items_receipt/') ?><?= (isset($items['receipt']) ? $items['receipt'] : '')  ?>">
 												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
 													fill="currentColor" class="bi bi-card-image" viewBox="0 0 16 16">
 													<path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
@@ -250,7 +249,7 @@
 										<span style="width: 90px;">
 											<div class="d-flex flex-column">
 												<button data-night="<?= $night ?>" data-dest-id="<?= $dest['id'] ?>"
-													data-id="<?= $items['id'] ?>"
+													data-id="<?= (isset($items['id']) ? $items['id'] : '') ?>"
 													class="btn btn-add-items btn-sm btn-info">
 													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
 														fill="currentColor" class="bi bi-pencil-square"
@@ -262,7 +261,7 @@
 													</svg>
 													<span class="ml-1">Edit</span>
 												</button>
-												<button data-id="<?= $items['id'] ?>"
+												<button data-id="<?= (isset($items['id']) ? $items['id'] : '') ?>"
 													class="btn btn-delete-items btn-sm btn-danger mt-1">
 													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
 														fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">

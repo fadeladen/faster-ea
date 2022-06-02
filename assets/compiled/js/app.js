@@ -39665,7 +39665,6 @@ function initDatatable(selector) {
     ordering: true,
     processing: true,
     serverSide: true,
-    order: [[7, 'desc']],
     ajax: {
       url: $(selector).attr("data-url"),
       type: "POST"

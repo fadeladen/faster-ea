@@ -124,7 +124,7 @@ class Outgoing extends MY_Controller {
     {	
 
 		$this->datatable->select('CONCAT("EA", ea.id) AS ea_number, u.username as requestor_name, ea.request_base,
-        ea.originating_city, ea.id as total_cost, DATE_FORMAT(srt.submitted_at, "%d %M %Y - %H:%i") as created_at ,ea.id', true);
+			ea.originating_city, ea.id as total_cost, DATE_FORMAT(srt.submitted_at, "%d %M %Y - %H:%i") as created_at ,ea.id', true);
         $this->datatable->from('ea_requests ea');
         $this->datatable->join('tb_userapp u', 'u.id = ea.requestor_id');
         $this->datatable->join('ea_requests_status st', 'ea.id = st.request_id');
@@ -143,7 +143,7 @@ class Outgoing extends MY_Controller {
 		if($status == 'approved') {
 			$this->datatable->where('srt.head_of_units_status =', 2);
 			$this->datatable->where('srt.country_director_status =', 2);
-			$this->datatable->where('srt.finance_status !=', 2);
+			$this->datatable->where('srt.finance_status =', 1);
 		}
 		if($status == 'paid') {
 			$this->datatable->where('srt.head_of_units_status =', 2);
@@ -160,7 +160,7 @@ class Outgoing extends MY_Controller {
         echo $this->datatable->generate();
     }
 
-    public function rejected_datatable()
+	public function rejected_datatable()
     {	
 
 		$this->datatable->select('CONCAT("EA", ea.id) AS ea_number, u.username as requestor_name, ea.request_base,
@@ -605,14 +605,14 @@ class Outgoing extends MY_Controller {
 		$this->send_json($response, $status_code);
 	}
 
-	public function excel_report($id) {
+	public function ter_form($id) {
 		$detail = $this->report->get_excel_report_by_id($id);
 		$inputFileName = FCPATH.'assets/excel/ea_report.xlsx';
 		$reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
 		$spreadsheet = $reader->load($inputFileName);
 		$sheet = $spreadsheet->getActiveSheet();
 		$sheet->setCellValue('B5', 'Name: ' . $detail['requestor_name']);
-		$sheet->setCellValue('G5', date('d-M-y'));
+		$sheet->setCellValue('G5', $detail['submitted_at']);
 		$sheet->setCellValue('K5', $detail['departure_date'] . ' - ' . $detail['return_date']);
 		$total_dest = count($detail['destinations']);
 		
@@ -794,14 +794,27 @@ class Outgoing extends MY_Controller {
 		$drawing->setOffsetY(-15);
 		$drawing->setWorksheet($spreadsheet->getActiveSheet());
 
-		$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
-		$drawing->setName('Supervisor signature');
-		$signature = $this->extractImageFromAPI($detail['head_of_units_signature']);
-		$drawing->setPath($signature['image_path']); // put your path and image here
-		$drawing->setCoordinates('G34');
-		$drawing->setHeight(35);
-		$drawing->setOffsetY(-15);
-		$drawing->setWorksheet($spreadsheet->getActiveSheet());
+		if($detail['head_of_units_status'] == 2) {
+			$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+			$drawing->setName('Supervisor signature');
+			$signature = $this->extractImageFromAPI($detail['head_of_units_signature']);
+			$drawing->setPath($signature['image_path']); // put your path and image here
+			$drawing->setCoordinates('G34');
+			$drawing->setHeight(35);
+			$drawing->setOffsetY(-15);
+			$drawing->setWorksheet($spreadsheet->getActiveSheet());
+		}
+		
+		if($detail['country_director_status'] == 2) {
+			$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+			$drawing->setName('Country Director signature');
+			$signature = $this->extractImageFromAPI($detail['country_director_signature']);
+			$drawing->setPath($signature['image_path']); // put your path and image here
+			$drawing->setCoordinates('L34');
+			$drawing->setHeight(35);
+			$drawing->setOffsetY(-15);
+			$drawing->setWorksheet($spreadsheet->getActiveSheet());
+		}
 
 		$writer = new Xlsx($spreadsheet);
 		$ea_number = $detail['ea_number'];
@@ -911,6 +924,7 @@ class Outgoing extends MY_Controller {
 					'request_id' => $req_id,
 					'head_of_units_id' => $head_of_units['head_of_units_id'],
 					'head_of_units_status' => 1,
+					'submitted_at' =>  date("Y-m-d H:i:s"),
 				];
 				$already_reported = $this->report->get_report_status($req_id);
 				if($already_reported) {

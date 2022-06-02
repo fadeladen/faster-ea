@@ -322,7 +322,7 @@
 				</div>
 				<?php endforeach; ?>
 				<div id="finished_btn" class="ml-3 pl-4">
-					<a target="_blank" href="<?= base_url('ea_report/outgoing/excel_report/') . $detail['r_id'] ?>"
+					<a target="_blank" href="<?= base_url('ea_report/outgoing/ter_form/') . $detail['r_id'] ?>"
 						class="btn btn btn-success">
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
 							class="bi bi-file-earmark-spreadsheet" viewBox="0 0 16 16">

@@ -200,7 +200,7 @@
 				</div>
 				<?php endforeach; ?>
 				<div id="finished_btn" class="ml-3 pl-4">
-					<a target="_blank" href="<?= base_url('ea_report/outgoing/excel_report/') . $detail['r_id'] ?>"
+					<a target="_blank" href="<?= base_url('ea_report/outgoing/ter_form/') . $detail['r_id'] ?>"
 						class="btn btn btn-success">
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
 							class="bi bi-file-earmark-spreadsheet" viewBox="0 0 16 16">
@@ -363,8 +363,11 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<div style="width: 140px;" class="d-flex <?= $finance_btn ?>">
-											<button data-level='finance' data-id=<?= $detail['r_id'] ?> data-status="2"
-												class="btn btn-status btn-success mr-1">
+											<button style="padding: 0.3rem .6rem !important;
+													font-size: 0.75rem !important;
+													line-height: 1.5 !important;
+													border-radius: 0.2rem !important;" data-level='finance' data-id=<?= $detail['r_id'] ?> data-status="2"
+												class="btn btn-payment-finance btn-success mr-1">
 												<div class="d-flex align-items-center justify-content-center">
 													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
 														fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
@@ -397,9 +400,45 @@
 	</div>
 </div>
 
+<div class="modal fade" id="payment-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+	aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">TER Payment</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<form enctype="multipart/form-data" method="POST" action="<?= base_url('ea_report/incoming/ter_payment') ?>"
+				id="ter_payment">
+				<div class="modal-body">
+					<input type="text" class="d-none" name="req_id" id="req_id" value="<?= $detail['r_id'] ?>">
+					<div class="form-group">
+						<label for="date_of_transfer">Cost</label>
+						<select name="payment_type" class="form-control" id="payment_type">
+							<option value="">Select refund/reimburst</option>
+							<option value="1">Refund</option>
+							<option value="2">Reimburst</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="date_of_transfer">Cost</label>
+						<input type="text" class="form-control" name="total_payment" id="total_payment" value="">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-primary">Submit payment</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
 <script>
 	$(document).ready(function () {
-
+		$('#total_payment').number(true, 0, '', '.');
 		$('.status-badge').each(function () {
 			const status = $(this).text()
 			if (status == 'Pending') {
@@ -425,10 +464,78 @@
 				});
 		});
 
+		$(document).on('click', '.btn-payment-finance', function (e) {
+			e.preventDefault()
+			const loader = `<div style="width: 5rem; height: 5rem;" class="spinner-border mb-5" role="status"></div>
+			<h5 class="mt-2">Please wait</h5>
+			<p>Saving data and sending email to requestor ...</p>`
+			$('#payment-modal').modal('show')
+			$(document).on("submit", '#ter_payment', function (e) {
+				e.preventDefault()
+				const formData = new FormData(this);
+				Swal.fire({
+					title: `Approve TER?`,
+					text: "",
+					type: 'warning',
+					showCancelButton: true,
+					confirmButtonColor: '#3085d6',
+					cancelButtonColor: '#d33',
+					confirmButtonText: `Yes!`
+				}).then((result) => {
+					if (result.value) {
+						$.ajax({
+							type: 'POST',
+							url: $(this).attr("action"),
+							data: formData,
+							beforeSend: function () {
+								$('p.error').remove();
+								Swal.fire({
+									html: loader,
+									showConfirmButton: false,
+									allowEscapeKey: false,
+									allowOutsideClick: false,
+								});
+							},
+							error: function (xhr) {
+								const response = xhr.responseJSON;
+								if (response.errors) {
+									for (const err in response.errors) {
+										$(`#${err}`).parent().append(
+											`<p class="error mt-1 mb-0">This field is required</p>`
+										)
+									}
+								}
+								Swal.fire({
+									"title": response.message,
+									"text": '',
+									"type": "error",
+									"confirmButtonClass": "btn btn-dark"
+								});
+							},
+							success: function (response) {
+								Swal.fire({
+									"title": "Success!",
+									"text": response.message,
+									"type": "success",
+									"confirmButtonClass": "btn btn-dark"
+								}).then((result) => {
+									if (result.value) {
+										location.reload();
+									}
+								})
+							},
+							cache: false,
+							contentType: false,
+							processData: false
+						});
+					}
+				})
+			});
+		});
 
 		$(document).on('click', '.btn-status', function (e) {
 			e.preventDefault()
-			const req_id = $(this).attr('data-id')
+			const id = $(this).attr('data-id')
 			const status = $(this).attr('data-status')
 			const level = $(this).attr('data-level')
 			let confirm_text = 'Approve'
@@ -440,7 +547,7 @@
 			<p>${confirm_text} TER and sending email ...</p>`
 			if (status == 3) {
 				$.get(base_url +
-					`ea_requests/incoming_requests/get_rejected_modal?id=${req_id}&status=${status}&level=${level}`,
+					`ea_requests/incoming_requests/get_rejected_modal?id=${id}&status=${status}&level=${level}`,
 					function (html) {
 						$('#myModal').html(html)
 						$('#myModal').modal('show')
@@ -522,7 +629,7 @@
 							type: 'POST',
 							url: base_url + 'ea_report/incoming/set_status',
 							data: {
-								req_id,
+								id,
 								level,
 								status
 							},

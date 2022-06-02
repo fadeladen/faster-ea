@@ -78,16 +78,18 @@ class Report_Model extends CI_Model
         $request_data =  $this->db->select('r.id as r_id, CONCAT("EA", r.id) AS ea_number, DATE_FORMAT(r.created_at, "%d %F %Y") as request_date,
         DATE_FORMAT(r.departure_date, "%d/%M/%y") as departure_date, DATE_FORMAT(r.return_date, "%d/%M/%y") as return_date,
         r.requestor_id, ur.username as requestor_name, ur.signature as requestor_signature ,r.originating_city,
-        uh.username as head_of_units_name, uh.signature as head_of_units_signature, uea.username as ea_assosiate_name, ufc.username as fco_monitor_name,
-        ufc.signature as fco_monitor_signature, uea.signature as ea_assosiate_signature, ufi.username as finance_name,
-        DATE_FORMAT(st.head_of_units_status_at, "%d %M %Y - %H:%i") as head_of_units_status_at, ufi.signature as finance_signature
+        uh.username as head_of_units_name, uh.signature as head_of_units_signature, uh.email as head_of_units_email, st.head_of_units_status, uh.id as head_of_units_id,
+        ufc.username as country_director_name, ufc.signature as country_director_signature, ufc.email as country_director_email, DATE_FORMAT(st.submitted_at, "%d-%M-%y") as submitted_at,
+        ufc.purpose as country_director_purpose, ufc.signature as country_director_signature,
+        ufi.username as finance_name, ufi.email as finance_email, DATE_FORMAT(st.head_of_units_status_at, "%d %M %Y - %H:%i") as head_of_units_status_at,
+        DATE_FORMAT(st.country_director_status_at, "%d %M %Y - %H:%i") as country_director_status_at, st.country_director_status, st.finance_status,
+        DATE_FORMAT(st.finance_status_at, "%d %M %Y - %H:%i") as finance_status_at, st.payment_type, format(st.total_payment,2,"de_DE") as total_payment,
         ')
             ->from('ea_requests r')
-            ->join('ea_requests_status st', 'st.request_id = r.id', 'left')
+            ->join('ea_report_status st', 'st.request_id = r.id', 'left')
             ->join('tb_userapp ur', 'r.requestor_id = ur.id', 'left')
             ->join('tb_userapp uh', 'st.head_of_units_id = uh.id', 'left')
-            ->join('tb_userapp uea', 'st.ea_assosiate_id = uea.id', 'left')
-            ->join('tb_userapp ufc', 'st.fco_monitor_id = ufc.id', 'left')
+            ->join('tb_userapp ufc', 'st.country_director_id = ufc.id', 'left')
             ->join('tb_userapp ufi', 'st.finance_id = ufi.id', 'left')
             ->where('r.id', $id)
             ->get()->row_array();
@@ -174,7 +176,7 @@ class Report_Model extends CI_Model
         ufc.purpose as country_director_purpose, ufc.signature as country_director_signature,
         ufi.username as finance_name, ufi.email as finance_email, DATE_FORMAT(st.head_of_units_status_at, "%d %M %Y - %H:%i") as head_of_units_status_at,
         DATE_FORMAT(st.country_director_status_at, "%d %M %Y - %H:%i") as country_director_status_at, st.country_director_status, st.finance_status,
-        DATE_FORMAT(st.finance_status_at, "%d %M %Y - %H:%i") as finance_status_at, st.payment_receipt,
+        DATE_FORMAT(st.finance_status_at, "%d %M %Y - %H:%i") as finance_status_at, st.payment_type, format(st.total_payment,2,"de_DE") as total_payment,
         (
             CASE 
                 WHEN head_of_units_status = "1" THEN "Pending"
@@ -372,8 +374,9 @@ class Report_Model extends CI_Model
             'head_of_units_status' => 1,
             'country_director_status' => 1,
             'finance_status' => 1,
+			'submitted_at' =>  date("Y-m-d H:i:s"),
         ]);
-        return $this->db->affected_rows() === 1;
+        return true;
     }
 
     function update_status($request_id, $approver_id, $status, $level, $rejected_reason = null) {
@@ -386,6 +389,11 @@ class Report_Model extends CI_Model
             $level . '_id' => $approver_id,
             'rejected_reason' => $rejected_reason,
         ]);
+        return true;
+    }
+
+    function update_ter_payment($request_id, $payload) {
+        $this->db->where('request_id', $request_id)->update('ea_report_status', $payload);
         return $this->db->affected_rows() === 1;
     }
 

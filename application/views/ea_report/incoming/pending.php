@@ -11,15 +11,15 @@
 				</svg>
 			</span>
 			<h3 class="kt-portlet__head-title">
-				Rejected TER
-				<small>All TER has been rejected</small>
+				Pending TER
+				<small>TER in progress</small>
 			</h3>
 		</div>
 	</div>
 
 	<div class="kt-portlet__body">
 		<table id="table-ter" class="table table-striped"
-			data-url="<?= base_url('ea_report/outgoing/rejected_datatable/')?>">
+		data-url="<?= base_url('ea_report/incoming/datatable/') . 'pending'?>">
 			<thead>
 				<tr>
 					<th style="width: 80px;">EA Number</th>
@@ -27,7 +27,6 @@
 					<th style="min-width: 90px;">Request base</th>
 					<th style="min-width: 90px;">Originating City</th>
 					<th style="min-width: 100px;">Total actual costs</th>
-					<th style="min-width: 100px;">Rejected reason</th>
 					<th style="min-width: 120px;">Request date</th>
 					<th style="min-width: 100px;" class="action-col">Action</th>
 				</tr>
@@ -49,16 +48,6 @@
 			render: function (data) {
 				return `
 						<div class="d-flex flex-column align-items-start">
-							<a href="${base_url}ea_report/outgoing/reporting/${data}"
-								 class="btn btn-sm btn-danger mb-2">
-								<div class="d-flex align-items-center justify-content-center">
-								<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
-                                </svg>
-									<span class="ml-2">Report</span>
-								</div>
-							</a>
 							<a href="${base_url}ea_report/outgoing/ter_detail/${data}"
 								 class="btn btn-sm btn-primary mb-2">
 								<div class="d-flex align-items-center justify-content-center">

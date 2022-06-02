@@ -74,6 +74,7 @@ class Report_Confirmation extends CI_Controller {
 		$detail = $this->request->get_request_by_id($req_id);
 		$requestor = $this->request->get_requestor_data($detail['requestor_id']);
 		$report_status = $this->report->get_report_status($req_id);
+		$enc_req_id = encrypt($detail['r_id']);
         if($level == 'head_of_units') {
             $rejected_by = $detail['head_of_units_name'];
         } else if($level == 'country_director') {
@@ -89,6 +90,21 @@ class Report_Confirmation extends CI_Controller {
         $data['content'] = '
                     <p>Dear '.$requestor['username'].',</p> 
                     <p>'.$data['preview'].'</p>
+					<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-detail">
+						 <tbody>
+						 <tr>
+							 <td align="left">
+							 <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+								 <tbody>
+								 <tr>
+									 <td> <a href="'.base_url('ea_report/outgoing/ter_detail').'/'.$enc_req_id.'" target="_blank">DETAIL</a> </td>
+								 </tr>
+								 </tbody>
+							 </table>
+							 </td>
+						 </tr>
+						 </tbody>
+					 </table>
 					<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-detail">
 						<tbody>
 							<tr>
@@ -254,10 +270,11 @@ class Report_Confirmation extends CI_Controller {
         $mail->Username = $email_config['username'];
         $mail->Password = $email_config['password'];
 		$detail = $this->request->get_request_by_id($req_id);
+		$requestor = $this->request->get_requestor_data($detail['requestor_id']);
 		$enc_req_id = encrypt($detail['r_id']);
 		$mail->setFrom('no-reply@faster.bantuanteknis.id', 'FASTER-FHI360');
-		$data['preview'] = '<p>TER #EA-'.$detail['r_id'].' has been approved by '.$approver_name.'</p>
-						 <p>Please process payment request, check on following details</p>
+		$data['preview'] = '<p>You have TER coming #EA-'.$detail['r_id'].' from '.$requestor['username'].' and has been approved by '.$approver_name.'</p>
+						 <p>Please review and process it, check on following details</p>
 		 ';
 		 $data['content'] = '
 					 <p>Dear '.$user['username'].',</p> 
@@ -269,7 +286,7 @@ class Report_Confirmation extends CI_Controller {
 							 <table role="presentation" border="0" cellpadding="0" cellspacing="0">
 								 <tbody>
 								 <tr>
-									 <td> <a href="'.base_url('ea_report/incoming/detail').'/'.$enc_req_id.'" target="_blank">DETAILS</a> </td>
+									 <td> <a href="'.base_url('ea_report/outgoing/ter_detail').'/'.$enc_req_id.'" target="_blank">DETAIL/RECEIPT</a> </td>
 								 </tr>
 								 </tbody>
 							 </table>
@@ -277,21 +294,6 @@ class Report_Confirmation extends CI_Controller {
 						 </tr>
 						 </tbody>
 					 </table>
-					 <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-danger">
-                        <tbody>
-                        <tr>
-                            <td align="left">
-                            <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                                <tbody>
-                                <tr>
-									<td> <a <a href="'.base_url('ea_report/report_confirmation').'?req_id='.$enc_req_id.'&approver_id='.$user['id'].'&status=3&level=finance" target="_blank">REJECT</a> </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
 					 <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-detail">
 						<tbody>
 							<tr>
@@ -510,14 +512,27 @@ class Report_Confirmation extends CI_Controller {
 		$drawing->setOffsetY(-15);
 		$drawing->setWorksheet($spreadsheet->getActiveSheet());
 
-		$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
-		$drawing->setName('Supervisor signature');
-		$signature = $this->extractImageFromAPI($detail['head_of_units_signature']);
-		$drawing->setPath($signature['image_path']); // put your path and image here
-		$drawing->setCoordinates('G34');
-		$drawing->setHeight(35);
-		$drawing->setOffsetY(-15);
-		$drawing->setWorksheet($spreadsheet->getActiveSheet());
+		if($detail['head_of_units_status'] == 2) {
+			$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+			$drawing->setName('Supervisor signature');
+			$signature = $this->extractImageFromAPI($detail['head_of_units_signature']);
+			$drawing->setPath($signature['image_path']); // put your path and image here
+			$drawing->setCoordinates('G34');
+			$drawing->setHeight(35);
+			$drawing->setOffsetY(-15);
+			$drawing->setWorksheet($spreadsheet->getActiveSheet());
+		}
+		
+		if($detail['country_director_status'] == 2) {
+			$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+			$drawing->setName('Country Director signature');
+			$signature = $this->extractImageFromAPI($detail['country_director_signature']);
+			$drawing->setPath($signature['image_path']); // put your path and image here
+			$drawing->setCoordinates('L34');
+			$drawing->setHeight(35);
+			$drawing->setOffsetY(-15);
+			$drawing->setWorksheet($spreadsheet->getActiveSheet());
+		}
 
 		$writer = new Xlsx($spreadsheet);
 		$ea_number = $detail['ea_number'];

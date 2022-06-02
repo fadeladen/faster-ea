@@ -88,7 +88,7 @@
 									<th class="kt-datatable__cell kt-datatable__cell--sort"><span
 											style="width: 120px;">Item</span></th>
 									<th class="kt-datatable__cell kt-datatable__cell--sort">
-										<span style="width: 110px;">Actual cost</span></th>
+										<span style="width: 160px;">Actual cost</span></th>
 									<th class="kt-datatable__cell kt-datatable__cell--sort">
 										<span style="width: 90px;">Receipt</span></th>
 								</tr>
@@ -101,7 +101,7 @@
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
-										<span style="width: 110px;">
+										<span style="width: 160px;">
 											<span
 												class="badge badge-pill badge-secondary fw-bold lodging_meals_budget"><?= (isset($dest['actual_lodging_items'][$night-1]['cost']) == '' ? '-' : $dest['actual_lodging_items'][$night-1]['d_cost']) ?></span>
 										</span>
@@ -133,9 +133,16 @@
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
-										<span style="width: 110px;">
+										<span style="width: 160px;">
 											<span
-												class="badge badge-pill badge-secondary fw-bold lodging_meals_budget"><?= (isset($dest['actual_meals_items'][$night-1]['cost']) == '' ? '-' : $dest['actual_meals_items'][$night-1]['d_cost']) ?></span>
+												class="badge badge-pill badge-secondary fw-bold lodging_meals_budget">
+												<?= (isset($dest['actual_meals_items'][$night-1]['cost']) == '' ? '-' : $dest['actual_meals_items'][$night-1]['d_cost']) ?>
+											</span>
+											-
+											<span
+												class="badge badge-pill badge-secondary fw-bold lodging_meals_budget">
+												<?= $dest['meals_text'][$night - 1] ?>
+											</span>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
@@ -167,7 +174,7 @@
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
-										<span style="width: 110px;">
+										<span style="width: 160px;">
 											<span class="badge badge-pill badge-secondary fw-bold">
 												<?= number_format($items['total_cost'],2,',','.') ?>
 											</span>

@@ -31,6 +31,7 @@ class Report_Model extends CI_Model
             $night = $destinations[$i]['night'];
             $lodging_arr = [];
             $meals_arr = [];
+            $meals_text_arr = [];
             $other_items_arr = [];
             for ($x = 0; $x < $night; $x++) {
                 $lodging = $this->get_actual_costs_by_night($destinations[$i]['id'], 1, $x + 1);
@@ -64,10 +65,17 @@ class Report_Model extends CI_Model
                     array_push($other_items_arr, [
                     ]);
                 }
+                $meals_text =  $this->get_other_items_by_name($destinations[$i]['id'], 'List meals', $x + 1);
+                if($meals_text) {
+                    array_push($meals_text_arr, $meals_text[0]['meals_text']);
+                } else {
+                    array_push($meals_text_arr, '-');
+                }
             }
             $destinations[$i]['actual_lodging_items'] = $lodging_arr;
             $destinations[$i]['actual_meals_items'] = $meals_arr;
             $destinations[$i]['other_items'] = $other_items_arr;
+            $destinations[$i]['meals_text'] = $meals_text_arr;
         }
         $request_data['total_destinations_cost'] = $total_destinations_cost;
         $request_data['destinations'] = $destinations;
@@ -223,6 +231,7 @@ class Report_Model extends CI_Model
             $night = $destinations[$i]['night'];
             $lodging_arr = [];
             $meals_arr = [];
+            $meals_text_arr = [];
             $other_items_arr = [];
             for ($x = 0; $x < $night; $x++) {
                 $lodging = $this->get_actual_costs_by_night($destinations[$i]['id'], 1, $x + 1);
@@ -260,11 +269,21 @@ class Report_Model extends CI_Model
                         $other_items[$z]['total_cost'] = $item_cost;
                     }
                     array_push($other_items_arr, $other_items);
+                } else {
+                    array_push($other_items_arr, [
+                    ]);
+                }
+                $meals_text =  $this->get_other_items_by_name($destinations[$i]['id'], 'List meals', $x + 1);
+                if($meals_text) {
+                    array_push($meals_text_arr, $meals_text[0]['meals_text']);
+                } else {
+                    array_push($meals_text_arr, '-');
                 }
             }
             $destinations[$i]['actual_lodging_items'] = $lodging_arr;
             $destinations[$i]['actual_meals_items'] = $meals_arr;
             $destinations[$i]['other_items'] = $other_items_arr;
+            $destinations[$i]['meals_text'] = $meals_text_arr;
         }
         $request_data['total_destinations_cost'] = $total_destinations_cost;
         $request_data['destinations'] = $destinations;
@@ -297,7 +316,7 @@ class Report_Model extends CI_Model
     }
 
     function get_other_items_by_name($dest_id, $item_name, $night) {
-        $data = $this->db->select('id, dest_id, night, receipt, item_type, item_name, cost ,format(cost,2,"de_DE") as d_cost')
+        $data = $this->db->select('id, dest_id, night, receipt, item_type, item_name, meals_text, cost ,format(cost,2,"de_DE") as d_cost')
         ->from('ea_actual_costs')
         ->where('dest_id', $dest_id)
         ->where('item_type', 3)

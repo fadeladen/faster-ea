@@ -362,15 +362,6 @@
 														Pending</span>
 												</a>
 											</li>
-											<li class="kt-menu__item <?= ($page == 'Approved report' ? 'kt-menu__item--active' : '') ?>"
-												aria-haspopup="true">
-												<a href="<?= base_url('ea_report/incoming/approved') ?>"
-													class="kt-menu__link"><i
-														class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
-														class="kt-menu__link-text">
-														Approved</span>
-												</a>
-											</li>
 											<li class="kt-menu__item <?= ($page == 'Rejected report' ? 'kt-menu__item--active' : '') ?>"
 												aria-haspopup="true">
 												<a href="<?= base_url('ea_report/incoming/rejected') ?>"
@@ -380,7 +371,16 @@
 														Rejected</span>
 												</a>
 											</li>
-											<li class="kt-menu__item <?= ($page == 'Paid report' ? 'kt-menu__item--active' : '') ?>"
+											<li class="kt-menu__item <?= ($page == 'Approved report' ? 'kt-menu__item--active' : '') ?>"
+												aria-haspopup="true">
+												<a href="<?= base_url('ea_report/incoming/approved') ?>"
+													class="kt-menu__link"><i
+														class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+														class="kt-menu__link-text">
+														Approved</span>
+												</a>
+											</li>
+											<!-- <li class="kt-menu__item <?= ($page == 'Paid report' ? 'kt-menu__item--active' : '') ?>"
 												aria-haspopup="true">
 												<a href="<?= base_url('ea_report/incoming/paid') ?>"
 													class="kt-menu__link"><i
@@ -388,7 +388,7 @@
 														class="kt-menu__link-text">
 														Paid</span>
 												</a>
-											</li>
+											</li> -->
 										</ul>
 									</div>
 								</li>

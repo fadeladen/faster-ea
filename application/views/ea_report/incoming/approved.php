@@ -19,7 +19,7 @@
 
 	<div class="kt-portlet__body">
 		<table id="table-ter" class="table table-striped"
-			data-url="<?= base_url('ea_report/outgoing/ter_datatable/') . 'approved'?>">
+			data-url="<?= base_url('ea_report/incoming/datatable/') . 'approved'?>">
 			<thead>
 				<tr>
 					<th style="width: 80px;">EA Number</th>

@@ -87,13 +87,13 @@ class Incoming extends MY_Controller {
 		if($status == 'approved') {
 			$this->datatable->where('srt.head_of_units_status =', 2);
 			$this->datatable->where('srt.country_director_status =', 2);
-			$this->datatable->where('srt.finance_status =', 1);
-		}
-		if($status == 'paid') {
-			$this->datatable->where('srt.head_of_units_status =', 2);
-			$this->datatable->where('srt.country_director_status =', 2);
 			$this->datatable->where('srt.finance_status =', 2);
 		}
+		// if($status == 'paid') {
+		// 	$this->datatable->where('srt.head_of_units_status =', 2);
+		// 	$this->datatable->where('srt.country_director_status =', 2);
+		// 	$this->datatable->where('srt.finance_status =', 2);
+		// }
 		if($status == 'rejected') {
 			$this->datatable->where('ea.is_ter_rejected =', 1);
 			$this->datatable->where('srt.head_of_units_status =', 3);

@@ -134,13 +134,11 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 160px;">
-											<span
-												class="badge badge-pill badge-secondary fw-bold lodging_meals_budget">
+											<span class="badge badge-pill badge-secondary fw-bold lodging_meals_budget">
 												<?= (isset($dest['actual_meals_items'][$night-1]['cost']) == '' ? '-' : $dest['actual_meals_items'][$night-1]['d_cost']) ?>
 											</span>
 											-
-											<span
-												class="badge badge-pill badge-secondary fw-bold lodging_meals_budget">
+											<span class="badge badge-pill badge-secondary fw-bold lodging_meals_budget">
 												<?= $dest['meals_text'][$night - 1] ?>
 											</span>
 										</span>
@@ -200,6 +198,27 @@
 								</tr>
 								<?php endforeach; ?>
 								<?php endif; ?>
+								<tr style="background-color: #f8f9fa !important;" data-row="0" class="kt-datatable__row" style="left: 0px;">
+									<td class="kt-datatable__cell fw-bold">
+										<span style="width: 120px;">
+											<h5 class="text-dark fw-800 m-0">
+												Total
+											</h5>
+										</span>
+									</td>
+									<td class="kt-datatable__cell">
+										<span style="width: 160px;">
+											<span class="badge badge-pill badge-secondary fw-bold">
+												<?= number_format($dest['total_costs_per_night'][$night-1],2,',','.') ?>
+											</span>
+										</span>
+									</td>
+									<td class="kt-datatable__cell">
+										<span style="width: 90px;">
+
+										</span>
+									</td>
+								</tr>
 							</tbody>
 						</table>
 					</div>

@@ -241,9 +241,13 @@ class Outgoing extends MY_Controller {
 	}
 
 	public function edit_items_modal() {
-		$item_id = $this->input->get('item_id');	
-		$detail = $this->report->get_items_detail($item_id);	
+		$dest_id = $this->input->get('dest_id');		
+		$night = $this->input->get('night');	
+		$item_id = $this->input->get('item_id');
+		$detail = $this->report->get_actual_cost_detail($item_id);
 		$data = [
+			'dest_id' => $dest_id,
+			'night' => $night,
 			'detail' => $detail,
 		];
 		$this->load->view('ea_report/modal/edit_items', $data);
@@ -259,6 +263,25 @@ class Outgoing extends MY_Controller {
 			'items' => $items,
 		];
 		$this->load->view('ea_report/modal/other_items_detail', $data);
+	}
+
+	public function edit_other_items_modal() {
+		$dest_id =$this->input->get('dest_id');
+		$item_name =$this->input->get('item_name');
+		$night =$this->input->get('night');
+		$dest_id =$this->input->get('dest_id');
+		$items = $this->report->get_other_items_by_name($dest_id, $item_name, $night);	
+		$total_cost = 0;
+		foreach($items as $item) {
+			$total_cost += $item['cost'];
+		}
+		$data = [
+			'items' => $items,
+			'night' => $night,
+			'dest_id' => $dest_id,
+			'total_cost' => $total_cost,
+		];
+		$this->load->view('ea_report/modal/edit_items_by_name', $data);
 	}
 
 	public function insert_actual_costs() {

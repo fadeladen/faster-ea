@@ -212,8 +212,8 @@
 										</span>
 									</td>
 								</tr>
-								<?php if (!empty($dest['other_items'][$night-1])): ?>
-								<?php foreach ($dest['other_items'][$night-1] as $items): ?>
+								<?php if (!empty($dest['other_items_by_name'][$night-1])): ?>
+								<?php foreach ($dest['other_items_by_name'][$night-1] as $items): ?>
 								<tr data-row="0" class="kt-datatable__row" style="left: 0px;">
 									<td class="kt-datatable__cell fw-bold">
 										<span style="width: 120px;">
@@ -228,49 +228,31 @@
 									<td class="kt-datatable__cell">
 										<span style="width: 110px;">
 											<span class="badge badge-pill badge-secondary fw-bold">
-												<?= (isset($items['d_cost']) ? $items['d_cost'] : '')  ?>
+												<?= (isset($items['total_cost']) ? number_format($items['total_cost'],2,',','.') : '')  ?>
 											</span>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
-											<a target="_blank" class="badge badge-warning text-light"
-												href="<?= base_url('uploads/ea_items_receipt/') ?><?= (isset($items['receipt']) ? $items['receipt'] : '')  ?>">
-												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-													fill="currentColor" class="bi bi-card-image" viewBox="0 0 16 16">
-													<path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
-													<path
-														d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13zm13 1a.5.5 0 0 1 .5.5v6l-3.775-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12v.54A.505.505 0 0 1 1 12.5v-9a.5.5 0 0 1 .5-.5h13z" />
-												</svg>
-											</a>
+											-
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
 											<div class="d-flex flex-column">
 												<button data-night="<?= $night ?>" data-dest-id="<?= $dest['id'] ?>"
-													data-id="<?= (isset($items['id']) ? $items['id'] : '') ?>"
-													class="btn btn-add-items btn-sm btn-info">
+													data-id="<?= $items['id'] ?>"
+													data-item-name="<?= $items['item_name'] ?>"
+													class="btn btn-items-info btn-sm btn-info">
 													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-														fill="currentColor" class="bi bi-pencil-square"
+														fill="currentColor" class="bi bi-info-circle"
 														viewBox="0 0 16 16">
 														<path
-															d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-														<path fill-rule="evenodd"
-															d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-													</svg>
-													<span class="ml-1">Edit</span>
-												</button>
-												<button data-id="<?= (isset($items['id']) ? $items['id'] : '') ?>"
-													class="btn btn-delete-items btn-sm btn-danger mt-1">
-													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-														fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+															d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
 														<path
-															d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-														<path fill-rule="evenodd"
-															d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+															d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
 													</svg>
-													<span class="ml-1">Delete</span>
+													<span class="ml-1">Detail</span>
 												</button>
 											</div>
 										</span>
@@ -307,16 +289,39 @@
 										</span>
 									</td>
 								</tr>
+								<tr data-row="0" style="background-color: #f8f9fa !important;"
+									class="kt-datatable__row border-top" style="left: 0px;">
+									<td class="kt-datatable__cell fw-bold">
+										<span style="width: 120px;">
+											<h5 class="text-dark fw-800 m-0">
+												Total
+											</h5>
+										</span>
+									</td>
+									<td class="kt-datatable__cell">
+										<span style="width: 110px;">
+										</span>
+									</td>
+									<td class="kt-datatable__cell">
+										<span style="width: 110px;">
+											<span class="badge badge-pill badge-secondary fw-bold">
+												<?= number_format($dest['total_costs_per_night'][$night-1],2,',','.') ?>
+											</span>
+										</span>
+									</td>
+									<td class="kt-datatable__cell">
+										<span style="width: 90px;">
+
+										</span>
+									</td>
+									<td class="kt-datatable__cell">
+										<span style="width: 90px;">
+										</span>
+									</td>
+								</tr>
+
 							</tbody>
 						</table>
-						<div class="ml-2 py-3 border-bottom d-flex">
-							<!-- <h6 class="text-danger mr-2">Max lodging and meals budget: <span
-									class="badge badge-pill badge-secondary fw-bold"
-									id="max-budget"><?= $dest['d_total_lodging_and_meals'] ?></span></h6> -->
-							<h6 class="text-dark mb-2">Total actual lodging and meals: <span
-									class="total_current_budget badge badge-pill badge-secondary fw-bold"><?= number_format($total_cost_per_night,2,',','.')  ?></span>
-							</h6>
-						</div>
 					</div>
 					<?php endfor; ?>
 				</div>
@@ -384,6 +389,19 @@
 			const item_id = $(this).attr('data-id')
 			$.get(base_url +
 				`ea_report/outgoing/add_items_modal?dest_id=${dest_id}&night=${night}&item_id=${item_id}`,
+				function (html) {
+					$('#myModal').html(html)
+					$('#cost').number(true, 0, '', '.');
+					$('#myModal').modal('show')
+				});
+		});
+		$(document).on('click', '.btn-edit-items', function (e) {
+			e.preventDefault()
+			const dest_id = $(this).attr('data-dest-id')
+			const night = $(this).attr('data-night')
+			const item_id = $(this).attr('data-id')
+			$.get(base_url +
+				`ea_report/outgoing/edit_items_modal?dest_id=${dest_id}&night=${night}&item_id=${item_id}`,
 				function (html) {
 					$('#myModal').html(html)
 					$('#cost').number(true, 0, '', '.');
@@ -639,6 +657,20 @@
 					});
 				}
 			})
+		});
+
+		$(document).on('click', '.btn-items-info', function (e) {
+			e.preventDefault()
+			const dest_id = $(this).attr('data-dest-id')
+			const item_name = $(this).attr('data-item-name')
+			const item_id = $(this).attr('data-item-id')
+			const night = $(this).attr('data-night')
+			$.get(base_url +
+				`ea_report/outgoing/edit_other_items_modal?dest_id=${dest_id}&item_name=${item_name}&night=${night}&item_id=${item_id}`,
+				function (html) {
+					$('#myModal').html(html)
+					$('#myModal').modal('show')
+				});
 		});
 
 		const reportIsFinished = () => {

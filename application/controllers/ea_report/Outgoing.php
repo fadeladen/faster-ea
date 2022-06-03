@@ -82,12 +82,17 @@ class Outgoing extends MY_Controller {
 			if($detail['finance_status'] != 1 || $detail['country_director_status'] != 2  || !is_finance_teams()) {
 				$finance_btn = 'invisible';
 			}
+			$submit_btn = 'd-none';
+			if($detail['requestor_id'] == $this->user_data->userId && $detail['is_ter_rejected'] == 1) {
+				$submit_btn = '';
+			}
 			$data = [
 				'detail' => $detail,
 				'requestor_data' => $requestor_data,
 				'head_of_units_btn' => $head_of_units_btn,
 				'country_director_btn' => $country_director_btn,
 				'finance_btn' => $finance_btn,
+				'submit_btn' => $submit_btn,
 				'total_actual_costs' => get_total_actual_costs($id),
 			];
 			$this->template->set('page', 'TER detail #' . $detail['ea_number']);
@@ -200,6 +205,7 @@ class Outgoing extends MY_Controller {
 				'dest_id' => $dest_id,
 				'night' => $night,
 				'item_type' => 3,
+				'item_name' => 'List meals',
 			])->get()->row_array();
 			$meals = explode(',', $item['meals_text']);
 		}
@@ -214,14 +220,6 @@ class Outgoing extends MY_Controller {
 		];
 		if($item_id != 0) {
 			$data['detail'] = $this->report->get_actual_cost_detail($item_id);
-			if($item_type == 2) {
-				$item = $this->db->select('meals_text')->from('ea_actual_costs')->where([
-					'dest_id' => $dest_id,
-					'night' => $night,
-					'item_type' => 3,
-				])->get()->row_array();
-				$meals = explode(',', $item['meals_text']);
-			}
 		}
 		$this->load->view('ea_report/modal/meals_lodging', $data);
 	}
@@ -688,6 +686,7 @@ class Outgoing extends MY_Controller {
 			foreach($other_items_cell as $item) {
 				$sheet->setCellValue($item['cell'],  $item['value']);
 			}
+			// echo json_encode($other_items_cell);
 		}
 		if($dest1['night'] > 1) {
 			$lodging_meals_row = $dest1Row;
@@ -695,15 +694,16 @@ class Outgoing extends MY_Controller {
 			for ($x = 0; $x < $dest1['night']; $x++) {
 				$sheet->setCellValue($lodging_meals_row . '20', $dest1['actual_lodging'][$x]['cost']);
 				$sheet->setCellValue($lodging_meals_row . '21', $dest1['actual_meals'][$x]['cost']);
-				if($lodging_meals_row == 'I') {
-					$lodging_meals_row = 'B';
-				}
 				$current_night_items = $this->report->get_excel_other_items_by_night($dest1['id'], $night++);
 				$other_items_cell = $this->get_other_items_cell($current_night_items, $lodging_meals_row);
 				foreach($other_items_cell as $item) {
 					$sheet->setCellValue($item['cell'],  $item['value']);
 				}
+				if($lodging_meals_row == 'I') {
+					$lodging_meals_row = 'B';
+				}
 				$lodging_meals_row++;
+				// echo json_encode($other_items_cell);
 			}	
 		}
 
@@ -712,6 +712,7 @@ class Outgoing extends MY_Controller {
 			$dest = $detail['destinations'][1];
 			$destRow = get_destination_row($dest['arrival_date']);
 			$day = 0;
+			$lodging_meals_row = $destRow;
 			if($detail['destinations'][0]['departure_date'] == $dest['arrival_date']) {
 				$sheet->setCellValue($destRow . '12', $dest['city']);
 				$destRow++;
@@ -743,13 +744,12 @@ class Outgoing extends MY_Controller {
 			if(!empty($dest['other_items'][0])) {
 				$current_night_items = $this->report->get_excel_other_items_by_night($dest['id'], 1);
 				$other_items_cell = $this->get_other_items_cell($current_night_items, $destRow);
-				// echo json_encode($current_night_items);
 				foreach($other_items_cell as $item) {
 					$sheet->setCellValue($item['cell'], $item['value']);
 				}
 			}
 			if($dest['night'] > 1) {
-				$lodging_meals_row = $destRow;
+				// $lodging_meals_row = $destRow;
 				$night = 1;
 				for ($x = 0; $x < $dest['night']; $x++) {
 					$sheet->setCellValue($lodging_meals_row . '20', $dest['actual_lodging'][$x]['cost']);
@@ -771,7 +771,8 @@ class Outgoing extends MY_Controller {
 			// 3rd Destinations
 			$dest = $detail['destinations'][2];
 			$destRow = get_destination_row($dest['arrival_date']);
-			$day = 0;
+			$lodging_meals_row = $destRow;
+			$day = 1;
 			if($detail['destinations'][1]['departure_date'] == $dest['arrival_date']) {
 				$sheet->setCellValue($destRow . '12', $dest['city']);
 				$destRow++;
@@ -808,7 +809,7 @@ class Outgoing extends MY_Controller {
 				}
 			}
 			if($dest['night'] > 1) {
-				$lodging_meals_row = $destRow;
+				// $lodging_meals_row = $destRow;
 				$night = 1;
 				for ($x = 0; $x < $dest['night']; $x++) {
 					$sheet->setCellValue($lodging_meals_row . '20', $dest['actual_lodging'][$x]['cost']);

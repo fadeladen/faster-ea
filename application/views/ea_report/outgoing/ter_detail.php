@@ -198,7 +198,8 @@
 								</tr>
 								<?php endforeach; ?>
 								<?php endif; ?>
-								<tr style="background-color: #f8f9fa !important;" data-row="0" class="kt-datatable__row" style="left: 0px;">
+								<tr style="background-color: #f8f9fa !important;" data-row="0" class="kt-datatable__row"
+									style="left: 0px;">
 									<td class="kt-datatable__cell fw-bold">
 										<span style="width: 120px;">
 											<h5 class="text-dark fw-800 m-0">
@@ -419,6 +420,22 @@
 								</tr>
 							</tbody>
 						</table>
+					</div>
+					<div class="ml-3 <?= $submit_btn ?>">
+						<button
+							data-id="<?= $detail['r_id'] ?>" type="button" id="btn_submit_report"
+							class="btn btn-primary ml-2">
+							<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+								class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
+								<path fill-rule="evenodd"
+									d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z" />
+								<path fill-rule="evenodd"
+									d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z" />
+							</svg>
+							<span class="ml-1">
+								Submit report
+							</span>
+						</button>
 					</div>
 				</div>
 			</div>
@@ -693,6 +710,62 @@
 					}
 				})
 			}
+		});
+		$(document).on('click', '#btn_submit_report', function (e) {
+			e.preventDefault()
+			const req_id = $(this).attr('data-id')
+			const loader = `<div style="width: 5rem; height: 5rem;" class="spinner-border mb-5" role="status"></div>
+			<h5 class="mt-2">Please wait</h5>
+			<p>Submit TER and sending email ...</p>`
+			Swal.fire({
+				title: 'Submit report?',
+				text: "",
+				type: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#3085d6',
+				cancelButtonColor: '#d33',
+				confirmButtonText: `Yes!`
+			}).then((result) => {
+				if (result.value) {
+					$.ajax({
+						type: 'POST',
+						url: base_url + 'ea_report/outgoing/submit_report',
+						data: {
+							req_id
+						},
+						beforeSend: function () {
+							Swal.fire({
+								html: loader,
+								showConfirmButton: false,
+								allowEscapeKey: false,
+								allowOutsideClick: false,
+							});
+						},
+						error: function (xhr) {
+							const response = xhr.responseJSON;
+							Swal.fire({
+								"title": response.message,
+								"text": '',
+								"type": "error",
+								"confirmButtonClass": "btn btn-dark"
+							});
+						},
+						success: function (response) {
+							Swal.fire({
+								"title": "Success!",
+								"text": response.message,
+								"type": "success",
+								"confirmButtonClass": "btn btn-dark"
+							}).then((result) => {
+								console.log(response)
+								if (result.value) {
+									location.reload();
+								}
+							})
+						},
+					});
+				}
+			})
 		});
 	});
 

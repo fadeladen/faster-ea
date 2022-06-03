@@ -330,7 +330,7 @@ class Report_Confirmation extends CI_Controller {
 		$spreadsheet = $reader->load($inputFileName);
 		$sheet = $spreadsheet->getActiveSheet();
 		$sheet->setCellValue('B5', 'Name: ' . $detail['requestor_name']);
-		$sheet->setCellValue('G5', date('d-M-y'));
+		$sheet->setCellValue('G5', $detail['submitted_at']);
 		$sheet->setCellValue('K5', $detail['departure_date'] . ' - ' . $detail['return_date']);
 		$total_dest = count($detail['destinations']);
 		
@@ -364,6 +364,7 @@ class Report_Confirmation extends CI_Controller {
 			foreach($other_items_cell as $item) {
 				$sheet->setCellValue($item['cell'],  $item['value']);
 			}
+			// echo json_encode($other_items_cell);
 		}
 		if($dest1['night'] > 1) {
 			$lodging_meals_row = $dest1Row;
@@ -371,15 +372,16 @@ class Report_Confirmation extends CI_Controller {
 			for ($x = 0; $x < $dest1['night']; $x++) {
 				$sheet->setCellValue($lodging_meals_row . '20', $dest1['actual_lodging'][$x]['cost']);
 				$sheet->setCellValue($lodging_meals_row . '21', $dest1['actual_meals'][$x]['cost']);
-				if($lodging_meals_row == 'I') {
-					$lodging_meals_row = 'B';
-				}
 				$current_night_items = $this->report->get_excel_other_items_by_night($dest1['id'], $night++);
 				$other_items_cell = $this->get_other_items_cell($current_night_items, $lodging_meals_row);
 				foreach($other_items_cell as $item) {
 					$sheet->setCellValue($item['cell'],  $item['value']);
 				}
+				if($lodging_meals_row == 'I') {
+					$lodging_meals_row = 'B';
+				}
 				$lodging_meals_row++;
+				// echo json_encode($other_items_cell);
 			}	
 		}
 
@@ -388,6 +390,7 @@ class Report_Confirmation extends CI_Controller {
 			$dest = $detail['destinations'][1];
 			$destRow = get_destination_row($dest['arrival_date']);
 			$day = 0;
+			$lodging_meals_row = $destRow;
 			if($detail['destinations'][0]['departure_date'] == $dest['arrival_date']) {
 				$sheet->setCellValue($destRow . '12', $dest['city']);
 				$destRow++;
@@ -419,13 +422,12 @@ class Report_Confirmation extends CI_Controller {
 			if(!empty($dest['other_items'][0])) {
 				$current_night_items = $this->report->get_excel_other_items_by_night($dest['id'], 1);
 				$other_items_cell = $this->get_other_items_cell($current_night_items, $destRow);
-				// echo json_encode($current_night_items);
 				foreach($other_items_cell as $item) {
 					$sheet->setCellValue($item['cell'], $item['value']);
 				}
 			}
 			if($dest['night'] > 1) {
-				$lodging_meals_row = $destRow;
+				// $lodging_meals_row = $destRow;
 				$night = 1;
 				for ($x = 0; $x < $dest['night']; $x++) {
 					$sheet->setCellValue($lodging_meals_row . '20', $dest['actual_lodging'][$x]['cost']);
@@ -447,7 +449,8 @@ class Report_Confirmation extends CI_Controller {
 			// 3rd Destinations
 			$dest = $detail['destinations'][2];
 			$destRow = get_destination_row($dest['arrival_date']);
-			$day = 0;
+			$lodging_meals_row = $destRow;
+			$day = 1;
 			if($detail['destinations'][1]['departure_date'] == $dest['arrival_date']) {
 				$sheet->setCellValue($destRow . '12', $dest['city']);
 				$destRow++;
@@ -484,7 +487,7 @@ class Report_Confirmation extends CI_Controller {
 				}
 			}
 			if($dest['night'] > 1) {
-				$lodging_meals_row = $destRow;
+				// $lodging_meals_row = $destRow;
 				$night = 1;
 				for ($x = 0; $x < $dest['night']; $x++) {
 					$sheet->setCellValue($lodging_meals_row . '20', $dest['actual_lodging'][$x]['cost']);

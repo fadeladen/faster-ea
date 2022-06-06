@@ -79,3 +79,20 @@ if (!function_exists('get_total_actual_costs')) {
         return number_format($actual_costs,2,',','.');
     }
 }
+
+if (!function_exists('get_total_days')) {
+    function get_total_days($req_id)
+    {   
+        $ci = &get_instance();
+        $destinations = $ci->db->select('*')
+        ->from('ea_requests_destinations')
+        ->where('request_id', $req_id)
+        ->get()->result_array();
+        $total_dest = count($destinations);
+        $arriv_date = strtotime($destinations[0]['arrival_date']);
+        $depar_date = strtotime($destinations[$total_dest - 1]['departure_date']);
+        $datediff = $depar_date - $arriv_date;
+        $total_days = ($datediff / (60 * 60 * 24));
+        return $total_days + 1;
+    }
+}

@@ -8,7 +8,7 @@ class Outcoming_requests extends MY_Controller {
 		parent::__construct();
 		$this->load->model('Request_Model', 'request');
 		$this->load->model('Base_Model', 'base_model');
-		$this->template->set('pageParent', 'Outcoming Requests');
+		$this->template->set('pageParent', 'Outgoing Requests');
 		$this->template->set_default_layout('layouts/default');
 	}
 

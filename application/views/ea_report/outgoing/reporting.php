@@ -496,7 +496,8 @@
 							}).then((result) => {
 								console.log(response)
 								if (result.value) {
-									location.reload();
+									window.location = base_url +
+									'ea_report/outgoing/pending'
 								}
 							})
 						},

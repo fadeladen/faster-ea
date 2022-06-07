@@ -127,7 +127,7 @@ class Report_Model extends CI_Model
             return false;
         }
         $destinations = $this->db->select('id, total, city, night, actual_lodging, actual_meals,
-        departure_date, arrival_date,
+        departure_date, arrival_date, project_number,
         DATE_FORMAT(departure_date, "%d/%M/%y") as depar_date, DATE_FORMAT(arrival_date, "%d/%M/%y") as arriv_date
         ')
         ->from('ea_requests_destinations')
@@ -408,6 +408,17 @@ class Report_Model extends CI_Model
             ];
         }
         return $data;
+    }
+
+    function get_total_max_lodging_budget($req_id){
+        $destinations = $this->db->select('id, night')->from('ea_requests_destinations')->where('request_id', $req_id)->get()->result_array();
+		$total_max_lodging_budget = 0;
+		foreach($destinations as $dest) {
+			$max_budget = $this->report->get_dest_max_budget($dest['id']);
+			$max_budget_per_night = $max_budget['max_lodging_budget'] * $dest['night'];
+			$total_max_lodging_budget += $max_budget_per_night;
+		}
+		return $total_max_lodging_budget;
     }
 
     function submit_report($payload) {

@@ -326,12 +326,15 @@ class Report_Confirmation extends CI_Controller {
     public function ter_form($id) {
 		$detail = $this->report->get_excel_report_by_id($id);
 		$total_days = get_total_days($id);
+		$total_max_lodging_budget = $this->report->get_total_max_lodging_budget($id);
 		if($total_days <= 7) {
 			$excel_config = [
 				'file_name' => 'ea_report.xlsx',
 				'date_submitted_cell' => 'G5',
 				'travel_date_cell' => 'K5',
 				'last_cell' => 'I',
+				'max_lodging_budget_cell' => 'K20',
+				'project_number_cell' => 'L20',
 			];
 		} else if($total_days > 7 && $total_days <= 14) {
 			$excel_config = [
@@ -339,6 +342,8 @@ class Report_Confirmation extends CI_Controller {
 				'date_submitted_cell' => 'N5',
 				'travel_date_cell' => 'R5',
 				'last_cell' => 'P',
+				'max_lodging_budget_cell' => 'R20',
+				'project_number_cell' => 'S20',
 			];
 		} else if($total_days > 14 && $total_days <= 21) {
 			$excel_config = [
@@ -346,6 +351,8 @@ class Report_Confirmation extends CI_Controller {
 				'date_submitted_cell' => 'U5',
 				'travel_date_cell' => 'Y5',
 				'last_cell' => 'W',
+				'max_lodging_budget_cell' => 'Y20',
+				'project_number_cell' => 'Z20',
 			];
 		} else {
 			$excel_config = [
@@ -353,6 +360,8 @@ class Report_Confirmation extends CI_Controller {
 				'date_submitted_cell' => 'AB5',
 				'travel_date_cell' => 'AF5',
 				'last_cell' => 'AD',
+				'max_lodging_budget_cell' => 'AF20',
+				'project_number_cell' => 'AG20',
 			];
 		}
 		$inputFileName = FCPATH.'assets/excel/' . $excel_config['file_name'];
@@ -362,11 +371,14 @@ class Report_Confirmation extends CI_Controller {
 		$sheet->setCellValue('B5', 'Name: ' . $detail['requestor_name']);
 		$sheet->setCellValue($excel_config['date_submitted_cell'], $detail['submitted_at']);
 		$sheet->setCellValue($excel_config['travel_date_cell'], $detail['departure_date'] . ' - ' . $detail['return_date']);
+		$sheet->setCellValue($excel_config['max_lodging_budget_cell'], $total_max_lodging_budget);
 		$total_dest = count($detail['destinations']);
 		
 		// 1st Destinations
 		$dest1 = $detail['destinations'][0];
-	
+		$project_number = $dest1['project_number'];
+		$sheet->setCellValue($excel_config['project_number_cell'], " $project_number");
+		$sheet->setCellValue('C39', " $project_number");
 		$dest1Row = get_destination_row($dest1['arrival_date']);
 		$sheet->setCellValue($dest1Row . '8', $dest1['arriv_date']);
 		$sheet->setCellValue($dest1Row . '9', $dest1['city']);

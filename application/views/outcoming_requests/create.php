@@ -724,6 +724,22 @@
 								"confirmButtonClass": "btn btn-dark"
 							});
 						}
+						const totalDest = $('.destination').length
+						let firstDate = $('.destination_arrival_date').eq(0).val()
+						let lastDate = $('.destination_departure_date').eq(totalDest - 1).val()
+						firstDate = new Date(firstDate);
+						lastDate = new Date(lastDate);
+						let totalDays = days_between(firstDate, lastDate)
+						totalDays = totalDays + 1
+						if(totalDays > 28) {
+							wizardObj.stop();
+							swal.fire({
+								"title": "",
+								"text": "Maximum travel time is 28 days!",
+								"type": "error",
+								"confirmButtonClass": "btn btn-dark"
+							});
+						}
 					}
 				});
 

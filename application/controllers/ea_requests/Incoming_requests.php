@@ -65,7 +65,7 @@ class Incoming_requests extends MY_Controller {
 
 		$this->datatable->select('CONCAT("EA", ea.id) AS ea_number, u.username as requestor_name, ea.request_base, ea.employment, ea.originating_city,
 		DATE_FORMAT(ea.departure_date, "%d %M %Y") as departure_date, DATE_FORMAT(ea.return_date, "%d %M %Y") as return_date,
-		DATE_FORMAT(ea.created_at, "%d %M %Y - %H:%i") as created_at, ea.id', true);
+		DATE_FORMAT(ea.created_at, "%d %M %Y - %H:%i") as created_at, ea.id, TIMESTAMP(created_at) as timestamp', true);
         $this->datatable->from('ea_requests ea');
         $this->datatable->join('tb_userapp u', 'u.id = ea.requestor_id');
         $this->datatable->join('ea_requests_status st', 'ea.id = st.request_id');

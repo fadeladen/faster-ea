@@ -50,10 +50,10 @@ class Incoming extends MY_Controller {
 		$user_id = $this->user_data->userId;
 		if($status == 'rejected') {
 			$this->datatable->select('CONCAT("EA", ea.id) AS ea_number, u.username as requestor_name, ea.request_base,
-        ea.originating_city, ea.id as total_cost,srt.rejected_reason , DATE_FORMAT(srt.submitted_at, "%d %M %Y - %H:%i") as created_at ,ea.id', true);
+        ea.originating_city, ea.id as total_cost,srt.rejected_reason , DATE_FORMAT(srt.submitted_at, "%d %M %Y - %H:%i") as created_at ,ea.id, TIMESTAMP(created_at) as timestamp', true);
 		} else {
 			$this->datatable->select('CONCAT("EA", ea.id) AS ea_number, u.username as requestor_name, ea.request_base,
-      		  ea.originating_city, ea.id as total_cost, DATE_FORMAT(srt.submitted_at, "%d %M %Y - %H:%i") as created_at ,ea.id', true);
+      		  ea.originating_city, ea.id as total_cost, DATE_FORMAT(srt.submitted_at, "%d %M %Y - %H:%i") as created_at ,ea.id, TIMESTAMP(created_at) as timestamp', true);
 		}
         $this->datatable->from('ea_requests ea');
         $this->datatable->join('tb_userapp u', 'u.id = ea.requestor_id');

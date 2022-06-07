@@ -41,7 +41,7 @@
 
 <script>
 	initDatatable('#table-ter', {
-		order: [[5, 'desc']],
+		order: [[7, 'desc']],
 		columnDefs: [{
 			targets: 'action-col',
 			orderable: false,
@@ -49,16 +49,6 @@
 			render: function (data) {
 				return `
 						<div class="d-flex flex-column align-items-start">
-							<a href="${base_url}ea_report/outgoing/reporting/${data}"
-								 class="btn btn-sm btn-danger mb-2">
-								<div class="d-flex align-items-center justify-content-center">
-								<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
-                                </svg>
-									<span class="ml-2">Report</span>
-								</div>
-							</a>
 							<a href="${base_url}ea_report/outgoing/ter_detail/${data}"
 								 class="btn btn-sm btn-primary mb-2">
 								<div class="d-flex align-items-center justify-content-center">

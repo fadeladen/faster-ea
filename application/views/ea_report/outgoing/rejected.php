@@ -41,7 +41,7 @@
 
 <script>
 	initDatatable('#table-ter', {
-		order: [[5, 'desc']],
+		order: [[7, 'desc']],
 		columnDefs: [{
 			targets: 'action-col',
 			orderable: false,

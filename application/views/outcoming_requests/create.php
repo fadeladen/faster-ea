@@ -1343,14 +1343,13 @@
 				order = '2nd'
 			} else if (list == 3) {
 				order = '3rd'
+			}
+			else if (list == 4) {
+				order = '4th'
+			} else if (list == 5) {
+				order = '5th'
 				$(this).addClass('d-none')
 			}
-			// else if (list == 4) {
-			// 	order = '4th'
-			// } else if (list == 5) {
-			// 	order = '5th'
-			// 	$(this).addClass('d-none')
-			// }
 
 			const html = `<div class="destination pb-2 mb-5 border-bottom">
 										<div class="d-flex align-items-center justify-content-between mb-2">

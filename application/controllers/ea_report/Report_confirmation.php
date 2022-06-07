@@ -469,13 +469,13 @@ class Report_Confirmation extends CI_Controller {
 					for ($x = 0; $x < $dest['night']; $x++) {
 						$sheet->setCellValue($lodging_meals_row . '20', $dest['actual_lodging'][$x]['cost']);
 						$sheet->setCellValue($lodging_meals_row . '21', $dest['actual_meals'][$x]['cost']);
-						if($lodging_meals_row == $excel_config['last_cell']) {
-							$lodging_meals_row = 'B';
-						}
 						$current_night_items = $this->report->get_excel_other_items_by_night($dest['id'], $night++);
 						$other_items_cell = $this->get_other_items_cell($current_night_items, $lodging_meals_row);
 						foreach($other_items_cell as $item) {
 							$sheet->setCellValue($item['cell'],  $item['value']);
+						}
+						if($lodging_meals_row == $excel_config['last_cell']) {
+							$lodging_meals_row = 'B';
 						}
 						$lodging_meals_row++;
 					}	

@@ -326,6 +326,7 @@
 					<?php endfor; ?>
 				</div>
 				<?php endforeach; ?>
+				<?php if ($is_report_finished): ?>
 				<div id="finished_btn" class="ml-3 pl-4">
 					<a target="_blank" href="<?= base_url('ea_report/outgoing/ter_form/') . $detail['r_id'] ?>"
 						class="btn btn btn-success">
@@ -352,10 +353,12 @@
 						</span>
 					</button>
 				</div>
+				<?php else : ?>
 				<div id="report_notes">
 					<p class="pl-3 ml-3 text-danger">Please report all meals and lodging actual costs to
 						download excel report</p>
 				</div>
+				<?php endif; ?>
 			</div>
 		</div>
 	</div>
@@ -497,7 +500,7 @@
 								console.log(response)
 								if (result.value) {
 									window.location = base_url +
-									'ea_report/outgoing/pending'
+										'ea_report/outgoing/pending'
 								}
 							})
 						},
@@ -673,25 +676,6 @@
 					$('#myModal').modal('show')
 				});
 		});
-
-		const reportIsFinished = () => {
-			let valid = true
-
-			$('#meals_lodging_table .lodging_meals_budget').each(function () {
-				const budget = $(this).text()
-				if (budget == '-') {
-					valid = false;
-				}
-			});
-			if (!valid) {
-				$('#finished_btn').addClass('d-none')
-				$('#report_notes').removeClass('d-none')
-			} else {
-				$('#finished_btn').removeClass('d-none')
-				$('#report_notes').addClass('d-none')
-			}
-		}
-		reportIsFinished()
 	});
 
 </script>

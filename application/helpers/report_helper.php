@@ -96,3 +96,29 @@ if (!function_exists('get_total_days')) {
         return $total_days + 1;
     }
 }
+
+if (!function_exists('is_report_finished')) {
+    function is_report_finished($req_id)
+    {   
+        $ci = &get_instance();
+        $destinations = $ci->db->select('*')->from('ea_requests_destinations')
+		->where('request_id', $req_id)
+		->get()->result_array();
+		$total_report = 0;
+		foreach($destinations as $dest) {
+			$total_row = $dest['night'] * 2;
+			$total_report += $total_row;
+		}
+		$dest_report =  $ci->db->select('eac.*')->from('ea_actual_costs eac')
+		->join('ea_requests_destinations erd', 'erd.id = eac.dest_id')
+		->join('ea_requests ear', 'erd.request_id = ear.id')
+		->where('ear.id', $req_id)
+		->where_in('eac.item_type', [1,2])
+		->get()->result_array();
+		$total_actual_cost = count($dest_report);
+		if($total_report == $total_actual_cost) {
+			return true;
+		}
+        return false;
+    }
+}

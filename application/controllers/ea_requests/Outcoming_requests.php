@@ -407,7 +407,7 @@ class Outcoming_requests extends MY_Controller {
 
 		$detail = $this->request->get_excel_data_by_id($req_id);
 		$requestor = $this->request->get_requestor_data($detail['requestor_id']);
-		$inputFileName = FCPATH.'assets/excel/ea_form.xlsx';
+		$inputFileName = FCPATH.'assets/excel/ea_form_new.xlsx';
 		$reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
 		$spreadsheet = $reader->load($inputFileName);
 		$sheet = $spreadsheet->getActiveSheet();
@@ -423,7 +423,7 @@ class Outcoming_requests extends MY_Controller {
 		$sheet->setCellValue('G17', 'Employee #' . $requestor['employee_id']);
 		$sheet->setCellValue('AK15', $detail['ea_assosiate_name']);
 		$sheet->setCellValue('AL16', '$' . $detail['max_budget_usd']);
-		$sheet->setCellValue('C77', $detail['special_instructions']);
+		$sheet->setCellValue('C104', $detail['special_instructions']);
 		$sheet->setCellValue('C18', 'X');
 		if($detail['country_director_notified'] == 'Yes') {
 			$sheet->setCellValue('X18', 'X');
@@ -449,20 +449,18 @@ class Outcoming_requests extends MY_Controller {
 		// Signature
 		$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
 		$drawing->setName('Traveler signature');
-		// $signature = $this->extractImage($requestor['signature']);
 		$signature = $this->extractImageFromAPI($requestor['signature']);
 		$drawing->setPath($signature['image_path']); // put your path and image here
-		$drawing->setCoordinates('I85');
+		$drawing->setCoordinates('I112');
 		$drawing->setHeight(40);
 		$drawing->setWorksheet($spreadsheet->getActiveSheet());
 
 		if($detail['head_of_units_status'] == 2) {
 			$drawing2 = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
 			$drawing2->setName('Head of units signature');
-			// $signature = $this->extractImage($detail['head_of_units_signature']);
 			$signature = $this->extractImageFromAPI($detail['head_of_units_signature']);
 			$drawing2->setPath($signature['image_path']);  
-			$drawing2->setCoordinates('I89');
+			$drawing2->setCoordinates('I116');
 			$drawing2->setHeight(40);
 			$drawing2->setOffsetY(-5); 
 			$drawing2->setWorksheet($spreadsheet->getActiveSheet());
@@ -472,7 +470,6 @@ class Outcoming_requests extends MY_Controller {
 		if($detail['fco_monitor_status'] == 2) {
 			$drawing4 = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
 			$drawing4->setName('FCO signature');
-			// $signature = $this->extractImage($detail['fco_monitor_signature']);
 			$signature = $this->extractImageFromAPI($detail['fco_monitor_signature']);
 			$drawing4->setPath($signature['image_path']); 
 			$drawing4->setCoordinates('V28');
@@ -484,10 +481,9 @@ class Outcoming_requests extends MY_Controller {
 		if($detail['finance_status'] == 2) {
 			$drawing5 = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
 			$drawing5->setName('Finance signature');
-			// $signature = $this->extractImage($detail['finance_signature']);
 			$signature = $this->extractImageFromAPI($detail['finance_signature']);
 			$drawing5->setPath($signature['image_path']);
-			$drawing5->setCoordinates('AK89');
+			$drawing5->setCoordinates('AK116');
 			$drawing5->setOffsetY(-15); 
 			$drawing5->setHeight(50);
 			$drawing5->setWorksheet($spreadsheet->getActiveSheet());
@@ -515,22 +511,21 @@ class Outcoming_requests extends MY_Controller {
 			if($destinations[1]['country'] == 1) {
 				$cityCountry =  $destinations[1]['city'] . '/Indonesia'; 
 			} 
-			$sheet->setCellValue('G39', $cityCountry);
-			$sheet->setCellValue('P39', $destinations[1]['arriv_date']);
-			$sheet->setCellValue('W39', $destinations[1]['depar_date']);
-			$sheet->setCellValue('C42', $destinations[1]['project_number']);
-			$sheet->setCellValue('AL41', $destinations[1]['lodging'] + 0);
-			$sheet->setCellValue('AL43', $destinations[1]['meals'] + 0);
-			$sheet->setCellValue('AL45', $destinations[1]['total_lodging_and_meals'] + 0);
-			$sheet->setCellValue('AL47', $destinations[1]['night'] + 0);
-			$sheet->setCellValue('AL49', $destinations[1]['total'] + 0);
+			$sheet->setCellValue('G40', $cityCountry);
+			$sheet->setCellValue('P40', $destinations[1]['arriv_date']);
+			$sheet->setCellValue('W40', $destinations[1]['depar_date']);
+			$sheet->setCellValue('C43', $destinations[1]['project_number']);
+			$sheet->setCellValue('AL42', $destinations[1]['lodging'] + 0);
+			$sheet->setCellValue('AL44', $destinations[1]['meals'] + 0);
+			$sheet->setCellValue('AL46', $destinations[1]['total_lodging_and_meals'] + 0);
+			$sheet->setCellValue('AL48', $destinations[1]['night'] + 0);
+			$sheet->setCellValue('AL50', $destinations[1]['total'] + 0);
 			if($detail['fco_monitor_status'] == 2) {
 				$drawing6 = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
 				$drawing6->setName('FCO signature');
-				// $signature = $this->extractImage($detail['fco_monitor_signature']);
 				$signature = $this->extractImageFromAPI($detail['fco_monitor_signature']);
 				$drawing6->setPath($signature['image_path']); 
-				$drawing6->setCoordinates('V41');
+				$drawing6->setCoordinates('V42');
 				$drawing6->setHeight(30);
 				$drawing6->setWorksheet($spreadsheet->getActiveSheet());
 			} 
@@ -542,60 +537,114 @@ class Outcoming_requests extends MY_Controller {
 			if($destinations[2]['country'] == 1) {
 				$cityCountry =  $destinations[2]['city'] . '/Indonesia'; 
 			} 
-			$sheet->setCellValue('G52', $cityCountry);
-			$sheet->setCellValue('P52', $destinations[2]['arriv_date']);
-			$sheet->setCellValue('W52', $destinations[2]['depar_date']);
-			$sheet->setCellValue('C55', $destinations[2]['project_number']);
-			$sheet->setCellValue('AL54', $destinations[2]['lodging'] + 0);
-			$sheet->setCellValue('AL56', $destinations[2]['meals'] + 0);
-			$sheet->setCellValue('AL58', $destinations[2]['total_lodging_and_meals'] + 0);
-			$sheet->setCellValue('AL60', $destinations[2]['night'] + 0);
-			$sheet->setCellValue('AL62', $destinations[2]['total'] + 0);
+			$sheet->setCellValue('G53', $cityCountry);
+			$sheet->setCellValue('P53', $destinations[2]['arriv_date']);
+			$sheet->setCellValue('W53', $destinations[2]['depar_date']);
+			$sheet->setCellValue('C56', $destinations[2]['project_number']);
+			$sheet->setCellValue('AL55', $destinations[2]['lodging'] + 0);
+			$sheet->setCellValue('AL57', $destinations[2]['meals'] + 0);
+			$sheet->setCellValue('AL59', $destinations[2]['total_lodging_and_meals'] + 0);
+			$sheet->setCellValue('AL61', $destinations[2]['night'] + 0);
+			$sheet->setCellValue('AL63', $destinations[2]['total'] + 0);
 			if($detail['fco_monitor_status'] == 2) {
 				$drawing7 = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
 				$drawing7->setName('FCO signature');
 				// $signature = $this->extractImage($detail['fco_monitor_signature']);
 				$signature = $this->extractImageFromAPI($detail['fco_monitor_signature']);
 				$drawing7->setPath($signature['image_path']);  // put your path and image here
-				$drawing7->setCoordinates('V54');
+				$drawing7->setCoordinates('V55');
+				$drawing7->setHeight(30);
+				$drawing7->setWorksheet($spreadsheet->getActiveSheet());
+			} 
+		}
+
+		if(count($destinations) > 3) {
+			// 4th destination
+			$cityCountry = $destinations[3]['city'];
+			if($destinations[3]['country'] == 1) {
+				$cityCountry =  $destinations[3]['city'] . '/Indonesia'; 
+			} 
+			$sheet->setCellValue('G65', $cityCountry);
+			$sheet->setCellValue('P65', $destinations[3]['arriv_date']);
+			$sheet->setCellValue('W65', $destinations[3]['depar_date']);
+			$sheet->setCellValue('C68', $destinations[3]['project_number']);
+			$sheet->setCellValue('AL67', $destinations[3]['lodging'] + 0);
+			$sheet->setCellValue('AL69', $destinations[3]['meals'] + 0);
+			$sheet->setCellValue('AL71', $destinations[3]['total_lodging_and_meals'] + 0);
+			$sheet->setCellValue('AL73', $destinations[3]['night'] + 0);
+			$sheet->setCellValue('AL75', $destinations[3]['total'] + 0);
+			if($detail['fco_monitor_status'] == 2) {
+				$drawing7 = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+				$drawing7->setName('FCO signature');
+				// $signature = $this->extractImage($detail['fco_monitor_signature']);
+				$signature = $this->extractImageFromAPI($detail['fco_monitor_signature']);
+				$drawing7->setPath($signature['image_path']);  // put your path and image here
+				$drawing7->setCoordinates('V67');
+				$drawing7->setHeight(30);
+				$drawing7->setWorksheet($spreadsheet->getActiveSheet());
+			} 
+		}
+
+		if(count($destinations) > 4) {
+			// 5th destination
+			$cityCountry = $destinations[4]['city'];
+			if($destinations[4]['country'] == 1) {
+				$cityCountry =  $destinations[4]['city'] . '/Indonesia'; 
+			} 
+			$sheet->setCellValue('G79', $cityCountry);
+			$sheet->setCellValue('P79', $destinations[4]['arriv_date']);
+			$sheet->setCellValue('W79', $destinations[4]['depar_date']);
+			$sheet->setCellValue('C82', $destinations[4]['project_number']);
+			$sheet->setCellValue('AL81', $destinations[4]['lodging'] + 0);
+			$sheet->setCellValue('AL83', $destinations[4]['meals'] + 0);
+			$sheet->setCellValue('AL85', $destinations[4]['total_lodging_and_meals'] + 0);
+			$sheet->setCellValue('AL87', $destinations[4]['night'] + 0);
+			$sheet->setCellValue('AL89', $destinations[4]['total'] + 0);
+			if($detail['fco_monitor_status'] == 2) {
+				$drawing7 = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+				$drawing7->setName('FCO signature');
+				// $signature = $this->extractImage($detail['fco_monitor_signature']);
+				$signature = $this->extractImageFromAPI($detail['fco_monitor_signature']);
+				$drawing7->setPath($signature['image_path']);  // put your path and image here
+				$drawing7->setCoordinates('V81');
 				$drawing7->setHeight(30);
 				$drawing7->setWorksheet($spreadsheet->getActiveSheet());
 			} 
 		}
 
 		if($detail['travel_advance'] == 'Yes') {
-			$sheet->setCellValue('V68', 'X');
-			$sheet->setCellValue('AL79', '80%');
+			$sheet->setCellValue('V95', 'X');
+			$sheet->setCellValue('AB95', '80%');
 			$total_advance = ($detail['total_destinations_cost'] + 1000000) * 0.8;
-			$sheet->setCellValue('AL81', $total_advance);
+			$sheet->setCellValue('AL108', $total_advance);
 		} else {
-			$sheet->setCellValue('Y68', 'X');
-			$sheet->setCellValue('AL79', '');
-			$sheet->setCellValue('AL81', $detail['total_destinations_cost'] + 1000000);
+			$sheet->setCellValue('Y95', 'X');
+			$sheet->setCellValue('AB95', '');
+			$sheet->setCellValue('AL108', $detail['total_destinations_cost'] + 1000000);
 		}
 
 		if($detail['need_documents'] == 'Yes') {
-			$sheet->setCellValue('V71', 'X');
+			$sheet->setCellValue('V98', 'X');
 		} else {
-			$sheet->setCellValue('Y71', 'X');
+			$sheet->setCellValue('Y98', 'X');
 		}
 
 		if($detail['car_rental'] == 'Yes') {
-			$sheet->setCellValue('V72', 'X');
+			$sheet->setCellValue('V99', 'X');
 		} else {
-			$sheet->setCellValue('Y72', 'X');
+			$sheet->setCellValue('Y99', 'X');
 		}
 
 		if($detail['hotel_reservations'] == 'Yes') {
-			$sheet->setCellValue('V73', 'X');
+			$sheet->setCellValue('V100', 'X');
 		} else {
-			$sheet->setCellValue('Y73', 'X');
+			$sheet->setCellValue('Y100', 'X');
 		}
 
 		if($detail['other_transportation'] == 'Yes') {
-			$sheet->setCellValue('V74', 'X');
+			$sheet->setCellValue('V101', 'X');
 		} else {
-			$sheet->setCellValue('Y74', 'X');
+			$sheet->setCellValue('Y101', 'X');
 		}
 
 		$writer = new Xlsx($spreadsheet);

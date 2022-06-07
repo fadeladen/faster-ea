@@ -55,6 +55,7 @@ class Outgoing extends MY_Controller {
 			$data = [
 				'detail' => $detail,
 				'requestor_data' => $requestor_data,
+				'is_report_finished' => is_report_finished($id)
 			];
 			$this->template->set('page', 'Reporting TER #' . $detail['ea_number']);
 			$this->template->render('ea_report/outgoing/reporting', $data);
@@ -94,6 +95,7 @@ class Outgoing extends MY_Controller {
 				'finance_btn' => $finance_btn,
 				'submit_btn' => $submit_btn,
 				'total_actual_costs' => get_total_actual_costs($id),
+				'is_report_finished' => is_report_finished($id)
 			];
 			$this->template->set('page', 'TER detail #' . $detail['ea_number']);
 			$this->template->render('ea_report/outgoing/ter_detail', $data);
@@ -791,149 +793,19 @@ class Outgoing extends MY_Controller {
 					for ($x = 0; $x < $dest['night']; $x++) {
 						$sheet->setCellValue($lodging_meals_row . '20', $dest['actual_lodging'][$x]['cost']);
 						$sheet->setCellValue($lodging_meals_row . '21', $dest['actual_meals'][$x]['cost']);
-						if($lodging_meals_row == $excel_config['last_cell']) {
-							$lodging_meals_row = 'B';
-						}
 						$current_night_items = $this->report->get_excel_other_items_by_night($dest['id'], $night++);
 						$other_items_cell = $this->get_other_items_cell($current_night_items, $lodging_meals_row);
 						foreach($other_items_cell as $item) {
 							$sheet->setCellValue($item['cell'],  $item['value']);
+						}
+						if($lodging_meals_row == $excel_config['last_cell']) {
+							$lodging_meals_row = 'B';
 						}
 						$lodging_meals_row++;
 					}	
 				}
 			}
 		}
-
-		// if($total_dest > 1 ) {
-		// 	// 2nd Destinations
-		// 	$dest = $detail['destinations'][1];
-		// 	$destRow = $last_row;
-		// 	$day = 0;
-		// 	if($detail['destinations'][0]['departure_date'] == $dest['arrival_date']) {
-		// 		$lodging_meals_row = $destRow;
-		// 		$sheet->setCellValue($destRow . '12', $dest['city']);
-		// 		$destRow++;
-		// 		$day = 1;
-		// 	} else {
-		// 		$destRow++;
-		// 		$lodging_meals_row = $destRow;
-		// 	}
-		// 	$sheet->setCellValue($destRow . '8', $dest['arriv_date']);
-		// 	$sheet->setCellValue($destRow . '9', $dest['city']);
-		// 	$sheet->setCellValue($destRow . '20', $dest['actual_lodging'][0]['cost']);
-		// 	$sheet->setCellValue($destRow . '21', $dest['actual_meals'][0]['cost']);
-		// 	$row = $destRow;
-		// 	$arriv_date = strtotime($dest['arrival_date']);
-		// 	$depar_date = strtotime($dest['departure_date']);
-		// 	$datediff = $depar_date - $arriv_date;
-		// 	$days = ($datediff / (60 * 60 * 24));
-		// 	$x = 1;
-		// 	if($days == 1) {
-		// 		$x = 0;
-		// 	} 
-		// 	for ($x; $x <= $days; $x++) {
-		// 		$next_day = strtotime("+$day day", strtotime($dest['arrival_date']));
-		// 		$sheet->setCellValue($row . '9', $dest['city']);
-		// 		$sheet->setCellValue($row . '8', date('d/M/y', $next_day));
-		// 		if($row == $excel_config['last_cell']) {
-		// 			$row = 'B';
-		// 		}
-		// 		$day++;
-		// 		$last_row = $row;
-		// 		$row++;
-
-		// 	}
-		// 	if(!empty($dest['other_items'][0])) {
-		// 		$current_night_items = $this->report->get_excel_other_items_by_night($dest['id'], 1);
-		// 		$other_items_cell = $this->get_other_items_cell($current_night_items, $destRow);
-		// 		foreach($other_items_cell as $item) {
-		// 			$sheet->setCellValue($item['cell'], $item['value']);
-		// 		}
-		// 	}
-		// 	if($dest['night'] > 1) {
-		// 		$night = 1;
-		// 		for ($x = 0; $x < $dest['night']; $x++) {
-		// 			$sheet->setCellValue($lodging_meals_row . '20', $dest['actual_lodging'][$x]['cost']);
-		// 			$sheet->setCellValue($lodging_meals_row . '21', $dest['actual_meals'][$x]['cost']);
-		// 			if($lodging_meals_row == $excel_config['last_cell']) {
-		// 				$lodging_meals_row = 'B';
-		// 			}
-		// 			$current_night_items = $this->report->get_excel_other_items_by_night($dest['id'], $night++);
-		// 			$other_items_cell = $this->get_other_items_cell($current_night_items, $lodging_meals_row);
-		// 			foreach($other_items_cell as $item) {
-		// 				$sheet->setCellValue($item['cell'],  $item['value']);
-		// 			}
-		// 			$lodging_meals_row++;
-		// 		}	
-		// 	}
-		// }
-		// // echo $last_row;
-		// if($total_dest > 2 ) {
-		// 	// 3rd Destinations
-		// 	$dest = $detail['destinations'][2];
-		// 	$destRow = $last_row;
-		// 	$day = 0;
-		// 	if($detail['destinations'][1]['departure_date'] == $dest['arrival_date']) {
-		// 		$lodging_meals_row = $destRow;
-		// 		$sheet->setCellValue($destRow . '12', $dest['city']);
-		// 		$destRow++;
-		// 		$day = 1;
-		// 	} else {
-		// 		$destRow++; 
-		// 		$lodging_meals_row = $destRow;
-		// 	}
-		// 	$sheet->setCellValue($destRow . '8', $dest['arriv_date']);
-		// 	$sheet->setCellValue($destRow . '9', $dest['city']);
-		// 	$sheet->setCellValue($destRow . '20', $dest['actual_lodging'][0]['cost']);
-		// 	$sheet->setCellValue($destRow . '21', $dest['actual_meals'][0]['cost']);
-		// 	$row = $destRow;
-		// 	$arriv_date = strtotime($dest['arrival_date']);
-		// 	$depar_date = strtotime($dest['departure_date']);
-		// 	$datediff = $depar_date - $arriv_date;
-		// 	$days = ($datediff / (60 * 60 * 24));
-		// 	$x = 1;
-		// 	if($days == 1) {
-		// 		$x = 0;
-		// 	} 
-		// 	if($detail['destinations'][1]['departure_date'] != $dest['arrival_date']) {
-		// 		$days++;
-		// 	}
-		// 	for ($x; $x <= $days; $x++) {
-		// 		$next_day = strtotime("+$day day", strtotime($dest['arrival_date']));
-		// 		$sheet->setCellValue($row . '9', $dest['city']);
-		// 		$sheet->setCellValue($row . '8', date('d/M/y', $next_day));
-		// 		if($row == $excel_config['last_cell']) {
-		// 			$row = 'B';
-		// 		}
-		// 		$day++;
-		// 		$row++;
-		// 		$last_row = $row;
-		// 	}
-		// 	if(!empty($dest['other_items'][0])) {
-		// 		$current_night_items = $this->report->get_excel_other_items_by_night($dest['id'], 1);
-		// 		$other_items_cell = $this->get_other_items_cell($current_night_items, $destRow);
-		// 		foreach($other_items_cell as $item) {
-		// 			$sheet->setCellValue($item['cell'],  $item['value']);
-		// 		}
-		// 	}
-		// 	if($dest['night'] > 1) {
-		// 		$night = 1;
-		// 		for ($x = 0; $x < $dest['night']; $x++) {
-		// 			$sheet->setCellValue($lodging_meals_row . '20', $dest['actual_lodging'][$x]['cost']);
-		// 			$sheet->setCellValue($lodging_meals_row . '21', $dest['actual_meals'][$x]['cost']);
-		// 			if($lodging_meals_row == $excel_config['last_cell']) {
-		// 				$lodging_meals_row = 'B';
-		// 			}
-		// 			$current_night_items = $this->report->get_excel_other_items_by_night($dest['id'], $night++);
-		// 			$other_items_cell = $this->get_other_items_cell($current_night_items, $lodging_meals_row);
-		// 			foreach($other_items_cell as $item) {
-		// 				$sheet->setCellValue($item['cell'],  $item['value']);
-		// 			}
-		// 			$lodging_meals_row++;
-		// 		}	
-		// 	}
-		// }
 
 		// Signature
 		$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
@@ -1194,27 +1066,5 @@ class Outgoing extends MY_Controller {
 		} else {
 			return false;
 		}
-	}
-
-	public function test_total_days($req_id){
-		$total_days = get_total_days($req_id);
-		if($total_days <= 7) {
-			$excel_config = [
-				'file_name' => 'ea_report.xlsx',
-			];
-		} else if($total_days > 7 && $total_days <= 14) {
-			$excel_config = [
-				'file_name' => 'ea_report_2_minggu.xlsx',
-			];
-		} else if($total_days > 14 && $total_days <= 21) {
-			$excel_config = [
-				'file_name' => 'ea_report_3_minggu.xlsx',
-			];
-		} else {
-			$excel_config = [
-				'file_name' => 'ea_report_4_minggu.xlsx',
-			];
-		}
-		echo json_encode($total_days);
 	}
 }

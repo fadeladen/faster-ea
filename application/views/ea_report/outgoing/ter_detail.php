@@ -458,7 +458,7 @@
 				<div class="modal-body">
 					<input type="text" class="d-none" name="req_id" id="req_id" value="<?= $detail['r_id'] ?>">
 					<div class="form-group">
-						<label for="date_of_transfer">Cost</label>
+						<label for="date_of_transfer">Refund/reimburst</label>
 						<select name="payment_type" class="form-control" id="payment_type">
 							<option value="">Select refund/reimburst</option>
 							<option value="1">Refund</option>

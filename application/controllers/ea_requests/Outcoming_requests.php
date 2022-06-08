@@ -52,6 +52,7 @@ class Outcoming_requests extends MY_Controller {
 		}
 		$data['requestor_data'] = $this->request->get_requestor_data($user_id);
 		$data['locations'] = $this->base_model->get_cities();
+		$data['tor_number'] = $this->base_model->get_tor_number();
 		$this->template->set('page', 'Create request');
 		$this->template->render('outcoming_requests/create', $data);
 	}
@@ -615,11 +616,13 @@ class Outcoming_requests extends MY_Controller {
 		if($detail['travel_advance'] == 'Yes') {
 			$sheet->setCellValue('V95', 'X');
 			$sheet->setCellValue('AB95', '80%');
+			$sheet->setCellValue('AL106', '80%');
 			$total_advance = ($detail['total_destinations_cost'] + 1000000) * 0.8;
 			$sheet->setCellValue('AL108', $total_advance);
 		} else {
 			$sheet->setCellValue('Y95', 'X');
 			$sheet->setCellValue('AB95', '');
+			$sheet->setCellValue('AL106', '');
 			$sheet->setCellValue('AL108', $detail['total_destinations_cost'] + 1000000);
 		}
 

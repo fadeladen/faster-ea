@@ -95,8 +95,17 @@
 								<div class="form-group row tor-form d-none">
 									<label for="example-search-input" class="col-md-3 col-form-label">TOR Number</label>
 									<div class="col-md-9">
-										<input type="text" placeholder="Enter tor number" id="tor_number"
-											class="form-control" name="tor_number">
+										<!-- <input type="text" placeholder="Enter tor number" id="tor_number"
+											class="form-control" name="tor_number"> -->
+										<select class="form-control" name="tor_number" id="tor_number">
+											<option value="">Select tor number</option>
+											<?php foreach ($tor_number as $item): ?>
+
+											<option value="<?= $item['tor_number'] ?>">
+												<?= $item['tor_number'] . ' (' . $item['activity'] . ')' ?></option>
+
+											<?php endforeach; ?>
+										</select>
 									</div>
 								</div>
 								<div class="form-group row exteral-form d-none">
@@ -481,9 +490,12 @@
 											<label for="example-search-input" class="col-md-3 col-form-label">Project
 												Number</label>
 											<div class="col-md-9">
-												<input maxlength="9" placeholder="1297.0446"
-													class="form-control project_number" type="text"
-													name="project_number[]">
+												<select placeholder="Select city"
+													data-url="<?= site_url('api/base_data/project_number') ?>"
+													class="form-control project_number" name="project_number[]">
+													<option value="">Select project number</option>
+
+												</select>
 											</div>
 										</div>
 										<div class="form-group row">
@@ -523,8 +535,8 @@
 											<label for="example-search-input"
 												class="col-md-3 col-form-label">Night</label>
 											<div class="col-md-9">
-												<input readonly placeholder="0" class="form-control night"
-													type="number" name="night[]">
+												<input readonly placeholder="0" class="form-control night" type="number"
+													name="night[]">
 											</div>
 										</div>
 										<div class="form-group row">
@@ -715,15 +727,6 @@
 						}
 					}
 					if (step == 2) {
-						if (!validateStep2()) {
-							wizardObj.stop();
-							swal.fire({
-								"title": "",
-								"text": "Please fill all required fields",
-								"type": "error",
-								"confirmButtonClass": "btn btn-dark"
-							});
-						}
 						const totalDest = $('.destination').length
 						let firstDate = $('.destination_arrival_date').eq(0).val()
 						let lastDate = $('.destination_departure_date').eq(totalDest - 1).val()
@@ -731,7 +734,7 @@
 						lastDate = new Date(lastDate);
 						let totalDays = days_between(firstDate, lastDate)
 						totalDays = totalDays + 1
-						if(totalDays > 28) {
+						if (totalDays > 28) {
 							wizardObj.stop();
 							swal.fire({
 								"title": "",
@@ -740,6 +743,15 @@
 								"confirmButtonClass": "btn btn-dark"
 							});
 						}
+						if (!validateStep2()) {
+							wizardObj.stop();
+							swal.fire({
+								"title": "",
+								"text": "Please fill all required fields",
+								"type": "error",
+								"confirmButtonClass": "btn btn-dark"
+							});
+						}	
 					}
 				});
 
@@ -783,8 +795,30 @@
 			}
 		})
 
+		$('.project_number').select2({
+			placeholder: 'Select project number',
+			ajax: {
+				'url': `${base_url}api/base_data/project_number`,
+				data: function (params) {
+					return {
+						q: params.term,
+						select2: true,
+					}
+				},
+				processResults: function (response) {
+					return {
+						results: response.result
+					}
+				}
+			}
+		})
+
 		$('#head_of_units_id').select2({
 			placeholder: 'Select head of units',
+		})
+
+		$('#tor_number').select2({
+			placeholder: 'Select tor number',
 		})
 
 		$('input[name=employment]').change(function () {
@@ -895,7 +929,7 @@
 
 			// Convert back to days and return
 			let days = Math.round(differenceMs / ONE_DAY)
-			if(days == 0) days = 1
+			if (days == 0) days = 1
 			return days;
 
 		}
@@ -909,14 +943,14 @@
 			const mealsLodging = Number(lodging) + Number(meals)
 			mealsLodgingEl.val(mealsLodging)
 			const totalEl = parent.find('.total')
-			if(night == 0) {
+			if (night == 0) {
 				night = 1
 			}
 			const total = Number(night) * mealsLodging
 
 			totalEl.val(total)
 		}
-		
+
 		const updateNight = (el) => {
 			const parent = el.parent().parent().parent()
 			const night = parent.find('.night')
@@ -948,7 +982,7 @@
 
 			if (requestBase) {
 				if (requestBase == 'Internal TOR') {
-					const torNumber = $('input[name=tor_number]').val()
+					const torNumber = $('#tor_number').val()
 					if (!torNumber) {
 						errors.push({
 							type: 1,
@@ -1168,7 +1202,6 @@
 
 			$('#step-2-form .destination').each(function () {
 				const country = $(this).find('.destination_country').val()
-				$('foo').not(".someClass")
 				if (country == 1) {
 					$(this).find('input:not([readonly]), .destination_city').not(
 						'.destination_country_name').each(function () {
@@ -1179,8 +1212,24 @@
 								'<p class="error mt-1 mb-0">This field is required</p>')
 						}
 					});
+					$(this).find('.project_number').each(function () {
+						let value = $(this).val()
+						if (!value) {
+							valid = false
+							$(this).parent().append(
+								'<p class="error mt-1 mb-0">This field is required</p>')
+						}
+					});
 				} else if (country == 2) {
 					$(this).find('input:not([readonly])').each(function () {
+						let value = $(this).val()
+						if (!value) {
+							valid = false
+							$(this).parent().append(
+								'<p class="error mt-1 mb-0">This field is required</p>')
+						}
+					});
+					$(this).find('.project_number').each(function () {
 						let value = $(this).val()
 						if (!value) {
 							valid = false
@@ -1359,8 +1408,7 @@
 				order = '2nd'
 			} else if (list == 3) {
 				order = '3rd'
-			}
-			else if (list == 4) {
+			} else if (list == 4) {
 				order = '4th'
 			} else if (list == 5) {
 				order = '5th'
@@ -1440,8 +1488,12 @@
 											<label for="example-search-input" class="col-md-3 col-form-label">Project
 												Number</label>
 											<div class="col-md-9">
-												<input maxlength="9" placeholder="1297.0446" class="form-control project_number"
-													type="text" name="project_number[]">
+												<select placeholder="Select city"
+													data-url="<?= site_url('api/base_data/project_number') ?>"
+													class="form-control project_number" name="project_number[]">
+													<option value="">Select project number</option>
+
+												</select>
 											</div>
 										</div>
 										<div class="form-group row">
@@ -1505,6 +1557,23 @@
 				placeholder: 'Select city',
 				ajax: {
 					'url': `${base_url}api/cities`,
+					data: function (params) {
+						return {
+							q: params.term,
+							select2: true,
+						}
+					},
+					processResults: function (response) {
+						return {
+							results: response.result
+						}
+					}
+				}
+			})
+			$('.project_number').select2({
+				placeholder: 'Select project number',
+				ajax: {
+					'url': `${base_url}api/base_data/project_number`,
 					data: function (params) {
 						return {
 							q: params.term,

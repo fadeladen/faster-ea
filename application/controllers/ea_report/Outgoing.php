@@ -778,9 +778,9 @@ class Outgoing extends MY_Controller {
 				if($days == 1) {
 					$x = 0;
 				} 
-				if($detail['destinations'][$z - 1]['departure_date'] != $dest['arrival_date']) {
-					$days++;
-				}
+				// if($detail['destinations'][$z - 1]['departure_date'] != $dest['arrival_date']) {
+				// 	$days++;
+				// }
 				for ($x; $x <= $days; $x++) {
 					$next_day = strtotime("+$day day", strtotime($dest['arrival_date']));
 					$sheet->setCellValue($row . '9', $dest['city']);

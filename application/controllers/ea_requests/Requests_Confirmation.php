@@ -568,14 +568,16 @@ class Requests_Confirmation extends CI_Controller {
 		}
 
 		if($detail['travel_advance'] == 'Yes') {
-			$sheet->setCellValue('V68', 'X');
-			$sheet->setCellValue('AL79', '80%');
+			$sheet->setCellValue('V95', 'X');
+			$sheet->setCellValue('AB95', '80%');
+			$sheet->setCellValue('AL106', '80%');
 			$total_advance = ($detail['total_destinations_cost'] + 1000000) * 0.8;
-			$sheet->setCellValue('AL81', $total_advance);
+			$sheet->setCellValue('AL108', $total_advance);
 		} else {
-			$sheet->setCellValue('Y68', 'X');
-			$sheet->setCellValue('AL79', '');
-			$sheet->setCellValue('AL81', $detail['total_destinations_cost'] + 1000000);
+			$sheet->setCellValue('Y95', 'X');
+			$sheet->setCellValue('AB95', '');
+			$sheet->setCellValue('AL106', '');
+			$sheet->setCellValue('AL108', $detail['total_destinations_cost'] + 1000000);
 		}
 
 		if($detail['need_documents'] == 'Yes') {

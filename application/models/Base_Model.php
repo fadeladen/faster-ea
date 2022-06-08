@@ -57,4 +57,13 @@ class Base_Model extends CI_Model
         ->order_by('nama', 'asc')
         ->get()->result_array();
     }
+
+    function get_tor_number() {
+        $data = $this->db->select('m.tor_number, d.activity')
+		->from('tb_mini_proposal_new m')
+		->join('tb_detail_monthly d', 'm.code_activity = d.kode_kegiatan')
+		->group_by('m.tor_number')
+		->get()->result_array();
+        return $data;
+    }
 }

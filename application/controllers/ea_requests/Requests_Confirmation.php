@@ -778,6 +778,7 @@ class Requests_Confirmation extends CI_Controller {
 		$drawing->setPath($signature['image_path']); // put your path and image here
 		$drawing->setCoordinates('I112');
 		$drawing->setHeight(40);
+		$drawing->setOffsetY(-5);
 		$drawing->setWorksheet($spreadsheet->getActiveSheet());
 
 		if($detail['head_of_units_status'] == 2) {

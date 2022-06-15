@@ -383,7 +383,7 @@ class Report_Confirmation extends CI_Controller {
 		$sheet->setCellValue($dest1Row . '8', $dest1['arriv_date']);
 		$sheet->setCellValue($dest1Row . '9', $dest1['city']);
 		$sheet->setCellValue($dest1Row . '20', $dest1['actual_lodging'][0]['cost']);
-		$sheet->setCellValue($dest1Row . '21', $dest1['actual_meals'][0]['cost']);
+		$sheet->setCellValue($dest1Row . '21', $dest1['max_meals_cost']);
 		$row = $dest1Row;
 		$arriv_date = strtotime($dest1['arrival_date']);
 		$depar_date = strtotime($dest1['departure_date']);
@@ -413,7 +413,7 @@ class Report_Confirmation extends CI_Controller {
 			$night = 1;
 			for ($x = 0; $x < $dest1['night']; $x++) {
 				$sheet->setCellValue($lodging_meals_row . '20', $dest1['actual_lodging'][$x]['cost']);
-				$sheet->setCellValue($lodging_meals_row . '21', $dest1['actual_meals'][$x]['cost']);
+				$sheet->setCellValue($lodging_meals_row . '21', $dest1['max_meals_cost']);
 				$current_night_items = $this->report->get_excel_other_items_by_night($dest1['id'], $night++);
 				$other_items_cell = $this->get_other_items_cell($current_night_items, $lodging_meals_row);
 				foreach($other_items_cell as $item) {
@@ -431,20 +431,26 @@ class Report_Confirmation extends CI_Controller {
 			for($z=1; $z < $total_dest; $z++) {
 				$dest = $detail['destinations'][$z];
 				$destRow = $last_row;
+				$last_depar_date = strtotime($detail['destinations'][$z-1]['departure_date']);
+				$current_arriv_date = strtotime($dest['arrival_date']);
+				$diff = $current_arriv_date - $last_depar_date;
+				$day_diffs = ($diff / (60 * 60 * 24));
 				$day = 0;
+				for ($v = 0; $v < $day_diffs; $v++) {
+					$destRow++;
+				}
 				if($detail['destinations'][$z - 1]['departure_date'] == $dest['arrival_date']) {
-					$lodging_meals_row = $destRow;
 					$sheet->setCellValue($destRow . '12', $dest['city']);
-					$destRow++;
 					$day = 1;
-				} else {
+					$lodging_meals_row = $destRow;
 					$destRow++;
+				} else {
 					$lodging_meals_row = $destRow;
 				}
 				$sheet->setCellValue($destRow . '8', $dest['arriv_date']);
 				$sheet->setCellValue($destRow . '9', $dest['city']);
 				$sheet->setCellValue($destRow . '20', $dest['actual_lodging'][0]['cost']);
-				$sheet->setCellValue($destRow . '21', $dest['actual_meals'][0]['cost']);
+				$sheet->setCellValue($destRow . '21', $dest['max_meals_cost']);
 				$row = $destRow;
 				$arriv_date = strtotime($dest['arrival_date']);
 				$depar_date = strtotime($dest['departure_date']);
@@ -454,9 +460,9 @@ class Report_Confirmation extends CI_Controller {
 				if($days == 1) {
 					$x = 0;
 				} 
-				// if($detail['destinations'][$z - 1]['departure_date'] != $dest['arrival_date']) {
-				// 	$days++;
-				// }
+				if($total_dest == $z + 1 && $detail['destinations'][$z - 1]['departure_date'] != $dest['arrival_date']) {
+					$x = 0;
+				}
 				for ($x; $x <= $days; $x++) {
 					$next_day = strtotime("+$day day", strtotime($dest['arrival_date']));
 					$sheet->setCellValue($row . '9', $dest['city']);
@@ -480,7 +486,7 @@ class Report_Confirmation extends CI_Controller {
 					$night = 1;
 					for ($x = 0; $x < $dest['night']; $x++) {
 						$sheet->setCellValue($lodging_meals_row . '20', $dest['actual_lodging'][$x]['cost']);
-						$sheet->setCellValue($lodging_meals_row . '21', $dest['actual_meals'][$x]['cost']);
+						$sheet->setCellValue($lodging_meals_row . '21', $dest['max_meals_cost']);
 						$current_night_items = $this->report->get_excel_other_items_by_night($dest['id'], $night++);
 						$other_items_cell = $this->get_other_items_cell($current_night_items, $lodging_meals_row);
 						foreach($other_items_cell as $item) {
@@ -621,6 +627,9 @@ class Report_Confirmation extends CI_Controller {
 		}
 		if($meals_text != '') {
 			array_push($cells, ['cell' => $row . '22', 'value' => $meals_text]);
+			if($meals_text == '-') {
+				array_push($cells, ['cell' => $row . '21', 'value' => 0]);
+			}
 		}
 		return $cells;
 	}

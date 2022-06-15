@@ -107,7 +107,7 @@
 									<td class="kt-datatable__cell">
 										<span style="width: 110px;">
 											<span class="badge badge-pill badge-secondary fw-bold">
-												<?= $dest['d_lodging'] ?>
+												<?= $dest['max_lodging_cost']?>
 											</span>
 										</span>
 									</td>
@@ -164,14 +164,14 @@
 									<td class="kt-datatable__cell">
 										<span style="width: 110px;">
 											<span class="badge badge-pill badge-secondary fw-bold">
-												<?= $dest['d_meals'] ?>
+												<?= $dest['max_meals_cost']?>
 											</span>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 110px;">
 											<span
-												class="badge badge-pill badge-secondary fw-bold lodging_meals_budget"><?= $dest['meals_text'][$night - 1] ?></span>
+												class="badge badge-pill badge-secondary fw-bold lodging_meals_budget"><?= ($dest['meals_text'][$night - 1] == '-' ? 'None' : $dest['meals_text'][$night - 1])  ?></span>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">

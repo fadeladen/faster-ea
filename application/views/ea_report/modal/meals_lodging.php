@@ -34,6 +34,7 @@
 					<div class="form-group">
 						<label for="cost">Meals</label>
 						<select name="meals[]" multiple="multiple" id="meals" class="form-control meals">
+							<option <?= (in_array('-', $meals) ? 'selected' : '') ?> value="-">None</option>
 							<option <?= (in_array('B', $meals) ? 'selected' : '') ?> value="B">Breakfast</option>
 							<option <?= (in_array('L', $meals) ? 'selected' : '') ?> value="L">Lunch</option>
 							<option <?= (in_array('D', $meals) ? 'selected' : '') ?> value="D">Dinner</option>
@@ -71,6 +72,15 @@
 	$('input[type="file"]').change(function (e) {
 		var fileName = e.target.files[0].name;
 		$('.custom-file-label').html(fileName);
+	});
+
+	$('#meals').change(function (e) {
+		const values = $(this).val()
+		if(values.includes('-')) {
+			$("#meals option[value='B']").prop("selected", false);
+			$("#meals option[value='L']").prop("selected", false);
+			$("#meals option[value='D']").prop("selected", false);
+		}
 	});
 
 	$('.meals').select2({

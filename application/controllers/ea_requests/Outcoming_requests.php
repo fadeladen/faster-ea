@@ -202,6 +202,7 @@ class Outcoming_requests extends MY_Controller {
         $this->datatable->from('ea_requests ea');
         $this->datatable->join('tb_userapp u', 'u.id = ea.requestor_id');
         $this->datatable->join('ea_requests_status st', 'ea.id = st.request_id');
+		$this->datatable->where('ea.requestor_id =', $this->user_data->userId);
 		if($status == 'pending') {
 			$this->datatable->where('st.head_of_units_status !=', 3);
 			$this->datatable->where('st.ea_assosiate_status !=', 3);
@@ -212,8 +213,11 @@ class Outcoming_requests extends MY_Controller {
 		if($status == 'rejected') {
 			$this->datatable->where('st.head_of_units_status =', 3);
 			$this->datatable->or_where('st.ea_assosiate_status =', 3);
+			$this->datatable->where('ea.requestor_id =', $this->user_data->userId);
 			$this->datatable->or_where('st.fco_monitor_status =', 3);
+			$this->datatable->where('ea.requestor_id =', $this->user_data->userId);
 			$this->datatable->or_where('st.finance_status =', 3);
+			$this->datatable->where('ea.requestor_id =', $this->user_data->userId);
 		}
 		if($status == 'done') {
 			$this->datatable->where('st.head_of_units_status =', 2);
@@ -221,7 +225,6 @@ class Outcoming_requests extends MY_Controller {
 			$this->datatable->where('st.fco_monitor_status =', 2);
 			$this->datatable->where('st.finance_status =', 2);
 		}
-		$this->datatable->where('ea.requestor_id =', $this->user_data->userId);
 		$this->datatable->edit_column('id', "$1", 'encrypt(id)');
 		$this->datatable->edit_column('ea_number', '<span style="font-size: 1rem;"
 		class="badge badge-success fw-bold">$1</span>', 'ea_number');

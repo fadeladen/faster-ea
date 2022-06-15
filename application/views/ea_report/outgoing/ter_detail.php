@@ -135,7 +135,7 @@
 									<td class="kt-datatable__cell">
 										<span style="width: 160px;">
 											<span class="badge badge-pill badge-secondary fw-bold lodging_meals_budget">
-												<?= (isset($dest['actual_meals_items'][$night-1]['cost']) == '' ? '-' : $dest['actual_meals_items'][$night-1]['d_cost']) ?>
+												<?= $dest['max_meals_cost']?>
 											</span>
 											-
 											<span class="badge badge-pill badge-secondary fw-bold lodging_meals_budget">

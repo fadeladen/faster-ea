@@ -28,6 +28,9 @@ class Report_Model extends CI_Model
         $total_dest = count($destinations);
         for ($i = 0; $i < $total_dest; $i++) {
             $total_destinations_cost += $destinations[$i]['total'];
+            $max_meals_lodging = $this->get_dest_max_budget($destinations[$i]['id']);
+            $destinations[$i]['max_lodging_cost'] = number_format($max_meals_lodging['max_lodging_budget'],2,',','.');
+            $destinations[$i]['max_meals_cost'] =  number_format($max_meals_lodging['max_meals_budget'],2,',','.');
             $night = $destinations[$i]['night'];
             $lodging_arr = [];
             $meals_arr = [];
@@ -88,7 +91,7 @@ class Report_Model extends CI_Model
                 if($meals_text) {
                     array_push($meals_text_arr, $meals_text[0]['meals_text']);
                 } else {
-                    array_push($meals_text_arr, '-');
+                    array_push($meals_text_arr, '');
                 }
                 array_push($total_costs_arr, $total_cost_per_night);
             }
@@ -141,6 +144,8 @@ class Report_Model extends CI_Model
             $destinations[$i]['other_items'] = $other_items;
             $actual_lodging = $this->get_actual_costs($destinations[$i]['id'], 1);
             $actual_meals = $this->get_actual_costs($destinations[$i]['id'], 2);
+            $max_meals_lodging = $this->get_dest_max_budget($destinations[$i]['id']);
+            $destinations[$i]['max_meals_cost'] =  $max_meals_lodging['max_meals_budget'];
             $destinations[$i]['actual_lodging'] = $actual_lodging;
             $destinations[$i]['actual_meals'] = $actual_meals;
             $night = $destinations[$i]['night'];
@@ -251,6 +256,9 @@ class Report_Model extends CI_Model
         for ($i = 0; $i < $total_dest; $i++) {
             $total_destinations_cost += $destinations[$i]['total'];
             $night = $destinations[$i]['night'];
+            $max_meals_lodging = $this->get_dest_max_budget($destinations[$i]['id']);
+            $destinations[$i]['max_lodging_cost'] = number_format($max_meals_lodging['max_lodging_budget'],2,',','.');
+            $destinations[$i]['max_meals_cost'] =  number_format($max_meals_lodging['max_meals_budget'],2,',','.');
             $lodging_arr = [];
             $meals_arr = [];
             $meals_text_arr = [];

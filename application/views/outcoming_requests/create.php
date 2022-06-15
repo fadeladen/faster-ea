@@ -95,8 +95,6 @@
 								<div class="form-group row tor-form d-none">
 									<label for="example-search-input" class="col-md-3 col-form-label">TOR Number</label>
 									<div class="col-md-9">
-										<!-- <input type="text" placeholder="Enter tor number" id="tor_number"
-											class="form-control" name="tor_number"> -->
 										<select class="form-control" name="tor_number" id="tor_number">
 											<option value="">Select tor number</option>
 											<?php foreach ($tor_number as $item): ?>
@@ -121,11 +119,23 @@
 									</div>
 								</div>
 								<div class="form-group row">
-									<label for="ea_online_number" class="col-md-3 col-form-label">EA Online Number
-										<small>(if known)</small></label>
+									<label for="ea_online_number" class="col-md-3 col-form-label">EA Number
+										<small>(from ms Teams)</small></label>
 									<div class="col-md-9">
 										<input type="text" placeholder="Enter EA online number" id="ea_online_number"
 											class="form-control" name="ea_online_number">
+									</div>
+								</div>
+								<div class="form-group row">
+									<label for="proof_of_approval" class="col-md-3 col-form-label">Upload proof of
+										aproval</label>
+									<div class="col-md-9">
+										<div class="custom-file">
+											<input type="file" class="custom-file-input" name="proof_of_approval"
+												id="proof_of_approval">
+											<label class="custom-file-label" for="customFile">Choose
+												file</label>
+										</div>
 									</div>
 								</div>
 								<div class="form-group row">
@@ -146,6 +156,11 @@
 											<label class="kt-radio">
 												<input value="On behalf" type="radio" name="employment">
 												On behalf
+												<span></span>
+											</label>
+											<label class="kt-radio">
+												<input value="For me and on behalf" type="radio" name="employment">
+												For me and on behalf
 												<span></span>
 											</label>
 										</div>
@@ -244,6 +259,14 @@
 									</div>
 								</div>
 								<div class="form-group row">
+									<label for="detail_address" class="col-md-3 col-form-label">Detail address
+									</label>
+									<div class="col-md-9">
+										<textarea class="form-control" id="detail_address" name="detail_address"
+											rows="2"></textarea>
+									</div>
+								</div>
+								<div class="form-group row">
 									<label for="example-date-input" class="col-md-3 col-form-label">Date</label>
 									<div class="col-md-4">
 										<label for="departure_date" class="form-label">
@@ -259,6 +282,14 @@
 											Return date
 										</label>
 										<input class="form-control" type="date" id="return_date" name="return_date">
+									</div>
+								</div>
+								<div class="form-group row">
+									<label for="" class="col-md-3 col-form-label">
+									</label>
+									<div class="col-md-9">
+										<p class="text-danger">Please input date started and return date is the last
+											destination/day on your travel or journey</p>
 									</div>
 								</div>
 								<div class="form-group row">
@@ -510,25 +541,53 @@
 										<div class="form-group row">
 											<label for="example-search-input"
 												class="col-md-3 col-form-label">Lodging</label>
-											<div class="col-md-9">
+											<div class="col-md-7">
 												<input placeholder="Estimate lodging cost" class="form-control lodging"
 													type="text" name="lodging[]">
+											</div>
+											<div class="col-md-2">
+												<div class="input-group">
+													<div class="input-group-prepend">
+														<span class="input-group-text" id="basic-addon1">USD :</span>
+													</div>
+													<input name="lodging_usd[]" readonly type="text"
+														class="form-control lodging_usd" placeholder="0">
+												</div>
 											</div>
 										</div>
 										<div class="form-group row">
 											<label for="example-search-input"
 												class="col-md-3 col-form-label">Meals</label>
-											<div class="col-md-9">
+											<div class="col-md-7">
 												<input placeholder="Input M&IE standard cost" class="form-control meals"
 													type="text" name="meals[]">
 											</div>
+											<div class="col-md-2">
+												<div class="input-group">
+													<div class="input-group-prepend">
+														<span class="input-group-text" id="basic-addon1">USD :</span>
+													</div>
+													<input name="meals_usd[]" readonly type="text"
+														class="form-control meals_usd" placeholder="0">
+												</div>
+											</div>
 										</div>
 										<div class="form-group row">
-											<label for="example-search-input" class="col-md-3 col-form-label">Total
+											<label for="example-search-input" class="col-md-3 col-form-label">Max budget
+												allowed
 												(lodging + meals)</label>
-											<div class="col-md-9">
+											<div class="col-md-7">
 												<input readonly class="form-control meals_lodging_total readonly-form"
 													type="text" name="meals_lodging_total[]">
+											</div>
+											<div class="col-md-2">
+												<div class="input-group">
+													<div class="input-group-prepend">
+														<span class="input-group-text" id="basic-addon1">USD :</span>
+													</div>
+													<input name="meals_lodging_total_usd[]" readonly type="text"
+														class="form-control meals_lodging_total_usd" placeholder="0">
+												</div>
 											</div>
 										</div>
 										<div class="form-group row">
@@ -542,9 +601,18 @@
 										<div class="form-group row">
 											<label for="example-search-input"
 												class="col-md-3 col-form-label">Total</label>
-											<div class="col-md-9">
+											<div class="col-md-7">
 												<input readonly class="form-control total readonly-form" type="text"
 													name="total[]">
+											</div>
+											<div class="col-md-2">
+												<div class="input-group">
+													<div class="input-group-prepend">
+														<span class="input-group-text" id="basic-addon1">USD :</span>
+													</div>
+													<input name="total_usd[]" readonly type="text"
+														class="form-control total_usd" placeholder="0">
+												</div>
 											</div>
 										</div>
 									</div>
@@ -751,7 +819,7 @@
 								"type": "error",
 								"confirmButtonClass": "btn btn-dark"
 							});
-						}	
+						}
 					}
 				});
 
@@ -823,7 +891,7 @@
 
 		$('input[name=employment]').change(function () {
 			const value = $(this).val();
-			if (value == 'On behalf') {
+			if (value == 'On behalf' || value == 'For me and on behalf') {
 				$('.on-behalf-form').removeClass('d-none')
 				$('input[name=employment_status]').prop('checked', false);
 			} else {
@@ -936,19 +1004,40 @@
 
 		const updateCosts = (el) => {
 			const parent = el.parent().parent().parent()
+			const lodgingEl = parent.find('.lodging')
+			const lodgingUsdEl = parent.find('.lodging_usd')
+			const mealEl = parent.find('.meals')
+			const mealUsdEl = parent.find('.meals_usd')
+			lodgingEl.on('keyup', function (e) {
+				const lodVal = $(this).val()
+				const usdVal = Math.round(lodVal / 14500)
+				lodgingUsdEl.val(usdVal)
+			})
+			mealEl.on('keyup', function (e) {
+				const mealVal = $(this).val()
+				const usdVal = Math.round(mealVal / 14500)
+				mealUsdEl.val(usdVal)
+			})
 			const lodging = parent.find('.lodging').val()
+			const lodgingUsd = parent.find('.lodging_usd').val()
 			const meals = parent.find('.meals').val()
+			const mealsUsd = parent.find('.meals_usd').val()
 			let night = parent.find('.night').val()
 			const mealsLodgingEl = parent.find('.meals_lodging_total')
+			const mealsLodgingUsdEl = parent.find('.meals_lodging_total_usd')
 			const mealsLodging = Number(lodging) + Number(meals)
+			const mealsLodgingUsd = Number(lodgingUsd) + Number(mealsUsd)
 			mealsLodgingEl.val(mealsLodging)
+			mealsLodgingUsdEl.val(mealsLodgingUsd)
 			const totalEl = parent.find('.total')
+			const totalElUsd = parent.find('.total_usd')
 			if (night == 0) {
 				night = 1
 			}
 			const total = Number(night) * mealsLodging
-
+			const totalUsd = Number(night) * mealsLodgingUsd
 			totalEl.val(total)
+			totalElUsd.val(totalUsd)
 		}
 
 		const updateNight = (el) => {
@@ -961,8 +1050,6 @@
 			const numNight = days_between(arrival, departure)
 			night.val(numNight)
 		}
-
-
 
 		const validateStep1 = () => {
 			const requestBase = $('input[name=request_base]:checked').val()
@@ -1161,24 +1248,6 @@
 					const checkIn = $('input[name=hotel_check_in]').val()
 					const checkOut = $('input[name=hotel_check_out]').val()
 					const preferredHotel = $('#preferred_hotel').val()
-					// if (!checkIn) {
-					// 	errors.push({
-					// 		type: 2,
-					// 		field: 'hotel_check_in'
-					// 	})
-					// }
-					// if (!checkOut) {
-					// 	errors.push({
-					// 		type: 2,
-					// 		field: 'hotel_check_out'
-					// 	})
-					// }
-					// if (!preferredHotel) {
-					// 	errors.push({
-					// 		type: 1,
-					// 		field: 'preferred_hotel'
-					// 	})
-					// }
 				}
 			}
 
@@ -1330,7 +1399,7 @@
 			$('.review-request-base-val').text(requestBaseValue)
 			if (requestBaseValue == 'Internal TOR') {
 				$('.review-tor-number').removeClass('d-none')
-				const torNumber = $('input[name=tor_number]').val()
+				const torNumber = $('#tor_number').val()
 				$('.review-tor-number').text(`(${torNumber})`)
 			} else {
 				$('.review-tor-number').addClass('d-none')
@@ -1350,6 +1419,14 @@
 			$('.review-hotel-res-val').text($('input[name=hotel_reservations]:checked').val())
 			$('.review-other-trasnport-val').text($('input[name=other_transportation]:checked').val())
 			$('.review-special-instrc').text($('#special_instructions').val())
+
+			const departureDateVal = $('#departure_date').val()
+			const returnDateVal = $('#return_date').val()
+
+			document.querySelector(".destination_arrival_date").setAttribute("min", departureDateVal);
+			document.querySelector(".destination_arrival_date").setAttribute("max", returnDateVal);
+			document.querySelector(".destination_departure_date").setAttribute("min", departureDateVal);
+			document.querySelector(".destination_departure_date").setAttribute("max", returnDateVal);
 
 			// Destinations 
 			updateDestinationsReview()
@@ -1507,25 +1584,49 @@
 										<div class="form-group row">
 											<label for="example-search-input"
 												class="col-md-3 col-form-label">Lodging</label>
-											<div class="col-md-9">
+											<div class="col-md-7">
 												<input placeholder="Estimate lodging cost" class="form-control lodging"
 													type="text" name="lodging[]">
+											</div>
+											<div class="col-md-2">
+												<div class="input-group">
+													<div class="input-group-prepend">
+														<span class="input-group-text" id="basic-addon1">USD :</span>
+													</div>
+													<input name="lodging_usd[]" readonly type="text" class="form-control lodging_usd" placeholder="0">
+												</div>
 											</div>
 										</div>
 										<div class="form-group row">
 											<label for="example-search-input"
 												class="col-md-3 col-form-label">Meals</label>
-											<div class="col-md-9">
+											<div class="col-md-7">
 												<input placeholder="Input M&IE standard cost" class="form-control meals"
 													type="text" name="meals[]">
 											</div>
+											<div class="col-md-2">
+												<div class="input-group">
+													<div class="input-group-prepend">
+														<span class="input-group-text" id="basic-addon1">USD :</span>
+													</div>
+													<input name="meals_usd[]" readonly type="text" class="form-control meals_usd" placeholder="0">
+												</div>
+											</div>
 										</div>
 										<div class="form-group row">
-											<label for="example-search-input" class="col-md-3 col-form-label">Total
+											<label for="example-search-input" class="col-md-3 col-form-label">Max budget allowed
 												(lodging + meals)</label>
-											<div class="col-md-9">
+											<div class="col-md-7">
 												<input readonly class="form-control meals_lodging_total readonly-form" type="text"
 													name="meals_lodging_total[]">
+											</div>
+											<div class="col-md-2">
+												<div class="input-group">
+													<div class="input-group-prepend">
+														<span class="input-group-text" id="basic-addon1">USD :</span>
+													</div>
+													<input name="meals_lodging_total_usd[]" readonly type="text" class="form-control meals_lodging_total_usd" placeholder="0">
+												</div>
 											</div>
 										</div>
 										<div class="form-group row">
@@ -1539,8 +1640,16 @@
 										<div class="form-group row">
 											<label for="example-search-input"
 												class="col-md-3 col-form-label">Total</label>
-											<div class="col-md-9">
+											<div class="col-md-7">
 												<input readonly class="form-control total readonly-form" type="text" name="total[]">
+											</div>
+											<div class="col-md-2">
+												<div class="input-group">
+													<div class="input-group-prepend">
+														<span class="input-group-text" id="basic-addon1">USD :</span>
+													</div>
+													<input name="total_usd[]" readonly type="text" class="form-control total_usd" placeholder="0">
+												</div>
 											</div>
 										</div>
 									</div>`;
@@ -1587,6 +1696,13 @@
 					}
 				}
 			})
+			const departureDateVal = $('#departure_date').val()
+			const returnDateVal = $('#return_date').val()
+
+			$(".destination_arrival_date").attr("min", departureDateVal);
+			$(".destination_arrival_date").attr("max", returnDateVal);
+			$(".destination_departure_date").attr("min", departureDateVal);
+			$(".destination_departure_date").attr("max", returnDateVal);
 		})
 
 		$("#kt_form").submit(function (e) {

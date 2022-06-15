@@ -67,7 +67,7 @@ class Incoming extends MY_Controller {
 			if (is_head_of_units() || is_line_supervisor()) {
 				$this->datatable->where('srt.head_of_units_status =', 1);
 				$this->datatable->where('srt.head_of_units_id =', $user_id);
-			} else if (is_country_director()) {
+			} else if (is_country_director() || is_fco_monitor()) {
 				$this->datatable->where('srt.head_of_units_status =', 2);
 				$this->datatable->where('srt.country_director_status =', 1);
 			} else if (is_finance_teams()) {

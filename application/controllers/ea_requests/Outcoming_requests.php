@@ -164,6 +164,30 @@ class Outcoming_requests extends MY_Controller {
 			} else {
 				$payload['car_rental_memo'] = null;
 			}
+
+			if ($_FILES['proof_of_approval']['name']) {
+				$dir2 = './uploads/proof_of_approval/';
+				if (!is_dir($dir2)) {
+					mkdir($dir2, 0777, true);
+				}
+
+				$config2['upload_path']          = $dir2;
+				$config2['allowed_types']        = 'xls|xlsx|pdf|jpg|png|jpeg';
+				$config2['max_size']             = 10048;
+				$config2['encrypt_name']         = true;
+
+				$this->load->library('upload', $config2);
+				$this->upload->initialize($config2);
+
+				if ($this->upload->do_upload('proof_of_approval')) {
+					$payload['proof_of_approval'] = $this->upload->data('file_name');
+				} else {
+					$response = ['status' => false, 'message' => strip_tags($this->upload->display_errors())]; die;
+				}
+			} else {
+				$payload['proof_of_approval'] = null;
+			}
+			$payload['konversi_usd'] = 14500;
 			$request_id = $this->request->insert_request($payload);
 			if($request_id) {
 				$sent = $this->send_email_to_head_of_units($request_id);

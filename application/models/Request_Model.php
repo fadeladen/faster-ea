@@ -34,6 +34,9 @@ class Request_Model extends CI_Model
         "exteral_invitation_file",
         "car_rental_memo",
         "purpose",
+        "proof_of_approval",
+        "detail_address",
+        "konversi_usd",
     ];
 
     function get_request_by_id($id) {
@@ -125,7 +128,7 @@ class Request_Model extends CI_Model
 
         $employment = $data['employment'];
         
-        if($employment == 'On behalf') {
+        if($employment == 'On behalf' || $employment == 'For me and on behalf') {
             $employment_status = $data['employment_status'];
             $participants_name = $data['participant_name'];
             if($employment_status || $employment_status == 'Consultant' || $employment_status == 'Other') {
@@ -153,6 +156,11 @@ class Request_Model extends CI_Model
             $clean_meals = str_replace('.', '',  $data['meals'][$i]);
             $clean_meals_lodging_total = str_replace('.', '',  $data['meals_lodging_total'][$i]);
             $clean_total = str_replace('.', '',  $data['total'][$i]);
+            // USD
+            $clean_lodging_usd = str_replace('.', '',  $data['lodging_usd'][$i]);
+            $clean_meals_usd = str_replace('.', '',  $data['meals_usd'][$i]);
+            $clean_meals_lodging_total_usd = str_replace('.', '',  $data['meals_lodging_total_usd'][$i]);
+            $clean_total_usd = str_replace('.', '',  $data['total_usd'][$i]);
             $country = $data['destination_country'][$i];
             $city = $data['destination_city'][$i];
             if($country == 2) {
@@ -168,15 +176,19 @@ class Request_Model extends CI_Model
                 'project_number' => $data['project_number'][$i],
                 'budget_monitor' => $data['destination_budget_monitor'][$i],
                 'lodging' => $clean_lodging,
+                'lodging_usd' => $clean_lodging_usd,
                 'meals' => $clean_meals,
+                'meals_usd' => $clean_meals_usd,
                 'total_lodging_and_meals' => $clean_meals_lodging_total,
+                'total_lodging_and_meals_usd' => $clean_meals_lodging_total_usd,
                 'night' => $data['night'][$i],
                 'total' => $clean_total,
+                'total_usd' => $clean_total_usd,
             ]);
         }
 
         // Save participants
-        if($employment == 'On behalf') {
+        if($employment == 'On behalf' || $employment == 'For me and on behalf') {
             if($employment_status == 'Consultant' || $employment_status == 'Other') {
                 $participants_email = $data['participant_email'];
                 $participants_title = $data['participant_title'];

@@ -377,12 +377,12 @@ class Requests_Confirmation extends CI_Controller {
 					 ';
 		$text = $this->load->view('template/email', $data, true);
 		$mail->addAddress($user['email']);
-        $payment_pdf = $this->attach_payment_request($req_id);
+        // $payment_pdf = $this->attach_payment_request($req_id);
         // $excel = $this->attach_ea_form($req_id);
 		// if(!empty($excel)) {
 		// 	$mail->addAttachment($excel['path'], $excel['file_name']);
 		// }
-		$mail->addStringAttachment($payment_pdf, 'Payment form request.pdf');
+		// $mail->addStringAttachment($payment_pdf, 'Payment form request.pdf');
         $mail->Subject = "Approved EA Requests for review by Finance Teams";
         $mail->isHTML(true);
         $mail->Body = $text;

@@ -210,7 +210,9 @@ class Outgoing extends MY_Controller {
 		$item_type = $this->input->get('item_type');
 		$max_budget = $this->report->get_dest_max_budget($dest_id);
 		$max_lodging_budget = $max_budget['max_lodging_budget'] + 0;
+		$max_lodging_budget_usd = $max_budget['max_lodging_budget_usd'] + 0;
 		$max_meals_budget = $max_budget['max_meals_budget'] + 0;
+		$country = $max_budget['country'];
 		$meals = [];
 		if($item_id != 0 && $item_type == 2) {
 			$item = $this->db->select('meals_text')->from('ea_actual_costs')->where([
@@ -227,8 +229,10 @@ class Outgoing extends MY_Controller {
 			'night' => $night,
 			'max_budget' => $max_budget,
 			'max_lodging_budget' => $max_lodging_budget,
+			'max_lodging_budget_usd' => $max_lodging_budget_usd,
 			'max_meals_budget' => $max_meals_budget,
 			'meals' => $meals,
+			'country' => $country,
 		];
 		if($item_id != 0) {
 			$data['detail'] = $this->report->get_actual_cost_detail($item_id);

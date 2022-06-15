@@ -902,10 +902,10 @@ class Outcoming_requests extends MY_Controller {
 
         $text = $this->load->view('template/email', $data, true);
         $mail->setFrom('no-reply@faster.bantuanteknis.id', 'FASTER-FHI360');
-		if($level == 'finance') {
-			$payment_pdf = $this->attach_payment_request($request_id);
-			$mail->addStringAttachment($payment_pdf, 'Payment form request.pdf');
-		} 
+		// if($level == 'finance') {
+		// 	$payment_pdf = $this->attach_payment_request($request_id);
+		// 	$mail->addStringAttachment($payment_pdf, 'Payment form request.pdf');
+		// } 
         $mail->addAddress($email);
         $mail->Subject = "Resubmit EA Request";
         $mail->isHTML(true);

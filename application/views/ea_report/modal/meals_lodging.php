@@ -50,7 +50,10 @@
 				</div>
 				<?php if ($item_type == 1): ?>
 					<h6 class="text-dark mb-2">Max budget: <span
-									class="total_current_budget text-danger badge badge-pill badge-secondary fw-bold ml-2"><?= number_format($max_lodging_budget,2,',','.')  ?></span>
+									class="total_current_budget text-danger badge badge-pill badge-secondary fw-bold ml-2">
+									<?= number_format($max_lodging_budget,2,',','.')  ?>
+									<?= ($country == 1 ? '' : ' / USD ' .  number_format($max_lodging_budget_usd,0,',','.'))  ?>
+								</span>
 					</h6>
 				<?php endif; ?>
 			</div>

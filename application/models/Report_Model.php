@@ -399,19 +399,23 @@ class Report_Model extends CI_Model
     }
 
     function get_dest_max_budget($dest_id) {
-        $dest =  $this->db->select('is_edited_by_ea, lodging, meals, total_lodging_and_meals, max_lodging_budget, max_meals_budget')
+        $dest =  $this->db->select('is_edited_by_ea, country, lodging, lodging_usd, meals, total_lodging_and_meals, max_lodging_budget, max_lodging_budget_usd, max_meals_budget')
         ->from('ea_requests_destinations')
         ->where('id', $dest_id)
         ->get()->row_array();
         if($dest['is_edited_by_ea'] == 1) {
             $data = [
+                'country' => $dest['country'],
                 'max_lodging_budget' => $dest['max_lodging_budget'],
+                'max_lodging_budget_usd' => $dest['max_lodging_budget_usd'],
                 'max_meals_budget' => $dest['max_meals_budget'],
                 'total_max_budget' => $dest['max_lodging_budget'] + $dest['max_meals_budget'],
             ];
         } else {
             $data = [
+                'country' => $dest['country'],
                 'max_lodging_budget' => $dest['lodging'],
+                'max_lodging_budget_usd' => $dest['lodging_usd'],
                 'max_meals_budget' => $dest['meals'],
                 'total_max_budget' => $dest['total_lodging_and_meals'],
             ];

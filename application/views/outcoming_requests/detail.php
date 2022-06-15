@@ -530,7 +530,7 @@
 								</div>
 							</div>
 							<?php endif; ?>
-							<?php if ($detail['fco_monitor_status'] == 2): ?>
+							<!-- <?php if ($detail['fco_monitor_status'] == 2): ?>
 							<div class="div col-md-3 col-6">
 								<div class="p-3">
 									<div class="d-flex">
@@ -557,7 +557,7 @@
 									</div>
 								</div>
 							</div>
-							<?php endif; ?>
+							<?php endif; ?> -->
 							<?php if ($detail['finance_status'] == 2 && $detail['payment_receipt'] != null): ?>
 							<div class="div col-md-3 col-6">
 								<div class="p-3">

@@ -55,7 +55,7 @@
 				</div>
 				<div id="items-lists">
 					<div class="row">
-						<div class="col-md-7 form-group">
+						<div class="col-md-6 form-group">
 							<label for="cost">Cost</label>
 							<input value="<?= (isset($detail) ? $detail['clean_cost'] : '') ?>" type="text" class="form-control cost"
 								name="cost[]">
@@ -66,6 +66,9 @@
 								<input type="file" class="custom-file-input" name="receipt[]">
 								<label class="custom-file-label" for="receipt">Choose file</label>
 							</div>
+						</div>
+						<div class="col-1">
+							
 						</div>
 					</div>
 				</div>

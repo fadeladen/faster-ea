@@ -20,14 +20,35 @@
 					<input value="<?= $detail['departure_date'] ?>" type="date" class="form-control"
 						name="departure_date" id="departure_date">
 				</div>
-				<div class="form-group">
-					<label for="actual_">Lodging</label>
-					<input value="<?= $detail['lodging'] ?>" type="text" class="form-control" name="lodging"
-						id="lodging">
+				<div
+					class="form-group <?= ($detail['requestor_id'] == $this->user_data->userId || $detail['country'] == 1) ? 'd-none' : '' ?>">
+					<label for="konversi_usd">Exchange rate</label>
+					<input value="<?= $detail['konversi_usd'] ?>" type="text" class="form-control" name="konversi_usd"
+						id="konversi_usd">
 				</div>
-				<div class="form-group">
-					<label for="actual_">Meals</label>
-					<input value="<?= $detail['meals'] ?>" type="text" class="form-control" name="meals" id="meals">
+				<div class="form-group row">
+					<div class="col-md-8">
+						<label for="">Lodging</label>
+						<input value="<?= ($detail['is_edited_by_ea'] == 0 ? $detail['lodging'] : $detail['max_lodging_budget']) ?>" type="text" class="form-control" name="lodging"
+							id="lodging">
+					</div>
+					<div class="col-md-4">
+						<label for="">USD</label>
+						<input readonly value="<?= ($detail['is_edited_by_ea'] == 0 ? $detail['lodging_usd'] : $detail['max_lodging_budget_usd'])  ?>" type="text" class="form-control" name="lodging_usd"
+							id="lodging_usd">
+					</div>
+				</div>
+				<div class="form-group row">
+					<div class="col-md-8">
+						<label for="">Meals</label>
+						<input value="<?= ($detail['is_edited_by_ea'] == 0 ? $detail['meals'] : $detail['max_meals_budget']) ?>" type="text" class="form-control" name="meals" id="meals">
+					</div>
+					<div class="col-md-4">
+						<label for="">USD</label>
+						<input readonly value="<?= ($detail['is_edited_by_ea'] == 0 ? $detail['meals_usd'] : $detail['max_meals_budget_usd'])  ?>" type="text" class="form-control" name="meals_usd"
+							id="meals_usd">
+					</div>
+
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -37,3 +58,8 @@
 		</form>
 	</div>
 </div>
+
+<script>
+	
+
+</script>

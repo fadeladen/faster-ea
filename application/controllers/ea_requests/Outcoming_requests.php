@@ -690,7 +690,13 @@ class Outcoming_requests extends MY_Controller {
 
 	public function edit_costs_modal() {
 		$dest_id = $this->input->get('dest_id');	
-		$detail = $this->db->select('ed.id, er.requestor_id, ed.arrival_date, ed.departure_date ,format(ed.meals,0,"de_DE") as meals, format(ed.lodging,0,"de_DE") as lodging')
+		$detail = $this->db->select('ed.id, ed.country, er.requestor_id, ed.arrival_date, ed.departure_date, ed.is_edited_by_ea,
+		format(ed.meals,0,"de_DE") as meals, format(ed.lodging,0,"de_DE") as lodging,
+		format(ed.lodging_usd,0,"de_DE") as lodging_usd, format(ed.meals_usd,0,"de_DE") as meals_usd,
+		format(ed.max_lodging_budget,0,"de_DE") as max_lodging_budget, format(ed.max_meals_budget,0,"de_DE") as max_meals_budget,
+		format(ed.max_lodging_budget_usd,0,"de_DE") as max_lodging_budget_usd, format(ed.max_meals_budget_usd,0,"de_DE") as max_meals_budget_usd,
+		format(ed.konversi_usd,0,"de_DE") as konversi_usd
+		')
 					->from('ea_requests_destinations ed')
 					->join('ea_requests er', 'er.id = ed.request_id')
 					->where('ed.id', $dest_id)
@@ -705,18 +711,28 @@ class Outcoming_requests extends MY_Controller {
 		if ($this->input->is_ajax_request() && $this->input->server('REQUEST_METHOD') === 'POST') {
 			$this->form_validation->set_rules('meals', 'Meals', 'required');
 			$this->form_validation->set_rules('lodging', 'Lodging', 'required');
+			$this->form_validation->set_rules('konversi_usd', 'Nilai konversi', 'required');
 
 			if ($this->form_validation->run()) {
 				
+				$konversi_usd = $this->input->post('konversi_usd');
+				$clean_konversi = str_replace('.', '',  $konversi_usd);
 				$meals = $this->input->post('meals');
 				$clean_meals = str_replace('.', '',  $meals);
+				$meals_usd = $this->input->post('meals_usd');
+				$clean_meals_usd = str_replace('.', '',  $meals_usd);
 				$lodging = $this->input->post('lodging');
 				$clean_lodging = str_replace('.', '',  $lodging);
+				$lodging_usd = $this->input->post('lodging_usd');
+				$clean_lodging_usd = str_replace('.', '',  $lodging_usd);
 				$payload = [
 					'arrival_date' => $this->input->post('arrival_date'),
 					'departure_date' => $this->input->post('departure_date'),
 					'meals' => $clean_meals,
+					'meals_usd' => $clean_meals_usd,
 					'lodging' => $clean_lodging,
+					'lodging_usd' => $clean_lodging_usd,
+					'konversi_usd' => $clean_konversi,
 				];
 				if(is_ea_assosiate()) {
 					$updated = $this->request->update_max_budget($dest_id, $payload);

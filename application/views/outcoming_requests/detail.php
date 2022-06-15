@@ -324,7 +324,8 @@
 								<h6 class="pb-2 border-bottom font-weight-bold"><?= $dest['order'] ?> destination </h6>
 								<div class="text-dark">
 									<p class="mb-1">City/country: <span
-											class="destination-city-val"><?= $dest['city'] ?></span><span><?= ($dest['country'] == 1) ? '/Indonesia' : '' ?></span> </p>
+											class="destination-city-val"><?= $dest['city'] ?></span><span><?= ($dest['country'] == 1) ? '/Indonesia' : '' ?></span>
+									</p>
 									<div class="mb-1 d-flex">
 										<p class="mb-0">Arrival date: <?= $dest['arriv_date'] ?></p>
 										<p class="ml-3 mb-0">Departure date: <?= $dest['depar_date'] ?>,</p>
@@ -337,26 +338,37 @@
 									<p class="mb-1">Lodging:
 										<span class="destination-lodging-val">Rp.
 											<?= $dest['d_lodging'] ?>
+											<?= ($dest['country'] == 1) ? '' : '/ USD: ' . $dest['d_lodging_usd'] ?>
 										</span>
 										<?php if ($dest['is_edited_by_ea'] == 1): ?>
-										<span class="text-danger"> ( Max budget: Rp. <?= $dest['d_max_lodging_budget'] ?>
+										<span class="text-danger"> ( Max budget:
+											<?= ($dest['country'] == 1 ? 'Rp. ' . $dest['d_max_lodging_budget'] : 'USD ' . $dest['d_max_lodging_budget_usd'])  ?>
 											)</span>
 										<?php endif; ?>
 									</p>
 									<p class="mb-1">Meals: <span class="destination-meals-val">
 											Rp. <?= $dest['d_meals'] ?></span>
+										<?= ($dest['country'] == 1) ? '' : '/ USD: ' . $dest['d_meals_usd'] ?>
 										<?php if ($dest['is_edited_by_ea'] == 1): ?>
-										<span class="text-danger"> ( Max budget: Rp. <?= $dest['d_max_meals_budget'] ?>
+										<span class="text-danger"> ( Max budget:
+											<?= ($dest['country'] == 1 ? 'Rp. ' . $dest['d_max_meals_budget'] : 'USD ' . $dest['d_max_meals_budget_usd'])  ?>
+											)
 											)</span>
 										<?php endif; ?>
 									</p>
-									<p class="mb-1">Total (lodging+meals): <span
-											class="destination-meals-lodging-total-val">Rp.
-											<?= $dest['d_total_lodging_and_meals'] ?></span> </p>
-									<p class="mb-1">Number of nights: <span
-											class="destination-night-val"><?= $dest['night'] ?></span> </p>
+									<p class="mb-1">Total (lodging+meals):
+										<span class="destination-meals-lodging-total-val">Rp.
+											<?= $dest['d_total_lodging_and_meals'] ?></span>
+										<?= ($dest['country'] == 1) ? '' : '/ USD: ' . $dest['d_total_lodging_and_meals_usd'] ?>
+									</p>
+									<p class="mb-1">Number of nights:
+										<span
+											class="destination-night-val"><?= $dest['night'] ?><?= $detail['employment'] == 'Just for me' ? ' (for 1 person)' : ' (for ' . $detail['number_of_participants'] . ' persons)' ?>
+										</span>
+									</p>
 									<p class="mb-1">Total: <span class="destination-total-val">Rp.
-											<?= $dest['d_total'] ?></span>
+											<?= $dest['d_total'] ?>
+											<?= ($dest['country'] == 1) ? '' : '/ USD: ' . $dest['d_total_usd'] ?> </span>
 									</p>
 								</div>
 								<?php if (is_ea_assosiate()): ?>
@@ -450,6 +462,34 @@
 										<h6 class="fw-bold">External invitation</h6>
 										<a target="_blank"
 											href="<?= base_url('uploads/exteral_invitation/') ?><?= $detail['exteral_invitation_file'] ?>"
+											class="badge badge-primary"><span class="mr-1"><svg
+													xmlns="http://www.w3.org/2000/svg" width="10" height="10"
+													fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+													<path
+														d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+													<path
+														d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
+												</svg></span> Download</a>
+									</div>
+								</div>
+							</div>
+							<?php endif; ?>
+							<?php if ($detail['proof_of_approval'] != null): ?>
+							<div class="div col-md-3 col-6">
+								<div class="p-3">
+									<div class="d-flex">
+										<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor"
+											class="bi bi-file-earmark-pdf" viewBox="0 0 16 16">
+											<path
+												d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z" />
+											<path
+												d="M4.603 14.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645 19.697 19.697 0 0 0 1.062-2.227 7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.188-.012.396-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686 5.753 5.753 0 0 1 1.334.05c.364.066.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.712 5.712 0 0 1-.911-.95 11.651 11.651 0 0 0-1.997.406 11.307 11.307 0 0 1-1.02 1.51c-.292.35-.609.656-.927.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.266.266 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.71 12.71 0 0 1 1.01-.193 11.744 11.744 0 0 1-.51-.858 20.801 20.801 0 0 1-.5 1.05zm2.446.45c.15.163.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015.307.307 0 0 0 .094-.125.436.436 0 0 0 .059-.2.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a3.876 3.876 0 0 0-.612-.053zM8.078 7.8a6.7 6.7 0 0 0 .2-.828c.031-.188.043-.343.038-.465a.613.613 0 0 0-.032-.198.517.517 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822.024.111.054.227.09.346z" />
+										</svg>
+									</div>
+									<div class="mt-3">
+										<h6 class="fw-bold">Proof of aproval</h6>
+										<a target="_blank"
+											href="<?= base_url('uploads/proof_of_approval/') ?><?= $detail['proof_of_approval'] ?>"
 											class="badge badge-primary"><span class="mr-1"><svg
 													xmlns="http://www.w3.org/2000/svg" width="10" height="10"
 													fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
@@ -584,7 +624,7 @@
 										<td data-field="Status" data-autohide-disabled="false" class="kt-datatable__cell">
 											<span style="width: 110px;">
 												<span class="kt-badge kt-badge--dark kt-badge--inline kt-badge--pill">
-													Head Of Units
+													Supervisor
 												</span>
 											</span>
 										<td data-field="Status" data-autohide-disabled="false" class="kt-datatable__cell">
@@ -809,6 +849,39 @@
 	<script>
 		$(document).ready(function () {
 			$('#max_budget_idr, #max_budget_usd').number(true, 0, '', '.');
+
+			$(document).on('keyup', '#konversi_usd, #lodging, #meals', function () {
+				updateKonversi($(this))
+			});
+
+			const updateKonversi = (el) => {
+				const parent = el.parent().parent()
+				const konversiUsd = $('#konversi_usd')
+				const lodgingEl = $('#lodging')
+				const lodgingUsdEl = $('#lodging_usd')
+				const mealEl = $('#meals')
+				const mealUsdEl = $('#meals_usd')
+				konversiUsd.on('keyup', function (e) {
+					const konv = $(this).val()
+					const lodgingValue = lodgingEl.val()
+					const usdLodgVal = Math.round(lodgingValue / konv)
+					lodgingUsdEl.val(usdLodgVal)
+					const mealValue = mealEl.val()
+					const usdMealVal = Math.round(mealValue / konv)
+					mealUsdEl.val(usdMealVal)
+				})
+				lodgingEl.on('keyup', function (e) {
+					const lodVal = $(this).val()
+					const usdVal = Math.round(lodVal / konversiUsd.val())
+					lodgingUsdEl.val(usdVal)
+				})
+				mealEl.on('keyup', function (e) {
+					const mealVal = $(this).val()
+					const usdVal = Math.round(mealVal / konversiUsd.val())
+					mealUsdEl.val(usdVal)
+				})
+			}
+
 			$(document).on('click', '#btn-to-budget-form', function (e) {
 				e.preventDefault()
 				$('html, body').animate({
@@ -821,7 +894,7 @@
 				$.get(base_url + `ea_requests/outcoming_requests/edit_costs_modal?dest_id=${dest_id}`,
 					function (html) {
 						$('#myModal').html(html)
-						$('#lodging, #meals').number(true, 0, '', '.');
+						$('#lodging, #meals, #konversi_usd').number(true, 0, '', '.');
 						$('#myModal').modal('show')
 					});
 			})

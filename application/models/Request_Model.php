@@ -86,10 +86,13 @@ class Request_Model extends CI_Model
             return false;
         }
         $destinations = $this->db->select('*, format(meals,2,"de_DE") as d_meals, format(lodging,2,"de_DE") as d_lodging,
+        format(lodging_usd,0,"de_DE") as d_lodging_usd, format(meals_usd,0,"de_DE") as d_meals_usd,
+        format(total_lodging_and_meals_usd,0,"de_DE") as d_total_lodging_and_meals_usd, format(total_usd,0,"de_DE") as d_total_usd,
         format(total_lodging_and_meals,2,"de_DE") as d_total_lodging_and_meals, format(total,2,"de_DE") as d_total,
         DATE_FORMAT(departure_date, "%d %M %Y") as depar_date, DATE_FORMAT(arrival_date, "%d %M %Y") as arriv_date,
         format(actual_meals,2,"de_DE") as d_actual_meals, format(actual_lodging,2,"de_DE") as d_actual_lodging,
         format(max_lodging_budget,2,"de_DE") as d_max_lodging_budget, format(max_meals_budget,2,"de_DE") as d_max_meals_budget,
+        format(max_lodging_budget_usd,0,"de_DE") as d_max_lodging_budget_usd, format(max_meals_budget_usd,0,"de_DE") as d_max_meals_budget_usd
         ')
         ->from('ea_requests_destinations')
         ->where('request_id', $id)
@@ -305,6 +308,11 @@ class Request_Model extends CI_Model
         $lodging = $payload['lodging'];
         $total_lodging_and_meals = $meals + $lodging;
         $total = $total_lodging_and_meals * $night;
+        //USD
+        $meals_usd = $payload['meals_usd'];
+        $lodging_usd = $payload['lodging_usd'];
+        $total_lodging_and_meals_usd = $meals_usd + $lodging_usd;
+        $total_usd = $total_lodging_and_meals_usd * $night;
         $data = [
             'arrival_date' => date('Y-m-d', strtotime($payload['arrival_date'])),
             'departure_date' => date('Y-m-d', strtotime($payload['departure_date'])),
@@ -312,7 +320,11 @@ class Request_Model extends CI_Model
             'lodging' => $lodging,
             'night' => $night,
             'total_lodging_and_meals' => $total_lodging_and_meals,
+            'meals_usd' => $meals_usd,
+            'lodging_usd' => $lodging_usd,
+            'total_lodging_and_meals_usd' => $total_lodging_and_meals_usd,
             'total' => $total,
+            'total_usd' => $total_usd,
         ];
         $updated = $this->db->where('id', $dest_id)->update('ea_requests_destinations', $data);
         if($updated) {
@@ -324,9 +336,15 @@ class Request_Model extends CI_Model
     function update_max_budget($dest_id, $payload) {
         $max_lodging_budget = $payload['lodging'];
         $max_meals_budget = $payload['meals'];
+        $konversi_usd = $payload['konversi_usd'];
+        $lodging_usd = $payload['lodging_usd'];
+        $meals_usd = $payload['meals_usd'];
         $data = [
             'max_lodging_budget' => $max_lodging_budget,
             'max_meals_budget' => $max_meals_budget,
+            'max_lodging_budget_usd' => $lodging_usd,
+            'max_meals_budget_usd' => $meals_usd,
+            'konversi_usd' => $konversi_usd,
             'is_edited_by_ea' => 1,
         ];
         $updated = $this->db->where('id', $dest_id)->update('ea_requests_destinations', $data);

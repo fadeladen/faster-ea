@@ -276,7 +276,7 @@
 									<td data-field="Status" data-autohide-disabled="false" class="kt-datatable__cell">
 										<span style="width: 110px;">
 											<span class="kt-badge kt-badge--dark kt-badge--inline kt-badge--pill">
-												Head Of Units
+												Supervisor
 											</span>
 										</span>
 									<td data-field="Status" data-autohide-disabled="false" class="kt-datatable__cell">
@@ -318,56 +318,6 @@
 									</td>
 								</tr>
 								<tr data-row="1" class="kt-datatable__row" style="left: 0px;">
-									<td data-field="Order ID" class="kt-datatable__cell fw-bold">
-										<span style="width: 150px;">
-											<?= $detail['country_director_name'] ?>
-										</span>
-									</td>
-									<td data-field="Status" data-autohide-disabled="false" class="kt-datatable__cell">
-										<span style="width: 110px;"><span
-												class="kt-badge kt-badge--dark kt-badge--inline kt-badge--pill">
-												Country director
-											</span>
-										</span>
-									<td data-field="Status" data-autohide-disabled="false" class="kt-datatable__cell">
-										<span style="width: 110px;">
-											<span
-												class="kt-badge kt-badge--inline kt-badge--pill status-badge"><?= $detail['country_director_status_text'] ?></span>
-										</span>
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 110px;">
-											<?= $detail['country_director_status_at'] ?>
-										</span>
-									</td>
-									<td class="kt-datatable__cell">
-										<div style="width: 140px;" class="d-flex <?= $country_director_btn ?>">
-											<button data-level='country_director' data-id=<?= $detail['r_id'] ?>
-												data-status="2" class="btn btn-status btn-success mr-1">
-												<div class="d-flex align-items-center justify-content-center">
-													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-														fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-														<path
-															d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
-													</svg>
-													Approve
-												</div>
-											</button>
-											<button data-level='country_director' data-id=<?= $detail['r_id'] ?>
-												data-status="3" class="btn btn-status btn-danger">
-												<div class="d-flex align-items-center justify-content-center">
-													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-														fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
-														<path
-															d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
-													</svg>
-													Reject
-												</div>
-											</button>
-										</div>
-									</td>
-								</tr>
-								<tr data-row="2" class="kt-datatable__row" style="left: 0px;">
 									<td data-field="Order ID" class="kt-datatable__cell fw-bold"><span
 											style="width: 150px;">
 											<?= $detail['finance_name'] ?>
@@ -418,6 +368,57 @@
 										</div>
 									</td>
 								</tr>
+								<tr data-row="2" class="kt-datatable__row" style="left: 0px;">
+									<td data-field="Order ID" class="kt-datatable__cell fw-bold">
+										<span style="width: 150px;">
+											<?= $detail['country_director_name'] ?>
+										</span>
+									</td>
+									<td data-field="Status" data-autohide-disabled="false" class="kt-datatable__cell">
+										<span style="width: 110px;"><span
+												class="kt-badge kt-badge--dark kt-badge--inline kt-badge--pill">
+												FCO Monitor
+											</span>
+										</span>
+									<td data-field="Status" data-autohide-disabled="false" class="kt-datatable__cell">
+										<span style="width: 110px;">
+											<span
+												class="kt-badge kt-badge--inline kt-badge--pill status-badge"><?= $detail['country_director_status_text'] ?></span>
+										</span>
+									</td>
+									<td class="kt-datatable__cell">
+										<span style="width: 110px;">
+											<?= $detail['country_director_status_at'] ?>
+										</span>
+									</td>
+									<td class="kt-datatable__cell">
+										<div style="width: 140px;" class="d-flex <?= $country_director_btn ?>">
+											<button data-level='country_director' data-id=<?= $detail['r_id'] ?>
+												data-status="2" class="btn btn-status btn-success mr-1">
+												<div class="d-flex align-items-center justify-content-center">
+													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+														fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+														<path
+															d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
+													</svg>
+													Approve
+												</div>
+											</button>
+											<button data-level='country_director' data-id=<?= $detail['r_id'] ?>
+												data-status="3" class="btn btn-status btn-danger">
+												<div class="d-flex align-items-center justify-content-center">
+													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+														fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+														<path
+															d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+													</svg>
+													Reject
+												</div>
+											</button>
+										</div>
+									</td>
+								</tr>
+								
 							</tbody>
 						</table>
 					</div>

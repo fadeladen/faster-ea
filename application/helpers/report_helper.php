@@ -122,3 +122,26 @@ if (!function_exists('is_report_finished')) {
         return false;
     }
 }
+
+if (!function_exists('get_request_participants')) {
+    function get_request_participants($req_id)
+    {   
+        $ci = &get_instance();
+        $request = $ci->db->select('ear.*, u.username as requestor_name')->from('ea_requests ear')
+		->join('tb_userapp u', 'u.id = ear.requestor_id')
+		->where('ear.id', $req_id)
+		->get()->row_array();
+        $persons = '';
+		if($request['employment'] == 'Just for me') {
+            $persons = $request['requestor_name'];
+        } else {
+			$participants = $ci->db->select('*')->from('ea_requests_participants')
+			->where('request_id', $req_id)
+			->get()->result_array();
+			$names = array_column($participants, 'name');
+			$persons = implode (", ", $names);;
+		}
+		
+        return $persons;
+    }
+}

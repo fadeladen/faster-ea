@@ -6,10 +6,11 @@ class Report_Model extends CI_Model
 
     function get_report_data_by_id($id) {
         $request_data =  $this->db->select('r.id as r_id, CONCAT("EA", r.id) AS ea_number, DATE_FORMAT(r.created_at, "%d %M %Y - %H:%i") as request_date,
-        DATE_FORMAT(r.departure_date, "%d %M %Y") as d_date, DATE_FORMAT(r.return_date, "%d %M %Y") as r_date,
+        DATE_FORMAT(r.departure_date, "%d %M %Y") as d_date, DATE_FORMAT(r.return_date, "%d %M %Y") as r_date, DATE_FORMAT(st.finance_status_at, "%d %M %Y") as payment_date,
         r.*, 
         ')
         ->from('ea_requests r')
+        ->join('ea_requests_status st', 'st.request_id = r.id')
         ->where('r.id', $id)
         ->get()->row_array();
         if(!$request_data) {

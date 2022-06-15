@@ -13,7 +13,7 @@
 					</div>
 					<div class="kt-infobox__body">
 						<div class="row">
-							<label class="col-5 mb-2 col-form-label fw-bold">Name</label>
+							<label class="col-5 mb-2 col-form-label fw-bold">Requestor (prepared by)</label>
 							<div class="col-7">
 								<span style="font-size: 1rem;"
 									class="badge badge-light fw-bold"><?= $requestor_data['username'] ?></span>
@@ -33,8 +33,7 @@
 							</div>
 						</div>
 						<div class="row">
-							<label class="col-5 mb-2 col-form-label fw-bold">Total cost (meals and lodging x
-								night)</label>
+							<label class="col-5 mb-2 col-form-label fw-bold">Total advance <?= $detail['employment'] == 'Just for me' ? ' (for 1 person)' : ' (for ' . $detail['number_of_participants'] . ' persons)' ?></label>
 							<div class="col-7">
 								<span class="badge badge-pill badge-secondary fw-bold">IDR
 									<?= number_format($detail['total_destinations_cost'],2,',','.') ?></span>

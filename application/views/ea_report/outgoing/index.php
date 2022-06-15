@@ -23,10 +23,10 @@
 			<thead>
 				<tr>
 					<th style="width: 80px;">EA Number</th>
-					<th style="min-width: 110px;">Requestor</th>
-					<th style="min-width: 90px;">Request base</th>
+					<th style="min-width: 110px;">Requestor (prepared by)</th>
+					<th style="min-width: 90px;">Request for</th>
 					<th style="min-width: 90px;">Originating City</th>
-					<th style="min-width: 100px;">Total costs</th>
+					<th style="min-width: 100px;">Total Advance</th>
 					<th style="min-width: 120px;">Request date</th>
 					<th style="min-width: 100px;" class="action-col">Action</th>
 				</tr>

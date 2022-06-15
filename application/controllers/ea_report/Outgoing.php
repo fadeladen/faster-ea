@@ -56,7 +56,8 @@ class Outgoing extends MY_Controller {
 				$data = [
 					'detail' => $detail,
 					'requestor_data' => $requestor_data,
-					'is_report_finished' => is_report_finished($id)
+					'is_report_finished' => is_report_finished($id),
+					'participants' => get_request_participants($id),
 				];
 				$this->template->set('page', 'Reporting TER #' . $detail['ea_number']);
 				$this->template->render('ea_report/outgoing/reporting', $data);
@@ -79,13 +80,13 @@ class Outgoing extends MY_Controller {
 			if($detail['head_of_units_status'] != 1 || $detail['head_of_units_id'] != $user_id) {
 				$head_of_units_btn = 'invisible';
 			}
-			$country_director_btn = '';
-			if($detail['country_director_status'] != 1 || $detail['head_of_units_status'] != 2  || !is_country_director()) {
-				$country_director_btn = 'invisible';
-			}
 			$finance_btn = '';
-			if($detail['finance_status'] != 1 || $detail['country_director_status'] != 2  || !is_finance_teams()) {
+			if($detail['finance_status'] != 1 || $detail['head_of_units_status'] != 2  || !is_finance_teams()) {
 				$finance_btn = 'invisible';
+			}
+			$country_director_btn = '';
+			if($detail['country_director_status'] != 1 || $detail['finance_status'] != 2  || !is_fco_monitor()) {
+				$country_director_btn = 'invisible';
 			}
 			$submit_btn = 'd-none';
 			if($detail['requestor_id'] == $this->user_data->userId && $detail['is_ter_rejected'] == 1) {
@@ -99,9 +100,11 @@ class Outgoing extends MY_Controller {
 				'finance_btn' => $finance_btn,
 				'submit_btn' => $submit_btn,
 				'total_actual_costs' => get_total_actual_costs($id),
-				'is_report_finished' => is_report_finished($id)
+				'is_report_finished' => is_report_finished($id),
+				'participants' => get_request_participants($id),
 			];
-			$this->template->set('page', 'TER detail #' . $detail['ea_number']);
+			$this->template->set('pageParent', 'Travel Expense Report (TER)');
+			$this->template->set('page', 'EA#' . $detail['r_id']);
 			$this->template->render('ea_report/outgoing/ter_detail', $data);
 		} else {
 			show_404();
@@ -111,8 +114,8 @@ class Outgoing extends MY_Controller {
     public function datatable()
     {	
 
-		$this->datatable->select('CONCAT("EA", ea.id) AS ea_number, u.username as requestor_name, ea.request_base,
-        ea.originating_city, ea.id as total_cost, DATE_FORMAT(ea.created_at, "%d %M %Y - %H:%i") as created_at ,ea.id, TIMESTAMP(ea.created_at) as timestamp', true);
+		$this->datatable->select('CONCAT("EA", ea.id) AS ea_number, u.username as requestor_name, ea.id as participants,
+        ea.originating_city, ea.id as total_cost, DATE_FORMAT(st.date_of_transfer, "%d %M %Y"), ea.id, TIMESTAMP(ea.created_at) as timestamp', true);
         $this->datatable->from('ea_requests ea');
         $this->datatable->join('tb_userapp u', 'u.id = ea.requestor_id');
         $this->datatable->join('ea_requests_status st', 'ea.id = st.request_id');
@@ -124,6 +127,7 @@ class Outgoing extends MY_Controller {
         $this->datatable->where('ea.is_ter_submitted =', 0);
         $this->datatable->where('ea.is_ter_rejected =', 0);
 		$this->datatable->edit_column('id', "$1", 'encrypt(id)');
+		$this->datatable->edit_column('participants', "$1", 'get_request_participants(participants)');
 		$this->datatable->edit_column('total_cost', '<span style="font-size: 1rem;"
 		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_request_costs(total_cost)');
 		$this->datatable->edit_column('ea_number', '<span style="font-size: 1rem;"

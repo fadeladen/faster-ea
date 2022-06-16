@@ -36,7 +36,6 @@ class Request_Model extends CI_Model
         "purpose",
         "proof_of_approval",
         "detail_address",
-        "konversi_usd",
     ];
 
     function get_request_by_id($id) {
@@ -101,13 +100,17 @@ class Request_Model extends CI_Model
         ->from('ea_requests_participants')
         ->where('request_id', $id)
         ->get()->result_array();
+
         $total_destinations_cost = 0;
+        $total_destinations_cost_usd = 0;
         foreach($destinations as $dest) {
             $total_destinations_cost += $dest['total'];
+            $total_destinations_cost_usd += $dest['total_usd'];
             $other_items = $this->get_destination_other_items($dest['id']);
             $dest['other_items'] = $other_items;
         }
         $request_data['total_destinations_cost'] = $total_destinations_cost;
+        $request_data['total_destinations_cost_usd'] = $total_destinations_cost_usd;
         $request_data['destinations'] = $destinations;
         $request_data['participants'] = $participants;
         return $request_data;
@@ -136,6 +139,9 @@ class Request_Model extends CI_Model
             $participants_name = $data['participant_name'];
             if($employment_status || $employment_status == 'Consultant' || $employment_status == 'Other') {
                 $data['number_of_participants'] = count($participants_name);
+                if($employment == 'For me and on behalf') {
+                    $data['number_of_participants'] += 1;
+                }
             }
         }
 
@@ -187,6 +193,7 @@ class Request_Model extends CI_Model
                 'night' => $data['night'][$i],
                 'total' => $clean_total,
                 'total_usd' => $clean_total_usd,
+                'konversi_usd' => 14500,
             ]);
         }
 
@@ -281,10 +288,13 @@ class Request_Model extends CI_Model
         ->where('request_id', $id)
         ->get()->result_array();
         $total_destinations_cost = 0;
+        $total_destinations_cost_usd = 0;
         foreach($destinations as $dest) {
             $total_destinations_cost += $dest['total'];
+            $total_destinations_cost_usd += $dest['total_usd'];
         }
         $request_data['total_destinations_cost'] = $total_destinations_cost;
+        $request_data['total_destinations_cost_usd'] = $total_destinations_cost_usd;
         $request_data['destinations'] = $destinations;
         $request_data['participants'] = $participants;
         return $request_data;

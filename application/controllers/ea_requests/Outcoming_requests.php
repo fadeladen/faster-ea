@@ -187,7 +187,6 @@ class Outcoming_requests extends MY_Controller {
 			} else {
 				$payload['proof_of_approval'] = null;
 			}
-			$payload['konversi_usd'] = 14500;
 			$request_id = $this->request->insert_request($payload);
 			if($request_id) {
 				$sent = $this->send_email_to_head_of_units($request_id);
@@ -440,16 +439,16 @@ class Outcoming_requests extends MY_Controller {
 		$spreadsheet = $reader->load($inputFileName);
 		$sheet = $spreadsheet->getActiveSheet();
 		$sheet->setCellValue('C7', $requestor['username']);
-		$sheet->setCellValue('AK2', 'EA No. ' . $detail['ea_number']);
+		$sheet->setCellValue('AK2', 'EA No. ' . $detail['r_id']);
 		$sheet->setCellValue('AD6', $detail['request_date']);
 		$sheet->setCellValue('AD8', $detail['originating_city']);
 		$sheet->setCellValue('AD10', $detail['departure_date']);
 		$sheet->setCellValue('AM10', $detail['return_date']);
 		$sheet->setCellValue('AG13', $requestor['project_name']);
-		$sheet->setCellValue('C10', $requestor['project_name']);
+		$sheet->setCellValue('C10', $detail['detail_address']);
 		$sheet->setCellValue('C16', $requestor['email']);
 		$sheet->setCellValue('G17', 'Employee #' . $requestor['employee_id']);
-		$sheet->setCellValue('AK15', $detail['ea_assosiate_name']);
+		$sheet->setCellValue('AK15', $requestor['username']);
 		$sheet->setCellValue('AL16', '$' . $detail['max_budget_usd']);
 		$sheet->setCellValue('C104', $detail['special_instructions']);
 		$sheet->setCellValue('C18', 'X');
@@ -457,7 +456,7 @@ class Outcoming_requests extends MY_Controller {
 			$sheet->setCellValue('X18', 'X');
 		}
 
-		if($detail['employment'] == 'On behalf') {
+		if($detail['employment'] == 'On behalf' || $detail['employment'] == 'For me and on behalf') {
 			if($detail['employment_status'] == 'Consultant') {
 				$sheet->setCellValue('C21', 'X');
 				$first_participants = $detail['participants'][0];
@@ -473,6 +472,11 @@ class Outcoming_requests extends MY_Controller {
 				$sheet->setCellValue('K23', $other_text);
 			}
 		}
+		$persons = '';
+		if($detail['employment'] != 'Just for me'){
+			$num_of_persons = $detail['number_of_participants'];
+			$persons = "(for $num_of_persons persons)";
+		} 
 
 		// Signature
 		$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
@@ -520,35 +524,63 @@ class Outcoming_requests extends MY_Controller {
 
 		$destinations= $detail['destinations'];
 		// 1st destination
-		$cityCountry = $destinations[0]['city'];
-		if($destinations[0]['country'] == 1) {
-			$cityCountry =  $destinations[0]['city'] . '/Indonesia'; 
+		$cityCountry =  $destinations[0]['city'] . '/Indonesia'; 
+		$lodging = $destinations[0]['lodging'] + 0;
+		$meals = $destinations[0]['meals'] + 0;
+		$total_lodging_meals = $destinations[0]['total_lodging_and_meals'] + 0;
+		$total = $destinations[0]['total'] + 0;
+		if($destinations[0]['country'] != 1) {
+			$cityCountry = $destinations[0]['city'];
+			$lodging = $destinations[0]['lodging_usd'] + 0;
+			$meals = $destinations[0]['meals_usd'] + 0;
+			$total_lodging_meals = $destinations[0]['total_lodging_and_meals_usd'] + 0;
+			$total = $destinations[0]['total_usd'] + 0;
+			$sheet->setCellValue('AJ28', 'Lodging $');
+			$sheet->setCellValue('AJ30', 'Meals $');
+			$sheet->setCellValue('AJ32', 'Total $');
+			$sheet->setCellValue('AJ36', 'Total $');
 		} 
 		$sheet->setCellValue('G26', $cityCountry);
 		$sheet->setCellValue('P26', $destinations[0]['arriv_date']);
 		$sheet->setCellValue('W26', $destinations[0]['depar_date']);
 		$sheet->setCellValue('C29', $destinations[0]['project_number']);
-		$sheet->setCellValue('AL28', $destinations[0]['lodging'] + 0);
-		$sheet->setCellValue('AL30', $destinations[0]['meals'] + 0);
-		$sheet->setCellValue('AL32', $destinations[0]['total_lodging_and_meals'] + 0);
+		$sheet->setCellValue('AL28', $lodging);
+		$sheet->setCellValue('AL30', $meals);
+		$sheet->setCellValue('AL32', $total_lodging_meals);
 		$sheet->setCellValue('AL34', $destinations[0]['night'] + 0);
-		$sheet->setCellValue('AL36', $destinations[0]['total'] + 0);
+		$sheet->setCellValue('AL36', $total);
+		$sheet->setCellValue('C32', $detail['purpose']);
+		$sheet->setCellValue('AM35', $persons);
 
 		if(count($destinations) > 1) {
 			// 2nd destination
-			$cityCountry = $destinations[1]['city'];
-			if($destinations[1]['country'] == 1) {
-				$cityCountry =  $destinations[1]['city'] . '/Indonesia'; 
+			$cityCountry =  $destinations[1]['city'] . '/Indonesia'; 
+			$lodging = $destinations[1]['lodging'] + 0;
+			$meals = $destinations[1]['meals'] + 0;
+			$total_lodging_meals = $destinations[1]['total_lodging_and_meals'] + 0;
+			$total = $destinations[1]['total'] + 0;
+			if($destinations[1]['country'] != 1) {
+				$cityCountry = $destinations[1]['city'];
+				$lodging = $destinations[1]['lodging_usd'] + 0;
+				$meals = $destinations[1]['meals_usd'] + 0;
+				$total_lodging_meals = $destinations[1]['total_lodging_and_meals_usd'] + 0;
+				$total = $destinations[1]['total_usd'] + 0;
+				$sheet->setCellValue('AJ42', 'Lodging $');
+				$sheet->setCellValue('AJ44', 'Meals $');
+				$sheet->setCellValue('AJ46', 'Total $');
+				$sheet->setCellValue('AJ50', 'Total $');
 			} 
 			$sheet->setCellValue('G40', $cityCountry);
 			$sheet->setCellValue('P40', $destinations[1]['arriv_date']);
 			$sheet->setCellValue('W40', $destinations[1]['depar_date']);
 			$sheet->setCellValue('C43', $destinations[1]['project_number']);
-			$sheet->setCellValue('AL42', $destinations[1]['lodging'] + 0);
-			$sheet->setCellValue('AL44', $destinations[1]['meals'] + 0);
-			$sheet->setCellValue('AL46', $destinations[1]['total_lodging_and_meals'] + 0);
+			$sheet->setCellValue('AL42', $lodging);
+			$sheet->setCellValue('AL44', $meals);
+			$sheet->setCellValue('AL46', $total_lodging_meals);
 			$sheet->setCellValue('AL48', $destinations[1]['night'] + 0);
-			$sheet->setCellValue('AL50', $destinations[1]['total'] + 0);
+			$sheet->setCellValue('AL50', $total);
+			$sheet->setCellValue('C46', $detail['purpose']);
+			$sheet->setCellValue('AM49', $persons);
 			if($detail['fco_monitor_status'] == 2) {
 				$drawing6 = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
 				$drawing6->setName('FCO signature');
@@ -562,23 +594,36 @@ class Outcoming_requests extends MY_Controller {
 
 		if(count($destinations) > 2) {
 			// 3rd destination
-			$cityCountry = $destinations[2]['city'];
-			if($destinations[2]['country'] == 1) {
-				$cityCountry =  $destinations[2]['city'] . '/Indonesia'; 
+			$cityCountry =  $destinations[2]['city'] . '/Indonesia'; 
+			$lodging = $destinations[2]['lodging'] + 0;
+			$meals = $destinations[2]['meals'] + 0;
+			$total_lodging_meals = $destinations[2]['total_lodging_and_meals'] + 0;
+			$total = $destinations[2]['total'] + 0;
+			if($destinations[2]['country'] != 1) {
+				$cityCountry = $destinations[2]['city'];
+				$lodging = $destinations[2]['lodging_usd'] + 0;
+				$meals = $destinations[2]['meals_usd'] + 0;
+				$total_lodging_meals = $destinations[2]['total_lodging_and_meals_usd'] + 0;
+				$total = $destinations[2]['total_usd'] + 0;
+				$sheet->setCellValue('AJ55', 'Lodging $');
+				$sheet->setCellValue('AJ57', 'Meals $');
+				$sheet->setCellValue('AJ59', 'Total $');
+				$sheet->setCellValue('AJ63', 'Total $');
 			} 
 			$sheet->setCellValue('G53', $cityCountry);
 			$sheet->setCellValue('P53', $destinations[2]['arriv_date']);
 			$sheet->setCellValue('W53', $destinations[2]['depar_date']);
 			$sheet->setCellValue('C56', $destinations[2]['project_number']);
-			$sheet->setCellValue('AL55', $destinations[2]['lodging'] + 0);
-			$sheet->setCellValue('AL57', $destinations[2]['meals'] + 0);
-			$sheet->setCellValue('AL59', $destinations[2]['total_lodging_and_meals'] + 0);
+			$sheet->setCellValue('AL55', $lodging);
+			$sheet->setCellValue('AL57', $meals);
+			$sheet->setCellValue('AL59', $total_lodging_meals);
 			$sheet->setCellValue('AL61', $destinations[2]['night'] + 0);
-			$sheet->setCellValue('AL63', $destinations[2]['total'] + 0);
+			$sheet->setCellValue('AL63', $total);
+			$sheet->setCellValue('C59', $detail['purpose']);
+			$sheet->setCellValue('AM62', $persons);
 			if($detail['fco_monitor_status'] == 2) {
 				$drawing7 = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
 				$drawing7->setName('FCO signature');
-				// $signature = $this->extractImage($detail['fco_monitor_signature']);
 				$signature = $this->extractImageFromAPI($detail['fco_monitor_signature']);
 				$drawing7->setPath($signature['image_path']);  // put your path and image here
 				$drawing7->setCoordinates('V55');
@@ -589,23 +634,36 @@ class Outcoming_requests extends MY_Controller {
 
 		if(count($destinations) > 3) {
 			// 4th destination
-			$cityCountry = $destinations[3]['city'];
-			if($destinations[3]['country'] == 1) {
-				$cityCountry =  $destinations[3]['city'] . '/Indonesia'; 
+			$cityCountry =  $destinations[3]['city'] . '/Indonesia'; 
+			$lodging = $destinations[3]['lodging'] + 0;
+			$meals = $destinations[3]['meals'] + 0;
+			$total_lodging_meals = $destinations[3]['total_lodging_and_meals'] + 0;
+			$total = $destinations[3]['total'] + 0;
+			if($destinations[3]['country'] != 1) {
+				$cityCountry = $destinations[3]['city'];
+				$lodging = $destinations[3]['lodging_usd'] + 0;
+				$meals = $destinations[3]['meals_usd'] + 0;
+				$total_lodging_meals = $destinations[3]['total_lodging_and_meals_usd'] + 0;
+				$total = $destinations[3]['total_usd'] + 0;
+				$sheet->setCellValue('AJ67', 'Lodging $');
+				$sheet->setCellValue('AJ69', 'Meals $');
+				$sheet->setCellValue('AJ71', 'Total $');
+				$sheet->setCellValue('AJ75', 'Total $');
 			} 
 			$sheet->setCellValue('G65', $cityCountry);
 			$sheet->setCellValue('P65', $destinations[3]['arriv_date']);
 			$sheet->setCellValue('W65', $destinations[3]['depar_date']);
 			$sheet->setCellValue('C68', $destinations[3]['project_number']);
-			$sheet->setCellValue('AL67', $destinations[3]['lodging'] + 0);
-			$sheet->setCellValue('AL69', $destinations[3]['meals'] + 0);
-			$sheet->setCellValue('AL71', $destinations[3]['total_lodging_and_meals'] + 0);
+			$sheet->setCellValue('AL67', $lodging);
+			$sheet->setCellValue('AL69', $meals);
+			$sheet->setCellValue('AL71', $total_lodging_meals);
 			$sheet->setCellValue('AL73', $destinations[3]['night'] + 0);
-			$sheet->setCellValue('AL75', $destinations[3]['total'] + 0);
+			$sheet->setCellValue('AL75', $total);
+			$sheet->setCellValue('C71', $detail['purpose']);
+			$sheet->setCellValue('AM74', $persons);
 			if($detail['fco_monitor_status'] == 2) {
 				$drawing7 = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
 				$drawing7->setName('FCO signature');
-				// $signature = $this->extractImage($detail['fco_monitor_signature']);
 				$signature = $this->extractImageFromAPI($detail['fco_monitor_signature']);
 				$drawing7->setPath($signature['image_path']);  // put your path and image here
 				$drawing7->setCoordinates('V67');
@@ -616,23 +674,36 @@ class Outcoming_requests extends MY_Controller {
 
 		if(count($destinations) > 4) {
 			// 5th destination
-			$cityCountry = $destinations[4]['city'];
-			if($destinations[4]['country'] == 1) {
-				$cityCountry =  $destinations[4]['city'] . '/Indonesia'; 
+			$cityCountry =  $destinations[4]['city'] . '/Indonesia'; 
+			$lodging = $destinations[4]['lodging'] + 0;
+			$meals = $destinations[4]['meals'] + 0;
+			$total_lodging_meals = $destinations[4]['total_lodging_and_meals'] + 0;
+			$total = $destinations[4]['total'] + 0;
+			if($destinations[4]['country'] != 1) {
+				$cityCountry = $destinations[4]['city'];
+				$lodging = $destinations[4]['lodging_usd'] + 0;
+				$meals = $destinations[4]['meals_usd'] + 0;
+				$total_lodging_meals = $destinations[4]['total_lodging_and_meals_usd'] + 0;
+				$total = $destinations[4]['total_usd'] + 0;
+				$sheet->setCellValue('AJ81', 'Lodging $');
+				$sheet->setCellValue('AJ83', 'Meals $');
+				$sheet->setCellValue('AJ85', 'Total $');
+				$sheet->setCellValue('AJ89', 'Total $');
 			} 
 			$sheet->setCellValue('G79', $cityCountry);
 			$sheet->setCellValue('P79', $destinations[4]['arriv_date']);
 			$sheet->setCellValue('W79', $destinations[4]['depar_date']);
 			$sheet->setCellValue('C82', $destinations[4]['project_number']);
-			$sheet->setCellValue('AL81', $destinations[4]['lodging'] + 0);
-			$sheet->setCellValue('AL83', $destinations[4]['meals'] + 0);
-			$sheet->setCellValue('AL85', $destinations[4]['total_lodging_and_meals'] + 0);
+			$sheet->setCellValue('AL81', $lodging);
+			$sheet->setCellValue('AL83', $meals);
+			$sheet->setCellValue('AL85', $total_lodging_meals);
 			$sheet->setCellValue('AL87', $destinations[4]['night'] + 0);
-			$sheet->setCellValue('AL89', $destinations[4]['total'] + 0);
+			$sheet->setCellValue('AL89', $total);
+			$sheet->setCellValue('C85', $detail['purpose']);
+			$sheet->setCellValue('AM88', $persons);
 			if($detail['fco_monitor_status'] == 2) {
 				$drawing7 = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
 				$drawing7->setName('FCO signature');
-				// $signature = $this->extractImage($detail['fco_monitor_signature']);
 				$signature = $this->extractImageFromAPI($detail['fco_monitor_signature']);
 				$drawing7->setPath($signature['image_path']);  // put your path and image here
 				$drawing7->setCoordinates('V81');
@@ -641,18 +712,30 @@ class Outcoming_requests extends MY_Controller {
 			} 
 		}
 
+		$total_destination_cost = $detail['total_destinations_cost'];
+		$taxi_allowance = 1000000;
+		$currency = 'IDR';
+		if(is_all_usd($req_id)) {
+			$total_destination_cost = $detail['total_destinations_cost_usd'];
+			$taxi_allowance = ceil(1000000 / 14500);
+			$currency = 'USD';
+		}
+		$sheet->setCellValue('AL98', $taxi_allowance);
+		$sheet->setCellValue('AL94', $currency);
+		$sheet->setCellValue('AL96', $total_destination_cost);
+
 		if($detail['travel_advance'] == 'Yes') {
 			$sheet->setCellValue('V95', 'X');
 			$sheet->setCellValue('AB95', '80%');
 			$sheet->setCellValue('AL106', '80%');
-			$total_advance = ($detail['total_destinations_cost'] + 1000000) * 0.8;
-			$sheet->setCellValue('AL108', $total_advance);
+			$total_advance = ($total_destination_cost + $taxi_allowance) * 0.8;
 		} else {
 			$sheet->setCellValue('Y95', 'X');
 			$sheet->setCellValue('AB95', '');
 			$sheet->setCellValue('AL106', '');
-			$sheet->setCellValue('AL108', $detail['total_destinations_cost'] + 1000000);
+			$total_advance = $total_destination_cost + $taxi_allowance;
 		}
+		$sheet->setCellValue('AL108', $total_advance);
 
 		if($detail['need_documents'] == 'Yes') {
 			$sheet->setCellValue('V98', 'X');

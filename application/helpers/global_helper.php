@@ -238,3 +238,18 @@ if (!function_exists('rejected_by')) {
         return $rejected_by;
     }
 }
+
+if (!function_exists('is_all_usd')) {
+    function is_all_usd($req_id)
+    {   
+        $ci = &get_instance();
+        $destinations = $ci->db->select('country')->from('ea_requests_destinations')
+		->where('request_id', $req_id)
+		->get()->result_array();
+		$country = array_column($destinations, 'country');
+        if(in_array(1, $country)) {
+			return false;
+		}
+        return true;
+    }
+}

@@ -1067,6 +1067,13 @@
 			const purpose = $('#purpose').val()
 			const errors = []
 
+			if ($('#proof_of_approval').get(0).files.length === 0) {
+				errors.push({
+					type: 1,
+					field: 'proof_of_approval'
+				})
+			}
+
 			if (requestBase) {
 				if (requestBase == 'Internal TOR') {
 					const torNumber = $('#tor_number').val()

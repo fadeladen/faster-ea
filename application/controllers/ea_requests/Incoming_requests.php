@@ -665,8 +665,8 @@ class Incoming_requests extends MY_Controller {
 
         $text = $this->load->view('template/email', $data, true);
         $mail->setFrom('no-reply@faster.bantuanteknis.id', 'FASTER-FHI360');
-		$payment_pdf = $this->attach_payment_request($req_id);
-		$mail->addStringAttachment($payment_pdf, 'Payment form request.pdf');
+		// $payment_pdf = $this->attach_payment_request($req_id);
+		// $mail->addStringAttachment($payment_pdf, 'Payment form request.pdf');
 		if($detail['payment_receipt'] != null) {
 			$receipt_path = FCPATH.'uploads/ea_payment_receipt/' . $detail['payment_receipt'];
 			$mail->addAttachment($receipt_path, 'Payment receipt_'.$detail['payment_receipt']);

@@ -73,14 +73,14 @@
 								<span class="badge badge-light fw-bold"><?= $detail['employment'] ?></span>
 							</div>
 						</div>
-						<?php if ($detail['employment'] === 'On behalf'): ?>
+						<?php if ($detail['employment'] === 'On behalf' || $detail['employment'] === 'For me and on behalf'): ?>
 						<div class="row">
 							<label class="col-3 mb-2 col-form-label fw-bold">Employment status</label>
 							<div class="col-9">
 								<span class="badge badge-light fw-bold"><?= $detail['employment_status'] ?></span>
 							</div>
 						</div>
-
+							
 						<?php if ($detail['employment_status'] === 'Group'): ?>
 
 						<!-- If employment status = Group -->
@@ -363,7 +363,8 @@
 									</p>
 									<p class="mb-1">Number of nights:
 										<span
-											class="destination-night-val"><?= $dest['night'] ?><?= $detail['employment'] == 'Just for me' ? ' (for 1 person)' : ' (for ' . $detail['number_of_participants'] . ' persons)' ?>
+											class="destination-night-val"><?= $dest['night'] ?>
+											<?= $detail['employment'] == 'Just for me' ? ' (for 1 person)' : ' (for ' . $detail['number_of_participants'] . ' persons)' ?>
 										</span>
 									</p>
 									<p class="mb-1">Total: <span class="destination-total-val">Rp.
@@ -406,7 +407,9 @@
 						<div class="row mt-3">
 							<h5 class="col-md-2">Total all costs</h5>
 							<h5 class="col-md-10">: Rp.
-								<?= number_format($detail['total_destinations_cost'], 2, ",", ".") ?></h5>
+								<?= number_format($detail['total_destinations_cost'], 2, ",", ".") ?> / USD
+								<?= number_format($detail['total_destinations_cost_usd'], 0, ",", ".") ?>
+							</h5>
 						</div>
 					</div>
 				</div>

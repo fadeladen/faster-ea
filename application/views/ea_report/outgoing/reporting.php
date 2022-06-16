@@ -33,7 +33,8 @@
 							</div>
 						</div>
 						<div class="row">
-							<label class="col-5 mb-2 col-form-label fw-bold">Total advance <?= $detail['employment'] == 'Just for me' ? ' (for 1 person)' : ' (for ' . $detail['number_of_participants'] . ' persons)' ?></label>
+							<label class="col-5 mb-2 col-form-label fw-bold">Total advance
+								<?= $detail['employment'] == 'Just for me' ? ' (for 1 person)' : ' (for ' . $detail['number_of_participants'] . ' persons)' ?></label>
 							<div class="col-7">
 								<span class="badge badge-pill badge-secondary fw-bold">IDR
 									<?= number_format($detail['total_destinations_cost'],2,',','.') ?></span>
@@ -118,7 +119,7 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
-											<?php if (isset($dest['actual_lodging_items'][$night-1]['cost']) == null): ?>
+											<?php if (isset($dest['actual_lodging_items'][$night-1]['receipt']) == null): ?>
 											<span class="badge badge-pill badge-secondary fw-bold">
 												-
 											</span>
@@ -169,27 +170,16 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 110px;">
-											<span
-												class="badge badge-pill badge-secondary fw-bold lodging_meals_budget"><?= ($dest['meals_text'][$night - 1] == '-' ? 'None' : $dest['meals_text'][$night - 1])  ?></span>
+											<span class="badge badge-pill badge-secondary fw-bold lodging_meals_budget">
+												<?= $dest['meals_text'][$night-1]['d_cost']?>
+											</span>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
-											<?php if (isset($dest['actual_meals_items'][$night-1]['receipt']) == null): ?>
-											<span class="badge badge-pill badge-secondary fw-bold">
-												-
+											<span class="badge badge-pill badge-secondary fw-bold lodging_meals_budget">
+												<?= $dest['meals_text'][$night - 1]['meals_text'] ?>
 											</span>
-											<?php else : ?>
-											<a target="_blank" class="badge badge-warning text-light"
-												href="<?= base_url('uploads/ea_items_receipt/') ?><?= $dest['actual_meals_items'][$night-1]['receipt'] ?>">
-												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-													fill="currentColor" class="bi bi-card-image" viewBox="0 0 16 16">
-													<path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
-													<path
-														d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13zm13 1a.5.5 0 0 1 .5.5v6l-3.775-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12v.54A.505.505 0 0 1 1 12.5v-9a.5.5 0 0 1 .5-.5h13z" />
-												</svg>
-											</a>
-											<?php endif; ?>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
@@ -293,7 +283,7 @@
 									<td class="kt-datatable__cell fw-bold">
 										<span style="width: 120px;">
 											<h5 class="text-dark fw-800 m-0">
-												Total
+												Sub total
 											</h5>
 										</span>
 									</td>
@@ -325,8 +315,29 @@
 					<?php endfor; ?>
 				</div>
 				<?php endforeach; ?>
+				<div class="p-2 ml-3">
+					<h4>Summarized:</h4>
+					<p class="fw-bold">
+						Total advance receive :
+						<span class="badge badge-pill badge-secondary fw-bold">
+							<?= number_format($detail['total_destinations_cost'],2,',','.') ?>
+						</span>
+					</p>
+					<p class="fw-bold">
+						Total travel expense :
+						<span class="badge badge-pill badge-secondary fw-bold">
+							<?= number_format($detail['total_expense'],2,',','.') ?>
+						</span>
+					</p>
+					<p class="fw-bold">
+						<?= $refund_or_reimburst['status'] ?> :
+						<span class="badge badge-pill badge-secondary fw-bold">
+							<?= number_format($refund_or_reimburst['total'],2,',','.') ?>
+						</span>
+					</p>
+				</div>
 				<?php if ($is_report_finished): ?>
-				<div id="finished_btn" class="ml-3 pl-4">
+				<div id="finished_btn" class="ml-3 pl-2">
 					<a target="_blank" href="<?= base_url('ea_report/outgoing/ter_form/') . $detail['r_id'] ?>"
 						class="btn btn btn-success">
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
@@ -620,7 +631,7 @@
 		})
 
 		$(document).on('click', '.btn-delete-other-item', function () {
-				$(this).parent().parent().remove()
+			$(this).parent().parent().remove()
 		});
 
 		$(document).on("submit", '#other-items-form', function (e) {

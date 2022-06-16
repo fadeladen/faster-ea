@@ -2,6 +2,7 @@
 	.select2-search__field {
 		padding-top: 1rem !important;
 	}
+
 </style>
 
 <div class="modal-dialog" role="document">
@@ -20,27 +21,27 @@
 				<input type="text" class="d-none" name="item_type" id="item_type" value="<?= $item_type ?>">
 				<input type="text" class="d-none" name="night" id="night" value="<?= $night ?>">
 				<?php if ($item_type == 1): ?>
-					<div class="form-group">
-						<label for="cost">Actual cost</label>
-						<input value="<?= (isset($detail['clean_cost']) ? $detail['clean_cost'] : '') ?>" type="text" class="form-control"
-							name="cost" id="cost">
-					</div>
+				<div class="form-group">
+					<label for="cost">Actual cost</label>
+					<input value="<?= (isset($detail['clean_cost']) ? $detail['clean_cost'] : '') ?>" type="text"
+						class="form-control" name="cost" id="cost">
+				</div>
 				<?php else : ?>
-					<div class="form-group d-none">
-						<label for="cost">Actual cost</label>
-						<input value="<?= $max_meals_budget ?>" type="text" class="form-control"
-							name="cost" id="cost">
-					</div>
-					<div class="form-group">
-						<label for="cost">Meals</label>
-						<select name="meals[]" multiple="multiple" id="meals" class="form-control meals">
-							<option <?= (in_array('-', $meals) ? 'selected' : '') ?> value="-">None</option>
-							<option <?= (in_array('B', $meals) ? 'selected' : '') ?> value="B">Breakfast</option>
-							<option <?= (in_array('L', $meals) ? 'selected' : '') ?> value="L">Lunch</option>
-							<option <?= (in_array('D', $meals) ? 'selected' : '') ?> value="D">Dinner</option>
-						</select>
-					</div>
+				<div class="form-group d-none">
+					<label for="cost">Actual cost</label>
+					<input value="<?= $max_meals_budget ?>" type="text" class="form-control" name="cost" id="cost">
+				</div>
+				<div class="form-group">
+					<label for="cost">Meals</label>
+					<select name="meals[]" multiple="multiple" id="meals" class="form-control meals">
+						<option <?= (in_array('-', $meals) ? 'selected' : '') ?> value="-">None</option>
+						<option <?= (in_array('B', $meals) ? 'selected' : '') ?> value="B">Breakfast</option>
+						<option <?= (in_array('L', $meals) ? 'selected' : '') ?> value="L">Lunch</option>
+						<option <?= (in_array('D', $meals) ? 'selected' : '') ?> value="D">Dinner</option>
+					</select>
+				</div>
 				<?php endif; ?>
+				<?php if ($item_type == 1 || $item_type == 3): ?>
 				<div class="form-group">
 					<label for="receipt">Receipt<small class="text-danger">*(pdf|jpg|png|jpeg)</small></label>
 					<div class="custom-file">
@@ -48,13 +49,23 @@
 						<label class="custom-file-label" for="receipt">Choose file</label>
 					</div>
 				</div>
+				<?php else : ?>
+				<div class="form-group">
+					<label for="cost">Status</label>
+					<select name="day_status" id="day_status" class="form-control">
+						<option value="">Select status</option>
+						<option value="1">Full day</option>
+						<option value="2">Last day</option>
+					</select>
+				</div>
+				<?php endif; ?>
 				<?php if ($item_type == 1): ?>
-					<h6 class="text-dark mb-2">Max budget: <span
-									class="total_current_budget text-danger badge badge-pill badge-secondary fw-bold ml-2">
-									<?= number_format($max_lodging_budget,2,',','.')  ?>
-									<?= ($country == 1 ? '' : ' / USD ' .  number_format($max_lodging_budget_usd,0,',','.'))  ?>
-								</span>
-					</h6>
+				<h6 class="text-dark mb-2">Max budget: <span
+						class="total_current_budget text-danger badge badge-pill badge-secondary fw-bold ml-2">
+						<?= number_format($max_lodging_budget,2,',','.')  ?>
+						<?= ($country == 1 ? '' : ' / USD ' .  number_format($max_lodging_budget_usd,0,',','.'))  ?>
+					</span>
+				</h6>
 				<?php endif; ?>
 			</div>
 			<div class="modal-footer">
@@ -79,7 +90,7 @@
 
 	$('#meals').change(function (e) {
 		const values = $(this).val()
-		if(values.includes('-')) {
+		if (values.includes('-')) {
 			$("#meals option[value='B']").prop("selected", false);
 			$("#meals option[value='L']").prop("selected", false);
 			$("#meals option[value='D']").prop("selected", false);
@@ -88,6 +99,6 @@
 
 	$('.meals').select2({
 		placeholder: 'Select meal',
-    });
+	});
 
 </script>

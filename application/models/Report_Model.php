@@ -26,6 +26,7 @@ class Report_Model extends CI_Model
         ->where('request_id', $id)
         ->get()->result_array();
         $total_destinations_cost = 0;
+        $total_expense = 0;
         $total_dest = count($destinations);
         for ($i = 0; $i < $total_dest; $i++) {
             $total_destinations_cost += $destinations[$i]['total'];
@@ -56,7 +57,6 @@ class Report_Model extends CI_Model
                 }
                 $meals = $this->get_actual_costs_by_night($destinations[$i]['id'], 2, $x + 1);
                 if($meals) {
-                    $total_cost_per_night += $meals['cost'];
                     array_push($meals_arr, $meals);
                 } else {
                     array_push($meals_arr, [
@@ -88,11 +88,20 @@ class Report_Model extends CI_Model
                 } else {
                     array_push($other_items_by_name_arr, []);
                 }
-                $meals_text =  $this->get_other_items_by_name($destinations[$i]['id'], 'List meals', $x + 1);
-                if($meals_text) {
-                    array_push($meals_text_arr, $meals_text[0]['meals_text']);
+                $provided_meals =  $this->get_provided_meals($destinations[$i]['id'],  $x + 1);
+                if($provided_meals) {
+                    array_push($meals_text_arr, [
+                        'meals_text' => $provided_meals['meals_text'],
+                        'cost' => $provided_meals['cost'],
+                        'd_cost' => $provided_meals['d_cost'],
+                    ]);
+                    $total_cost_per_night += $provided_meals['cost'];
                 } else {
-                    array_push($meals_text_arr, '');
+                    array_push($meals_text_arr, [
+                        'meals_text' => '',
+                        'cost' => 0,
+                        'd_cost' => 0,
+                    ]);
                 }
                 array_push($total_costs_arr, $total_cost_per_night);
             }
@@ -102,9 +111,13 @@ class Report_Model extends CI_Model
             $destinations[$i]['other_items_by_name'] = $other_items_by_name_arr;
             $destinations[$i]['meals_text'] = $meals_text_arr;
             $destinations[$i]['total_costs_per_night'] = $total_costs_arr;
+            for($g=0;$g < count($total_costs_arr); $g++) {
+                $total_expense += $total_costs_arr[$g];
+            }
         }
         $request_data['total_destinations_cost'] = $total_destinations_cost;
         $request_data['destinations'] = $destinations;
+        $request_data['total_expense'] = $total_expense;
         return $request_data;
     }
 
@@ -364,6 +377,17 @@ class Report_Model extends CI_Model
         return $data;
     }
 
+    function get_provided_meals($dest_id, $night) {
+        $data = $this->db->select('id, dest_id, night, receipt, item_type, item_name, meals_text, cost ,format(cost,2,"de_DE") as d_cost')
+        ->from('ea_actual_costs')
+        ->where('dest_id', $dest_id)
+        ->where('item_type', 3)
+        ->where('night', $night)
+        ->where('item_name', 'List meals')
+        ->get()->row_array();
+        return $data;
+    }
+
     function insert_other_items($payload) {
         $this->db->insert('ea_requests_other_items', $payload);
         return $this->db->insert_id();
@@ -399,13 +423,14 @@ class Report_Model extends CI_Model
     }
 
     function get_dest_max_budget($dest_id) {
-        $dest =  $this->db->select('is_edited_by_ea, country, lodging, lodging_usd, meals, total_lodging_and_meals, max_lodging_budget, max_lodging_budget_usd, max_meals_budget')
+        $dest =  $this->db->select('is_edited_by_ea, night, country, lodging, lodging_usd, meals, total_lodging_and_meals, max_lodging_budget, max_lodging_budget_usd, max_meals_budget')
         ->from('ea_requests_destinations')
         ->where('id', $dest_id)
         ->get()->row_array();
         if($dest['is_edited_by_ea'] == 1) {
             $data = [
                 'country' => $dest['country'],
+                'total_night' => $dest['night'],
                 'max_lodging_budget' => $dest['max_lodging_budget'],
                 'max_lodging_budget_usd' => $dest['max_lodging_budget_usd'],
                 'max_meals_budget' => $dest['max_meals_budget'],
@@ -414,6 +439,7 @@ class Report_Model extends CI_Model
         } else {
             $data = [
                 'country' => $dest['country'],
+                'total_night' => $dest['night'],
                 'max_lodging_budget' => $dest['lodging'],
                 'max_lodging_budget_usd' => $dest['lodging_usd'],
                 'max_meals_budget' => $dest['meals'],

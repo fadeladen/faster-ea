@@ -13,7 +13,7 @@
 					</div>
 					<div class="kt-infobox__body">
 						<div class="row">
-							<label class="col-5 mb-2 col-form-label fw-bold">Name</label>
+							<label class="col-5 mb-2 col-form-label fw-bold">Requestor (prepared by)</label>
 							<div class="col-7">
 								<span style="font-size: 1rem;"
 									class="badge badge-light fw-bold"><?= $requestor_data['username'] ?></span>
@@ -33,10 +33,25 @@
 							</div>
 						</div>
 						<div class="row">
-							<label class="col-5 mb-2 col-form-label fw-bold">Total actual costs</label>
+							<label class="col-5 mb-2 col-form-label fw-bold">Request for</label>
+							<div class="col-7">
+								<span style="font-size: 1rem;"
+									class="badge badge-light fw-bold"><?= $participants ?></span>
+							</div>
+						</div>
+						<div class="row">
+							<label class="col-5 mb-2 col-form-label fw-bold">Total advance</label>
 							<div class="col-7">
 								<span class="badge badge-pill badge-secondary fw-bold">IDR
-									<?= $total_actual_costs ?>
+									<?= number_format($report_detail['total_destinations_cost'],2,',','.') ?>
+								</span>
+							</div>
+						</div>
+						<div class="row">
+							<label class="col-5 mb-2 col-form-label fw-bold">Actual expense</label>
+							<div class="col-7">
+								<span class="badge badge-pill badge-secondary fw-bold">IDR
+									<?= number_format($report_detail['total_expense'],2,',','.') ?>
 								</span>
 							</div>
 						</div>
@@ -72,9 +87,6 @@
 					</div>
 					<?php $day = 0 ?>
 					<?php for ($night = 1; $night <= $dest['night']; $night++): ?>
-					<?php
-						$total_cost_per_night = $dest['actual_lodging_items'][$night-1]['cost'] + $dest['actual_meals_items'][$night-1]['cost'];
-					?>
 					<div class="py-2 border-bottom ml-2">
 						<h5 class="text-dark fw-bold">
 							<?= ordinal($night) ?> night:
@@ -108,7 +120,7 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
-											<?php if (isset($dest['actual_lodging_items'][$night-1]['cost']) == null): ?>
+											<?php if (isset($dest['actual_lodging_items'][$night-1]['receipt']) == null): ?>
 											<span class="badge badge-pill badge-secondary fw-bold">
 												-
 											</span>
@@ -129,17 +141,17 @@
 								<tr data-row="0" class="kt-datatable__row" style="left: 0px;">
 									<td class="kt-datatable__cell fw-bold">
 										<span style="width: 120px;">
-											Meals
+											Meals <?= ($dest['meals_text'][$night-1]['is_first_day'] == 1 || $dest['meals_text'][$night-1]['is_last_day'] == 1  ? '(75%)' : '') ?>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 160px;">
 											<span class="badge badge-pill badge-secondary fw-bold lodging_meals_budget">
-												<?= $dest['max_meals_cost']?>
+												<?= $dest['meals_text'][$night-1]['d_cost']?>
 											</span>
 											-
 											<span class="badge badge-pill badge-secondary fw-bold lodging_meals_budget">
-												<?= $dest['meals_text'][$night - 1] ?>
+												<?= $dest['meals_text'][$night-1]['meals_text']?>
 											</span>
 										</span>
 									</td>
@@ -203,7 +215,7 @@
 									<td class="kt-datatable__cell fw-bold">
 										<span style="width: 120px;">
 											<h5 class="text-dark fw-800 m-0">
-												Total
+												Sub total
 											</h5>
 										</span>
 									</td>
@@ -226,7 +238,28 @@
 					<?php endfor; ?>
 				</div>
 				<?php endforeach; ?>
-				<div id="finished_btn" class="ml-3 pl-4">
+				<div class="pl-4 ml-3 pb-2 pt-3 border-bottom border-top">
+					<h4>Summarized:</h4>
+					<p class="fw-bold">
+						Total advance receive :
+						<span class="badge badge-pill badge-secondary fw-bold">
+							<?= number_format($report_detail['total_destinations_cost'],2,',','.') ?>
+						</span>
+					</p>
+					<p class="fw-bold">
+						Total travel expense :
+						<span class="badge badge-pill badge-secondary fw-bold">
+							<?= number_format($report_detail['total_expense'],2,',','.') ?>
+						</span>
+					</p>
+					<p class="fw-bold">
+						<?= $refund_or_reimburst['status'] ?> :
+						<span class="badge badge-pill badge-secondary fw-bold">
+							<?= number_format($refund_or_reimburst['total'],2,',','.') ?>
+						</span>
+					</p>
+				</div>
+				<div id="finished_btn" class="ml-3 pl-4 mt-5">
 					<a target="_blank" href="<?= base_url('ea_report/outgoing/ter_form/') . $detail['r_id'] ?>"
 						class="btn btn btn-success">
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
@@ -259,7 +292,7 @@
 									<th class="kt-datatable__cell kt-datatable__cell--sort"><span
 											style="width: 110px;">Role</span></th>
 									<th class="kt-datatable__cell kt-datatable__cell--sort">
-										<span style="width: 110px;">Status</span></th>
+										<span style="width: 140px;">Status</span></th>
 									<th class="kt-datatable__cell kt-datatable__cell--sort">
 										<span style="width: 110px;">Submitted on</span></th>
 									<th class="kt-datatable__cell kt-datatable__cell--sort">
@@ -280,14 +313,14 @@
 											</span>
 										</span>
 									<td data-field="Status" data-autohide-disabled="false" class="kt-datatable__cell">
-										<span style="width: 110px;">
+										<span style="width: 140px;">
 											<span
 												class="kt-badge kt-badge--inline kt-badge--pill status-badge"><?= $detail['head_of_units_status_text'] ?></span>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 110px;">
-											<?= $detail['head_of_units_status_at'] ?>
+											<?= $detail['submitted_at'] ?>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
@@ -328,23 +361,29 @@
 												Finance teams
 											</span>
 									<td data-field="Status" data-autohide-disabled="false" class="kt-datatable__cell">
-										<span style="width: 110px;">
+										<?php if ($detail['is_need_confirmation'] == 1): ?>
+										<span style="width: 140px;">
+											<span class="fw-bold text-dark" style="width: 140px;">
+												Waiting for requestor confirmation
+											</span>
+										</span>
+										<?php else : ?>
+										<span style="width: 140px;">
 											<span
 												class="kt-badge kt-badge--inline kt-badge--pill status-badge"><?= $detail['finance_status_text'] ?></span>
 										</span>
+										<?php endif; ?>
+
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 110px;">
-											<?= $detail['finance_status_at'] ?>
+											<?= $detail['head_of_units_status_at'] ?>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
 										<div style="width: 140px;" class="d-flex <?= $finance_btn ?>">
-											<button style="padding: 0.3rem .6rem !important;
-													font-size: 0.75rem !important;
-													line-height: 1.5 !important;
-													border-radius: 0.2rem !important;" data-level='finance' data-id=<?= $detail['r_id'] ?> data-status="2"
-												class="btn btn-payment-finance btn-success mr-1">
+											<button data-level='finance' data-id=<?= $detail['r_id'] ?> data-status="2"
+												class="btn btn-status btn-success mr-1">
 												<div class="d-flex align-items-center justify-content-center">
 													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
 														fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
@@ -354,15 +393,18 @@
 													Approve
 												</div>
 											</button>
-											<button data-level='finance' data-id=<?= $detail['r_id'] ?> data-status="3"
-												class="btn btn-status btn-danger">
+											<button style="padding: 0.3rem .6rem !important;
+														font-size: 0.75rem !important;
+														line-height: 1.5 !important;
+														border-radius: 0.2rem !important;" data-level='finance' data-id=<?= $detail['r_id'] ?> data-status="3"
+												class="btn btn-confirmation btn-primary">
 												<div class="d-flex align-items-center justify-content-center">
-													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-														fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+														fill="currentColor" class="bi bi-question" viewBox="0 0 16 16">
 														<path
-															d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+															d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z" />
 													</svg>
-													Reject
+													Confirm
 												</div>
 											</button>
 										</div>
@@ -381,19 +423,19 @@
 											</span>
 										</span>
 									<td data-field="Status" data-autohide-disabled="false" class="kt-datatable__cell">
-										<span style="width: 110px;">
+										<span style="width: 140px;">
 											<span
 												class="kt-badge kt-badge--inline kt-badge--pill status-badge"><?= $detail['country_director_status_text'] ?></span>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 110px;">
-											<?= $detail['country_director_status_at'] ?>
+											<?= $detail['finance_status_at'] ?>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
 										<div style="width: 140px;" class="d-flex <?= $country_director_btn ?>">
-											<button data-level='country_director' data-id=<?= $detail['r_id'] ?>
+											<!-- <button data-level='country_director' data-id=<?= $detail['r_id'] ?>
 												data-status="2" class="btn btn-status btn-success mr-1">
 												<div class="d-flex align-items-center justify-content-center">
 													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -414,17 +456,17 @@
 													</svg>
 													Reject
 												</div>
-											</button>
+											</button> -->
 										</div>
 									</td>
 								</tr>
-								
+
 							</tbody>
 						</table>
 					</div>
+
 					<div class="ml-3 <?= $submit_btn ?>">
-						<button
-							data-id="<?= $detail['r_id'] ?>" type="button" id="btn_submit_report"
+						<button data-id="<?= $detail['r_id'] ?>" type="button" id="btn_submit_report"
 							class="btn btn-primary ml-2">
 							<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
 								class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
@@ -731,6 +773,62 @@
 					$.ajax({
 						type: 'POST',
 						url: base_url + 'ea_report/outgoing/submit_report',
+						data: {
+							req_id
+						},
+						beforeSend: function () {
+							Swal.fire({
+								html: loader,
+								showConfirmButton: false,
+								allowEscapeKey: false,
+								allowOutsideClick: false,
+							});
+						},
+						error: function (xhr) {
+							const response = xhr.responseJSON;
+							Swal.fire({
+								"title": response.message,
+								"text": '',
+								"type": "error",
+								"confirmButtonClass": "btn btn-dark"
+							});
+						},
+						success: function (response) {
+							Swal.fire({
+								"title": "Success!",
+								"text": response.message,
+								"type": "success",
+								"confirmButtonClass": "btn btn-dark"
+							}).then((result) => {
+								console.log(response)
+								if (result.value) {
+									location.reload();
+								}
+							})
+						},
+					});
+				}
+			})
+		});
+		$(document).on('click', '.btn-confirmation', function (e) {
+			e.preventDefault()
+			const req_id = $(this).attr('data-id')
+			const loader = `<div style="width: 5rem; height: 5rem;" class="spinner-border mb-5" role="status"></div>
+			<h5 class="mt-2">Please wait</h5>
+			<p>Sending email to requestor ...</p>`
+			Swal.fire({
+				title: 'Send report confirmation?',
+				text: "",
+				type: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#3085d6',
+				cancelButtonColor: '#d33',
+				confirmButtonText: `Yes!`
+			}).then((result) => {
+				if (result.value) {
+					$.ajax({
+						type: 'POST',
+						url: base_url + 'ea_report/incoming/report_confirmation',
 						data: {
 							req_id
 						},

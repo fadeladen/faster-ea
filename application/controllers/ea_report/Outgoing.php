@@ -45,6 +45,12 @@ class Outgoing extends MY_Controller {
 		$this->template->render('ea_report/outgoing/paid');
 	}
 
+	public function refund_reimburst()
+	{   
+        $this->template->set('page', 'Refund/reimburst report');
+		$this->template->render('ea_report/outgoing/refund_reimburst');
+	}
+
     public function reporting($id = null)
 	{
 		$id = decrypt($id);
@@ -68,6 +74,10 @@ class Outgoing extends MY_Controller {
 		} else {
 			show_404();
 		}
+	}
+
+	public function test_finish($id) {
+		echo json_encode(is_report_finished($id));
 	}
 
 	public function get_total_refund($id) {
@@ -114,6 +124,7 @@ class Outgoing extends MY_Controller {
 				'total_actual_costs' => get_total_actual_costs($id),
 				'is_report_finished' => is_report_finished($id),
 				'participants' => get_request_participants($id),
+				'refund_or_reimburst' => get_total_refund_or_reimburst($id),
 			];
 			$this->template->set('pageParent', 'Travel Expense Report (TER)');
 			$this->template->set('page', 'EA#' . $detail['r_id']);
@@ -147,6 +158,35 @@ class Outgoing extends MY_Controller {
         echo $this->datatable->generate();
     }
 
+	public function refund_reimburst_datatable() {
+		$this->datatable->select('CONCAT("EA", ea.id) AS ea_number, ea.id as request_for,
+			ea.id as total_advance, ea.id as total_expense, ea.id as refund, ea.id as reimburst,
+			ea.id as action,TIMESTAMP(srt.submitted_at) as timestamp', true);
+        $this->datatable->from('ea_requests ea');
+        $this->datatable->join('tb_userapp u', 'u.id = ea.requestor_id');
+        $this->datatable->join('ea_report_status srt', 'ea.id = srt.request_id');
+		$this->datatable->where('srt.head_of_units_status =', 2);
+		$this->datatable->where('srt.finance_status =', 2);
+		$this->datatable->where('srt.country_director_status =', 2);
+		$this->datatable->where('srt.is_need_confirmation =', 0);
+		$this->datatable->where('srt.is_paid =', 1);
+        $this->datatable->where('ea.is_ter_submitted =', 1);
+		$this->datatable->where('ea.requestor_id =', $this->user_data->userId);
+		$this->datatable->edit_column('action', "$1", 'encrypt(action)');
+		$this->datatable->edit_column('request_for', "$1", 'get_request_participants(request_for)');
+		$this->datatable->edit_column('total_advance', '<span style="font-size: 1rem;"
+		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_advance(total_advance)');
+		$this->datatable->edit_column('total_expense', '<span style="font-size: 1rem;"
+		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_expense(total_expense)');
+		$this->datatable->edit_column('refund', '<span style="font-size: 1rem;"
+		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_refund(refund)');
+		$this->datatable->edit_column('reimburst', '<span style="font-size: 1rem;"
+		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_reimburst(reimburst)');
+		$this->datatable->edit_column('ea_number', '<span style="font-size: 1rem;"
+		class="badge badge-success fw-bold">$1</span>', 'ea_number');
+        echo $this->datatable->generate();
+	}
+
     public function ter_datatable($status = null)
     {	
 
@@ -171,17 +211,45 @@ class Outgoing extends MY_Controller {
 		if($status == 'approved') {
 			$this->datatable->where('srt.head_of_units_status =', 2);
 			$this->datatable->where('srt.country_director_status =', 2);
-			$this->datatable->where('srt.finance_status =', 1);
+			$this->datatable->where('srt.finance_status =', 2);
+			$this->datatable->where('srt.is_paid =', 1);
 		}
 		if($status == 'paid') {
 			$this->datatable->where('srt.head_of_units_status =', 2);
 			$this->datatable->where('srt.country_director_status =', 2);
 			$this->datatable->where('srt.finance_status =', 2);
+			$this->datatable->where('srt.is_paid =', 2);
 		}
         $this->datatable->where('ea.is_ter_submitted =', 1);
 		$this->datatable->edit_column('id', "$1", 'encrypt(id)');
 		$this->datatable->edit_column('total_cost', '<span style="font-size: 1rem;"
 		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_actual_costs(total_cost)');
+		$this->datatable->edit_column('ea_number', '<span style="font-size: 1rem;"
+		class="badge badge-success fw-bold">$1</span>', 'ea_number');
+        echo $this->datatable->generate();
+    }
+
+	public function pending_datatable()
+    {	
+
+		$this->datatable->select('CONCAT("EA", ea.id) AS ea_number, ea.id as request_for,
+			ea.id as total_advance, ea.id as total_expense, ea.id as action,TIMESTAMP(srt.submitted_at) as timestamp', true);
+        $this->datatable->from('ea_requests ea');
+        $this->datatable->join('tb_userapp u', 'u.id = ea.requestor_id');
+        $this->datatable->join('ea_report_status srt', 'ea.id = srt.request_id');
+
+		$this->datatable->where('srt.head_of_units_status =', 2);
+		$this->datatable->where('srt.finance_status =', 2);
+		$this->datatable->where('srt.country_director_status =', 1);
+		$this->datatable->where('srt.is_need_confirmation =', 1);
+        $this->datatable->where('ea.is_ter_submitted =', 1);
+		$this->datatable->where('ea.requestor_id =', $this->user_data->userId);
+		$this->datatable->edit_column('action', "$1", 'encrypt(action)');
+		$this->datatable->edit_column('request_for', "$1", 'get_request_participants(request_for)');
+		$this->datatable->edit_column('total_advance', '<span style="font-size: 1rem;"
+		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_advance(total_advance)');
+		$this->datatable->edit_column('total_expense', '<span style="font-size: 1rem;"
+		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_expense(total_expense)');
 		$this->datatable->edit_column('ea_number', '<span style="font-size: 1rem;"
 		class="badge badge-success fw-bold">$1</span>', 'ea_number');
         echo $this->datatable->generate();
@@ -264,6 +332,17 @@ class Outgoing extends MY_Controller {
 			$data['detail'] = $this->report->get_actual_cost_detail($item_id);
 		}
 		$this->load->view('ea_report/modal/add_items', $data);
+	}
+
+	public function payment_modal() {
+		$req_id = decrypt($this->input->get('req_id'));		
+		$payment_type =  get_total_refund_or_reimburst($req_id);
+		$data = [
+			'req_id' => $req_id,
+			'payment_type' => $payment_type['status'],
+			'total_payment' => $payment_type['total'],
+		];		
+		$this->load->view('ea_report/modal/payment_modal', $data);
 	}
 
 	public function edit_items_modal() {
@@ -489,9 +568,13 @@ class Outgoing extends MY_Controller {
 		$total_night = $dest_max_budget['total_night'];
 		$is_last_night = false;
 		$is_last_day = 0;
-		if($total_night == $night) {
+		if($total_night == $night || $day_status == 2) {
 			$is_last_night = true;
 			$is_last_day = 1;
+		}
+		$is_first_day = 0;
+		if($night == 1) {
+			$is_first_day = 1;
 		}
 		$cost = $this->count_meals($meals_budget, $text, $night, $is_last_night);
 		$payload = [
@@ -502,6 +585,7 @@ class Outgoing extends MY_Controller {
 			'meals_text' => $text,
 			'night' => $night,
 			'is_last_day' => $is_last_day,
+			'is_first_day' => $is_first_day,
 		];
 		if($day_status == 2) {
 			$night += 1;
@@ -543,41 +627,27 @@ class Outgoing extends MY_Controller {
 		return false;
 	}
 
-	private function count_meals($meals_budget, $text, $night, $is_last_night) {
-		if($night == 1 || $is_last_night) {
-			$meals_budget = $meals_budget * 0.75;
-		}
-		if(str_contains($text, 'L')) {
-			$subtr = $meals_budget * 0.25;
-			$meals_budget -= $subtr; 
-		} 
-		if(str_contains($text, 'B')) {
-			$subtr = $meals_budget * 0.15;
-			$meals_budget -= $subtr; 
-		} 
-		if(str_contains($text, 'D')) {
-			$subtr = $meals_budget * 0.4;
-			$meals_budget -= $subtr; 
-		}
-		if(str_contains($text, '-') || $text == '') {
-			$meals_budget = 0;
-		}
-		return $meals_budget;
-	}
-
 	private function update_provided_meals($dest_id, $night, $meals, $day_status) {
 		$text = implode(',', $meals);
 		$dest_max_budget = $this->report->get_dest_max_budget($dest_id);
 		$meals_budget = $dest_max_budget['max_meals_budget'] + 0;
 		$total_night = $dest_max_budget['total_night'];
 		$is_last_night = false;
-		if($total_night == $night) {
+		$is_last_day = 0;
+		if($total_night == $night || $day_status == 2) {
 			$is_last_night = true;
+			$is_last_day = 1;
+		}
+		$is_first_day = 0;
+		if($night == 1) {
+			$is_first_day = 1;
 		}
 		$cost = $this->count_meals($meals_budget, $text, $night, $is_last_night);
 		$payload = [
 			'meals_text' => $text,
 			'cost' => $cost,
+			'is_last_day' => $is_last_day,
+			'is_first_day' => $is_first_day,
 		];
 		$updated = $this->db->where([
 			'dest_id' => $dest_id,
@@ -588,10 +658,6 @@ class Outgoing extends MY_Controller {
 		if($day_status == 2) {
 			$night += 1;
 			for($x = $night; $x <= $total_night; $x++) {
-				$this->db->where([
-					'dest_id' => $dest_id,
-					'night' => $night,
-				])->delete('ea_actual_costs');
 				$other_payload = [
 					'dest_id' => $dest_id,
 					'cost' => 0,
@@ -616,16 +682,44 @@ class Outgoing extends MY_Controller {
 					'meals_text' => null,
 					'night' => $night,
 				];
-				$this->report->insert_actual_costs($other_payload);
-				$this->report->insert_actual_costs($meals_payload);
-				$this->report->insert_actual_costs($lodging_payload);
-				$night++;
+				$deleted = $this->db->where([
+					'dest_id' => $dest_id,
+					'night' => $night,
+				])->delete('ea_actual_costs');
+				if($deleted) {
+					$this->report->insert_actual_costs($other_payload);
+					$this->report->insert_actual_costs($meals_payload);
+					$this->report->insert_actual_costs($lodging_payload);
+					$night++;
+				}
 			}
 		}
 		if($updated) {
 			return true;
 		}
 		return false;
+	}
+
+	private function count_meals($meals_budget, $text, $night, $is_last_night) {
+		if($night == 1 || $is_last_night) {
+			$meals_budget = $meals_budget * 0.75;
+		}
+		if(str_contains($text, 'L')) {
+			$subtr = $meals_budget * 0.25;
+			$meals_budget -= $subtr; 
+		} 
+		if(str_contains($text, 'B')) {
+			$subtr = $meals_budget * 0.15;
+			$meals_budget -= $subtr; 
+		} 
+		if(str_contains($text, 'D')) {
+			$subtr = $meals_budget * 0.4;
+			$meals_budget -= $subtr; 
+		}
+		if(str_contains($text, '-') || $text == '') {
+			$meals_budget = 0;
+		}
+		return $meals_budget;
 	}
 
 	public function insert_other_items() {

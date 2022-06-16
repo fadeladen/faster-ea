@@ -12,7 +12,7 @@
 			</span>
 			<h3 class="kt-portlet__head-title">
 				Paid TER
-				<small>TER payment is has been paid</small>
+				<small>TER payment has been paid</small>
 			</h3>
 		</div>
 	</div>

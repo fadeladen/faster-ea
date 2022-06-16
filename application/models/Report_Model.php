@@ -92,6 +92,8 @@ class Report_Model extends CI_Model
                 if($provided_meals) {
                     array_push($meals_text_arr, [
                         'meals_text' => $provided_meals['meals_text'],
+                        'is_first_day' => $provided_meals['is_first_day'],
+                        'is_last_day' => $provided_meals['is_last_day'],
                         'cost' => $provided_meals['cost'],
                         'd_cost' => $provided_meals['d_cost'],
                     ]);
@@ -99,6 +101,8 @@ class Report_Model extends CI_Model
                 } else {
                     array_push($meals_text_arr, [
                         'meals_text' => '',
+                        'is_first_day' => 0,
+                        'is_last_day' => 0,
                         'cost' => 0,
                         'd_cost' => 0,
                     ]);
@@ -221,8 +225,8 @@ class Report_Model extends CI_Model
         $request_data =  $this->db->select('r.id as r_id, CONCAT("EA", r.id) AS ea_number, DATE_FORMAT(r.created_at, "%d %M %Y - %H:%i") as request_date,
         DATE_FORMAT(r.departure_date, "%d %M %Y") as d_date, DATE_FORMAT(r.return_date, "%d %M %Y") as r_date,
         r.*, uh.username as head_of_units_name, uh.email as head_of_units_email, st.head_of_units_status, uh.id as head_of_units_id,
-        ufc.username as country_director_name, ufc.email as country_director_email, 
-        ufc.purpose as country_director_purpose, ufc.signature as country_director_signature,
+        ufc.username as country_director_name, ufc.email as country_director_email, DATE_FORMAT(st.submitted_at, "%d %M %Y - %H:%i") as submitted_at,
+        ufc.purpose as country_director_purpose, ufc.signature as country_director_signature, st.is_need_confirmation,
         ufi.username as finance_name, ufi.email as finance_email, DATE_FORMAT(st.head_of_units_status_at, "%d %M %Y - %H:%i") as head_of_units_status_at,
         DATE_FORMAT(st.country_director_status_at, "%d %M %Y - %H:%i") as country_director_status_at, st.country_director_status, st.finance_status,
         DATE_FORMAT(st.finance_status_at, "%d %M %Y - %H:%i") as finance_status_at, st.payment_type, format(st.total_payment,2,"de_DE") as total_payment,
@@ -241,7 +245,7 @@ class Report_Model extends CI_Model
         (
             CASE 
                 WHEN finance_status = "1" THEN "Pending"
-                WHEN finance_status = "2" THEN "Done"
+                WHEN finance_status = "2" THEN "Approved"
                 WHEN finance_status = "3" THEN "Rejected"
             END) AS finance_status_text,
         ')
@@ -295,7 +299,6 @@ class Report_Model extends CI_Model
                 }
                 $meals = $this->get_actual_costs_by_night($destinations[$i]['id'], 2, $x + 1);
                 if($meals) {
-                    $total_cost_per_night += $meals['cost'];
                     array_push($meals_arr, $meals);
                 } else {
                     array_push($meals_arr, [
@@ -322,11 +325,24 @@ class Report_Model extends CI_Model
                     array_push($other_items_arr, [
                     ]);
                 }
-                $meals_text =  $this->get_other_items_by_name($destinations[$i]['id'], 'List meals', $x + 1);
-                if($meals_text) {
-                    array_push($meals_text_arr, $meals_text[0]['meals_text']);
+                $provided_meals =  $this->get_provided_meals($destinations[$i]['id'],  $x + 1);
+                if($provided_meals) {
+                    array_push($meals_text_arr, [
+                        'meals_text' => $provided_meals['meals_text'],
+                        'is_first_day' => $provided_meals['is_first_day'],
+                        'is_last_day' => $provided_meals['is_last_day'],
+                        'cost' => $provided_meals['cost'],
+                        'd_cost' => $provided_meals['d_cost'],
+                    ]);
+                    $total_cost_per_night += $provided_meals['cost'];
                 } else {
-                    array_push($meals_text_arr, '-');
+                    array_push($meals_text_arr, [
+                        'meals_text' => '',
+                        'is_first_day' => 0,
+                        'is_last_day' => 0,
+                        'cost' => 0,
+                        'd_cost' => 0,
+                    ]);
                 }
                 array_push($total_costs_arr, $total_cost_per_night);
             }
@@ -378,7 +394,7 @@ class Report_Model extends CI_Model
     }
 
     function get_provided_meals($dest_id, $night) {
-        $data = $this->db->select('id, dest_id, night, receipt, item_type, item_name, meals_text, cost ,format(cost,2,"de_DE") as d_cost')
+        $data = $this->db->select('id, dest_id, night, is_last_day, is_first_day, receipt, item_type, item_name, meals_text, cost ,format(cost,2,"de_DE") as d_cost')
         ->from('ea_actual_costs')
         ->where('dest_id', $dest_id)
         ->where('item_type', 3)
@@ -491,6 +507,28 @@ class Report_Model extends CI_Model
     }
 
     function update_ter_payment($request_id, $payload) {
+        $this->db->where('request_id', $request_id)->update('ea_report_status', $payload);
+        return $this->db->affected_rows() === 1;
+    }
+
+    function update_report_confirmation($request_id) {
+        $payload = [
+            'is_need_confirmation' => 1,
+            'finance_status' => 2,
+            'finance_id' => $this->user_data->userId,
+            'finance_status_at' =>  date("Y-m-d H:i:s"),
+        ];
+        $this->db->where('request_id', $request_id)->update('ea_report_status', $payload);
+        return $this->db->affected_rows() === 1;
+    }
+
+    function confirm_ter($request_id, $fco_monitor_id) {
+        $payload = [
+            'is_need_confirmation' => 0,
+            'country_director_status' => 2,
+            'country_director_id' => $fco_monitor_id,
+            'country_director_status_at' =>  date("Y-m-d H:i:s"),
+        ];
         $this->db->where('request_id', $request_id)->update('ea_report_status', $payload);
         return $this->db->affected_rows() === 1;
     }

@@ -173,7 +173,7 @@ if (!function_exists('get_requests_status')) {
             ];
         } else if($request['head_of_units_status'] == 2 && $request['ea_assosiate_status'] == 2 && $request['fco_monitor_status'] == 2 && $request['finance_status'] == 2) {
             $status = [
-                'text' => 'Done',
+                'text' => 'Paid',
                 'badge_color' => 'success',
             ];
         }

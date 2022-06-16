@@ -158,7 +158,7 @@
 								<tr data-row="0" class="kt-datatable__row" style="left: 0px;">
 									<td class="kt-datatable__cell fw-bold">
 										<span style="width: 120px;">
-											Meals
+											Meals <?= ($night == 1 || $dest['meals_text'][$night-1]['is_first_day'] == 1 || $dest['meals_text'][$night-1]['is_last_day'] == 1  ? '(75%)' : '') ?>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
@@ -315,7 +315,7 @@
 					<?php endfor; ?>
 				</div>
 				<?php endforeach; ?>
-				<div class="p-2 ml-3">
+				<div class="p-2 ml-3 pb-2 pt-3 border-bottom border-top">
 					<h4>Summarized:</h4>
 					<p class="fw-bold">
 						Total advance receive :
@@ -337,7 +337,7 @@
 					</p>
 				</div>
 				<?php if ($is_report_finished): ?>
-				<div id="finished_btn" class="ml-3 pl-2">
+				<div id="finished_btn" class="ml-3 pl-2 mt-3">
 					<a target="_blank" href="<?= base_url('ea_report/outgoing/ter_form/') . $detail['r_id'] ?>"
 						class="btn btn btn-success">
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"

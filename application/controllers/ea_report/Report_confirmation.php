@@ -35,14 +35,12 @@ class Report_Confirmation extends CI_Controller {
 			} else {
 				$updated = $this->report->update_status($req_id, $approver_id, $status, $level);
 				if($updated) {
-					if ($level == 'country_director') {
+					if ($level == 'head_of_units') {
 						$country_director = $this->base_model->get_country_director();
 						$finance_teams = $this->base_model->get_finance_teams();
 						foreach($finance_teams as $user) {
 							$email_sent = $this->send_email_to_finance_teams($req_id, $country_director['username'], $user);
 						}
-					} else {
-						$email_sent = $this->send_email_to_country_director($req_id);
 					}
 					if($email_sent) {
 						$data['message'] = "TER #EA$req_id has been approved";

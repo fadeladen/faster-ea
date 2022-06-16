@@ -13,11 +13,26 @@
 									class="badge badge-success fw-bold"><?= $detail['ea_number'] ?></span>
 							</div>
 						</div>
-						<div class="row">
+						<!-- <div class="row">
 							<label class="col-3 mb-2 col-form-label fw-bold">EA Online Number</label>
 							<div class="col-9">
 								<span style="font-size: 1rem;"
 									class="badge badge-success fw-bold"><?= $detail['ea_online_number'] ?></span>
+							</div>
+						</div> -->
+						<div class="row">
+							<label class="col-3 mb-2 col-form-label fw-bold">Proof of aproval</label>
+							<div class="col-9">
+								<a target="_blank"
+									href="<?= base_url('uploads/proof_of_approval/') ?><?= $detail['proof_of_approval'] ?>"
+									class="badge badge-primary mt-2"><span class="mr-1"><svg xmlns="http://www.w3.org/2000/svg"
+											width="10" height="10" fill="currentColor" class="bi bi-download"
+											viewBox="0 0 16 16">
+											<path
+												d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+											<path
+												d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
+										</svg></span> Download</a>
 							</div>
 						</div>
 						<div class="row">
@@ -80,7 +95,7 @@
 								<span class="badge badge-light fw-bold"><?= $detail['employment_status'] ?></span>
 							</div>
 						</div>
-							
+
 						<?php if ($detail['employment_status'] === 'Group'): ?>
 
 						<!-- If employment status = Group -->
@@ -362,8 +377,7 @@
 										<?= ($dest['country'] == 1) ? '' : '/ USD: ' . $dest['d_total_lodging_and_meals_usd'] ?>
 									</p>
 									<p class="mb-1">Number of nights:
-										<span
-											class="destination-night-val"><?= $dest['night'] ?>
+										<span class="destination-night-val"><?= $dest['night'] ?>
 											<?= $detail['employment'] == 'Just for me' ? ' (for 1 person)' : ' (for ' . $detail['number_of_participants'] . ' persons)' ?>
 										</span>
 									</p>

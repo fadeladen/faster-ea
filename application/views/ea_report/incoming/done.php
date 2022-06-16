@@ -11,21 +11,23 @@
 				</svg>
 			</span>
 			<h3 class="kt-portlet__head-title">
-				Pending TER
-				<small>TER need confirmation</small>
+				Done TER
+				<small>TER has been completed</small>
 			</h3>
 		</div>
 	</div>
 
 	<div class="kt-portlet__body">
 		<table id="table-ter" class="table table-striped"
-			data-url="<?= base_url('ea_report/outgoing/pending_datatable')?>">
+			data-url="<?= base_url('ea_report/incoming/datatable/') . 'done' ?>">
 			<thead>
 				<tr>
 					<th style="width: 80px;">EA Number</th>
 					<th style="min-width: 110px;">Request for</th>
 					<th style="min-width: 100px;">Total advance</th>
 					<th style="min-width: 100px;">Total expense</th>
+					<th style="min-width: 100px;">Refund</th>
+					<th style="min-width: 100px;">Reimburst</th>
 					<th style="min-width: 100px;" class="action-col">Action</th>
 				</tr>
 			</thead>
@@ -38,7 +40,9 @@
 
 <script>
 	initDatatable('#table-ter', {
-		order: [[4, 'desc']],
+		order: [
+			[6, 'desc']
+		],
 		columnDefs: [{
 			targets: 'action-col',
 			orderable: false,
@@ -57,12 +61,9 @@
 								</div>
 							</a>
 							<button data-id="${data}"
-								 class="btn-confirm btn btn-sm btn-success mb-2">
+								 class="btn-submit-payment btn btn-sm btn-success mb-2">
 								<div class="d-flex align-items-center justify-content-center">
-									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-									<path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
-									</svg>
-									<span class="ml-2">OK</span>
+									<span class="ml-2">Submit</span>
 								</div>
 							</button>
 	                   </div>
@@ -71,14 +72,23 @@
 		}, ]
 	})
 
-	$(document).on('click', '.btn-confirm', function (e) {
-			e.preventDefault()
-			const req_id = $(this).attr('data-id')
-			const loader = `<div style="width: 5rem; height: 5rem;" class="spinner-border mb-5" role="status"></div>
+	$(document).on('click', '.btn-submit-payment', function (e) {
+		e.preventDefault()
+		const req_id = $(this).attr('data-id')
+		const loader = `<div style="width: 5rem; height: 5rem;" class="spinner-border mb-5" role="status"></div>
 			<h5 class="mt-2">Please wait</h5>
-			<p>Updating report status ...</p>`
+			<p>Submitt payment ...</p>`
+		$.get(base_url +
+			`ea_report/outgoing/payment_modal?req_id=${req_id}`,
+			function (html) {
+				$('#myModal').html(html)
+				$('#myModal').modal('show')
+			});
+		$(document).on("submit", '#ter_payment', function (e) {
+			e.preventDefault()
+			const formData = new FormData(this);
 			Swal.fire({
-				title: 'Confirm TER?',
+				title: `Approve TER?`,
 				text: "",
 				type: 'warning',
 				showCancelButton: true,
@@ -89,11 +99,10 @@
 				if (result.value) {
 					$.ajax({
 						type: 'POST',
-						url: base_url + 'ea_report/incoming/confirm_ter_by_requestor',
-						data: {
-							req_id
-						},
+						url: $(this).attr("action"),
+						data: formData,
 						beforeSend: function () {
+							$('p.error').remove();
 							Swal.fire({
 								html: loader,
 								showConfirmButton: false,
@@ -103,6 +112,13 @@
 						},
 						error: function (xhr) {
 							const response = xhr.responseJSON;
+							if (response.errors) {
+								for (const err in response.errors) {
+									$(`#${err}`).parent().append(
+										`<p class="error mt-1 mb-0">This field is required</p>`
+									)
+								}
+							}
 							Swal.fire({
 								"title": response.message,
 								"text": '',
@@ -117,15 +133,18 @@
 								"type": "success",
 								"confirmButtonClass": "btn btn-dark"
 							}).then((result) => {
-								console.log(response)
 								if (result.value) {
 									location.reload();
 								}
 							})
 						},
+						cache: false,
+						contentType: false,
+						processData: false
 					});
 				}
 			})
 		});
+	});
 
 </script>

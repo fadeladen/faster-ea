@@ -53,7 +53,6 @@
 				<div class="form-group">
 					<label for="cost">Status</label>
 					<select name="day_status" id="day_status" class="form-control">
-						<option value="">Select status</option>
 						<option value="1">Full day</option>
 						<option value="2">Last day</option>
 					</select>

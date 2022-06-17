@@ -489,9 +489,9 @@
 										<div class="international-form d-none">
 											<div class="form-group row">
 												<label for="example-search-input"
-													class="col-md-3 col-form-label">Country name</label>
+													class="col-md-3 col-form-label">Country name/city</label>
 												<div class="col-md-9">
-													<input placeholder="Enter country name"
+													<input placeholder="Ex: Thailand/Bangkok"
 														class="form-control destination_country_name" type="text"
 														name="destination_country_name[]">
 												</div>
@@ -1540,9 +1540,9 @@
 										<div class="international-form d-none">
 											<div class="form-group row">
 												<label for="example-search-input"
-													class="col-md-3 col-form-label">Country name</label>
+													class="col-md-3 col-form-label">Country name/city</label>
 												<div class="col-md-9">
-													<input placeholder="Enter country name"
+													<input placeholder="Ex: Thailand/Bangkok"
 														class="form-control destination_country_name" type="text"
 														name="destination_country_name[]">
 												</div>

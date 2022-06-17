@@ -91,6 +91,7 @@ class Report_Model extends CI_Model
                 $provided_meals =  $this->get_provided_meals($destinations[$i]['id'],  $x + 1);
                 if($provided_meals) {
                     array_push($meals_text_arr, [
+                        'id' =>  $provided_meals['id'],
                         'meals_text' => $provided_meals['meals_text'],
                         'is_first_day' => $provided_meals['is_first_day'],
                         'is_last_day' => $provided_meals['is_last_day'],
@@ -100,6 +101,7 @@ class Report_Model extends CI_Model
                     $total_cost_per_night += $provided_meals['cost'];
                 } else {
                     array_push($meals_text_arr, [
+                        'id' => null,
                         'meals_text' => '',
                         'is_first_day' => 0,
                         'is_last_day' => 0,
@@ -205,6 +207,17 @@ class Report_Model extends CI_Model
         ->where('dest_id', $dest_id)
         ->where('item_type', $item_type)
         ->where('night', $night)
+        ->get()->row_array();
+        return $data;
+    }
+
+    function get_ter_expenses($dest_id, $item_type, $night) {
+        $data = $this->db->select('id, dest_id, receipt, item_type, cost ,format(cost,2,"de_DE") as d_cost')
+        ->from('ea_actual_costs')
+        ->where('dest_id', $dest_id)
+        ->where('item_type', $item_type)
+        ->where('night', $night)
+        ->where('cost !=', 0.00)
         ->get()->row_array();
         return $data;
     }
@@ -328,6 +341,7 @@ class Report_Model extends CI_Model
                 $provided_meals =  $this->get_provided_meals($destinations[$i]['id'],  $x + 1);
                 if($provided_meals) {
                     array_push($meals_text_arr, [
+                        'id' =>  $provided_meals['id'],
                         'meals_text' => $provided_meals['meals_text'],
                         'is_first_day' => $provided_meals['is_first_day'],
                         'is_last_day' => $provided_meals['is_last_day'],
@@ -337,6 +351,7 @@ class Report_Model extends CI_Model
                     $total_cost_per_night += $provided_meals['cost'];
                 } else {
                     array_push($meals_text_arr, [
+                        'id' =>  null,
                         'meals_text' => '',
                         'is_first_day' => 0,
                         'is_last_day' => 0,
@@ -535,5 +550,10 @@ class Report_Model extends CI_Model
 
     function get_report_status($req_id) {
         return $this->db->select('*')->from('ea_report_status')->where('request_id', $req_id)->get()->row_array();
+    }
+
+    function update_ter_item($item_id, $payload) {
+        $this->db->where('id', $item_id)->update('ea_actual_costs', $payload);
+        return true;
     }
 }

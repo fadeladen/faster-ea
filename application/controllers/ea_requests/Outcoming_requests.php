@@ -9,6 +9,7 @@ class Outcoming_requests extends MY_Controller {
 		$this->load->model('Request_Model', 'request');
 		$this->load->model('Base_Model', 'base_model');
 		$this->template->set('pageParent', 'Outgoing Requests');
+		$this->load->helper('report_helper');
 		$this->template->set_default_layout('layouts/default');
 	}
 
@@ -92,6 +93,7 @@ class Outcoming_requests extends MY_Controller {
 				'finance_btn' => $finance_btn,
 				'request_status' => get_requests_status($detail['r_id']),
 				'ea_assosiate' => $this->base_model->get_ea_assosiate(),
+				'total_advance' => get_total_advance($detail['r_id']),
 			];
 			$this->template->set('pageParent', 'Requests');
 			$this->template->set('page', 'Requests detail');

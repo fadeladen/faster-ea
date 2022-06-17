@@ -43,6 +43,13 @@
 							</div>
 						</div>
 						<div class="row">
+							<label class="col-3 mb-2 col-form-label fw-bold">Cash advance</label>
+							<div class="col-9">
+								<span style="font-size: 1rem;"
+									class="badge badge-light fw-bold"><?= $total_advance ?></span>
+							</div>
+						</div>
+						<div class="row">
 							<label class="col-3 mb-2 col-form-label fw-bold">Requestor name</label>
 							<div class="col-9">
 								<span style="font-size: 1rem;"
@@ -650,7 +657,7 @@
 											</span>
 										</td>
 										<td data-field="Car Model" class="kt-datatable__cell"><span
-												style="width: 110px;"><?= $detail['head_of_units_status_at'] ?></span></td>
+												style="width: 110px;"><?= $detail['request_date'] ?></span></td>
 										<td class="kt-datatable__cell">
 											<div style="width: 140px;" class="d-flex <?= $head_of_units_btn ?>">
 												<button data-level='head_of_units' data-id=<?= $detail['r_id'] ?>
@@ -691,7 +698,7 @@
 													class="kt-badge kt-badge--inline kt-badge--pill status-badge"><?= $detail['ea_assosiate_status_text'] ?></span></span>
 										</td>
 										<td data-field="Car Model" class="kt-datatable__cell"><span
-												style="width: 110px;"><?= $detail['ea_assosiate_status_at'] ?></span></td>
+												style="width: 110px;"><?= $detail['head_of_units_status_at'] ?></span></td>
 										<td class="kt-datatable__cell">
 											<div style="width: 140px;" class="d-flex <?= $ea_assosiate_btn ?>">
 												<button data-level='ea_assosiate' data-id=<?= $detail['r_id'] ?>
@@ -731,7 +738,7 @@
 													class="kt-badge kt-badge--inline kt-badge--pill status-badge"><?= $detail['fco_monitor_status_text'] ?></span></span>
 										</td>
 										<td data-field="Car Model" class="kt-datatable__cell"><span
-												style="width: 110px;"><?= $detail['fco_monitor_status_at'] ?></span></td>
+												style="width: 110px;"><?= $detail['ea_assosiate_status_at'] ?></span></td>
 										<td class="kt-datatable__cell">
 											<div style="width: 140px;" class="d-flex <?= $fco_monitor_btn ?>">
 												<button data-level='fco_monitor' data-id=<?= $detail['r_id'] ?>
@@ -773,7 +780,7 @@
 											</span>
 										</td>
 										<td data-field="Car Model" class="kt-datatable__cell"><span
-												style="width: 110px;"><?= $detail['finance_status_at'] ?></span></td>
+												style="width: 110px;"><?= $detail['fco_monitor_status_at'] ?></span></td>
 										<td class="kt-datatable__cell">
 											<div style="width: 140px;" class="d-flex flex-column <?= $finance_btn ?>">
 												<button style="padding: 0.3rem .6rem !important;" data-level='finance'

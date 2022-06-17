@@ -36,10 +36,10 @@ class Report_Confirmation extends CI_Controller {
 				$updated = $this->report->update_status($req_id, $approver_id, $status, $level);
 				if($updated) {
 					if ($level == 'head_of_units') {
-						$country_director = $this->base_model->get_country_director();
+						$approver = $this->db->select('username')->from('tb_userapp')->where('id', $approver_id)->get()->row_array();
 						$finance_teams = $this->base_model->get_finance_teams();
 						foreach($finance_teams as $user) {
-							$email_sent = $this->send_email_to_finance_teams($req_id, $country_director['username'], $user);
+							$email_sent = $this->send_email_to_finance_teams($req_id, $approver['username'], $user);
 						}
 					}
 					if($email_sent) {
@@ -471,7 +471,6 @@ class Report_Confirmation extends CI_Controller {
 					$day++;
 					$last_row = $row;
 					$row++;
-
 				}
 				if(!empty($dest['other_items'][0])) {
 					$current_night_items = $this->report->get_excel_other_items_by_night($dest['id'], 1);
@@ -483,6 +482,12 @@ class Report_Confirmation extends CI_Controller {
 				if($dest['night'] > 1) {
 					$night = 1;
 					for ($x = 0; $x < $dest['night']; $x++) {
+						if($lodging_meals_row == 'B') {
+							$lodging_meals_row = $excel_config['last_cell'];
+							if($detail['destinations'][$z - 1]['departure_date'] == $dest['arrival_date']) {
+								$sheet->setCellValue($lodging_meals_row . '12', $dest['city']);
+							}
+						}
 						$sheet->setCellValue($lodging_meals_row . '20', $dest['actual_lodging'][$x]['cost']);
 						$sheet->setCellValue($lodging_meals_row . '21', $dest['max_meals_cost']);
 						$current_night_items = $this->report->get_excel_other_items_by_night($dest['id'], $night++);
@@ -545,6 +550,7 @@ class Report_Confirmation extends CI_Controller {
 		$cells = [];
 		$total_parking = $total_ticket_cost = $total_mileage = $total_airport = $total_visa = $total_rental = $total_registration = $total_communication = $total_internet = $total_taxi_home = $total_taxi_hotel = $total_other = 0;
 		$meals_text = '';
+		$meals_cost = 0;
 		foreach($items as $item) {
 			$item_name = $item['item_name'];
 			if($item_name == 'Parking') {
@@ -585,6 +591,7 @@ class Report_Confirmation extends CI_Controller {
 			}
 			if($item_name == 'List meals') {
 				$meals_text = $item['meals_text'];				
+				$meals_cost = $item['cost'];				
 			}
 		}
 		if($total_ticket_cost != 0) {
@@ -625,9 +632,7 @@ class Report_Confirmation extends CI_Controller {
 		}
 		if($meals_text != '') {
 			array_push($cells, ['cell' => $row . '22', 'value' => $meals_text]);
-			if($meals_text == '-') {
-				array_push($cells, ['cell' => $row . '21', 'value' => 0]);
-			}
+			array_push($cells, ['cell' => $row . '21', 'value' => $meals_cost]);
 		}
 		return $cells;
 	}

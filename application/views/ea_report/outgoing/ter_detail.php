@@ -63,8 +63,10 @@
 				<div class="kt-infobox">
 					<div class="kt-infobox__header border-bottom pb-1">
 						<h4 class="text-dark fw-600"><?= $dest['order'] ?> destination
-							<span>(<?= ($dest['country'] == 1 ? $dest['city'] .'/Indonesia' : $dest['city']) ?>,
-								<?= $dest['night'] ?> night)</span></h4>
+							<span>(<?= ($dest['country'] == 1 ? $dest['city'] .'/Indonesia' : $dest['city']) ?>)
+								<!-- , <?= $dest['night'] ?> night) -->
+							</span>
+						</h4>
 					</div>
 					<div class="kt-infobox__body">
 						<div class="row mb-2">
@@ -87,14 +89,14 @@
 					</div>
 					<?php $day = 0 ?>
 					<?php for ($night = 1; $night <= $dest['night']; $night++): ?>
-					<div class="py-2 border-bottom ml-2">
+					<div class="py-2 border-bottom ml-2 <?= $dest['actual_lodging_items'][$night-1]['cost'] == 0.00 ? 'd-none' : '' ?>">
 						<h5 class="text-dark fw-bold">
 							<?= ordinal($night) ?> night:
 						</h5>
 					</div>
 					<div
-						class="kt-datatable kt-datatable--default kt-datatable--brand kt-datatable--loaded border-bottom">
-						<table class="kt-datatable__table" id="html_table" width="100%" style="display: block;">
+						class="kt-datatable kt-datatable--default kt-datatable--brand kt-datatable--loaded">
+						<table class="kt-datatable__table <?= $dest['actual_lodging_items'][$night-1]['cost'] == 0.00 ? 'd-none' : '' ?>" id="html_table" width="100%" style="display: block;">
 							<thead class="kt-datatable__head">
 								<tr class="kt-datatable__row" style="left: 0px;">
 									<th class="kt-datatable__cell kt-datatable__cell--sort"><span
@@ -103,6 +105,8 @@
 										<span style="width: 160px;">Actual cost</span></th>
 									<th class="kt-datatable__cell kt-datatable__cell--sort">
 										<span style="width: 90px;">Receipt</span></th>
+									<th class="kt-datatable__cell kt-datatable__cell--sort">
+										<span style="width: 120px;">Action</span></th>
 								</tr>
 							</thead>
 							<tbody class="kt-datatable__body">
@@ -137,11 +141,27 @@
 											<?php endif; ?>
 										</span>
 									</td>
+									<td class="kt-datatable__cell">
+										<span style="width: 120px;">
+											<button <?= $edit_btn ?> data-id="<?= $dest['actual_lodging_items'][$night-1]['id'] ?>"
+												class="btn btn-edit-item btn-sm btn-info">
+												<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+													fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+													<path
+														d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+													<path fill-rule="evenodd"
+														d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+												</svg>
+												<span class="ml-1">Edit</span>
+											</button>
+										</span>
+									</td>
 								</tr>
 								<tr data-row="0" class="kt-datatable__row" style="left: 0px;">
 									<td class="kt-datatable__cell fw-bold">
 										<span style="width: 120px;">
-											Meals <?= ($dest['meals_text'][$night-1]['is_first_day'] == 1 || $dest['meals_text'][$night-1]['is_last_day'] == 1  ? '(75%)' : '') ?>
+											Meals
+											<?= ($dest['meals_text'][$night-1]['is_first_day'] == 1 || $dest['meals_text'][$night-1]['is_last_day'] == 1  ? '(75%)' : '') ?>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
@@ -174,6 +194,21 @@
 											<?php endif; ?>
 										</span>
 									</td>
+									<td class="kt-datatable__cell">
+										<span style="width: 120px;">
+											<button <?= $edit_btn ?> data-id="<?= $dest['meals_text'][$night-1]['id'] ?>"
+												class="btn btn-edit-item btn-sm btn-info">
+												<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+													fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+													<path
+														d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+													<path fill-rule="evenodd"
+														d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+												</svg>
+												<span class="ml-1">Edit</span>
+											</button>
+										</span>
+									</td>
 								</tr>
 								<?php if (!empty($dest['other_items'][$night-1])): ?>
 								<?php foreach ($dest['other_items'][$night-1] as $items): ?>
@@ -192,7 +227,12 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
-											<button data-night="<?= $night ?>" data-dest-id="<?= $dest['id'] ?>"
+
+										</span>
+									</td>
+									<td class="kt-datatable__cell">
+										<span style="width: 120px;">
+											<button data-req-id="<?= $detail['r_id'] ?>" data-night="<?= $night ?>" data-dest-id="<?= $dest['id'] ?>"
 												data-id="<?= $items['id'] ?>"
 												data-item-name="<?= $items['item_name'] ?>"
 												class="btn btn-items-info btn-sm btn-info">
@@ -228,6 +268,11 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
+
+										</span>
+									</td>
+									<td class="kt-datatable__cell">
+										<span style="width: 120px;">
 
 										</span>
 									</td>
@@ -539,15 +584,93 @@
 		$(document).on('click', '.btn-items-info', function (e) {
 			e.preventDefault()
 			const dest_id = $(this).attr('data-dest-id')
+			const req_id = $(this).attr('data-req-id')
 			const item_name = $(this).attr('data-item-name')
 			const item_id = $(this).attr('data-item-id')
 			const night = $(this).attr('data-night')
 			$.get(base_url +
-				`ea_report/outgoing/other_items_detail?dest_id=${dest_id}&item_name=${item_name}&night=${night}&item_id=${item_id}`,
+				`ea_report/outgoing/other_items_detail?dest_id=${dest_id}&item_name=${item_name}&night=${night}&item_id=${item_id}&req_id=${req_id}`,
 				function (html) {
 					$('#myModal').html(html)
 					$('#myModal').modal('show')
 				});
+		});
+
+		$(document).on('click', '.btn-edit-item', function (e) {
+			e.preventDefault()
+			const item_id = $(this).attr('data-id')
+			const loader = `<div style="width: 5rem; height: 5rem;" class="spinner-border mb-5" role="status"></div>
+			<h5 class="mt-2">Please wait</h5>
+			<p>Saving data ...</p>`
+			$.get(base_url +
+				`ea_report/incoming/edit_ter_item?item_id=${item_id}`,
+				function (html) {
+					$('#myModal').html(html)
+					$('#myModal').modal('show')
+					$('#cost').number(true, 0, '', '.');
+				});
+			$(document).on("submit", '#ter-item-form', function (e) {
+				e.preventDefault()
+				const formData = new FormData(this);
+				Swal.fire({
+					title: `Update item?`,
+					text: "",
+					type: 'warning',
+					showCancelButton: true,
+					confirmButtonColor: '#3085d6',
+					cancelButtonColor: '#d33',
+					confirmButtonText: `Yes!`
+				}).then((result) => {
+					if (result.value) {
+						$.ajax({
+							type: 'POST',
+							url: $(this).attr("action"),
+							data: formData,
+							beforeSend: function () {
+								$('p.error').remove();
+								Swal.fire({
+									html: loader,
+									showConfirmButton: false,
+									allowEscapeKey: false,
+									allowOutsideClick: false,
+								});
+							},
+							error: function (xhr) {
+								const response = xhr.responseJSON;
+								if (response.errors) {
+									for (const err in response.errors) {
+										$(`#${err}`).parent().append(
+											`<p class="error mt-1 mb-0">This field is required</p>`
+										)
+									}
+								}
+								Swal.fire({
+									"title": response.message,
+									"text": '',
+									"type": "error",
+									"confirmButtonClass": "btn btn-dark"
+								});
+							},
+							success: function (response) {
+								Swal.fire({
+									"title": "Success!",
+									"text": response.message,
+									"type": "success",
+									"confirmButtonClass": "btn btn-dark"
+								}).then((result) => {
+									if (result.value) {
+										location.reload();
+									}
+								})
+							},
+							cache: false,
+							contentType: false,
+							processData: false
+						});
+					}
+				})
+			});
+
 		});
 
 		$(document).on('click', '.btn-payment-finance', function (e) {

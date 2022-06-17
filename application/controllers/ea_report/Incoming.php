@@ -702,4 +702,49 @@ class Incoming extends MY_Controller {
 			return false;
 		}
     }
+
+	public function edit_ter_item() {
+		$item_id = $this->input->get('item_id');		
+		$detail = $this->db->select('*')->from('ea_actual_costs')->where('id', $item_id)->get()->row_array();
+		$detail = [
+			'id' => $detail['id'],
+			'cost' => $detail['cost'] + 0,
+			'comment_by_finance' => $detail['comment_by_finance'],
+		];
+		$data['detail'] = $detail;
+		$this->load->view('ea_report/modal/edit_ter_item', $data);
+	}
+
+	public function update_ter_item() {
+		if ($this->input->is_ajax_request() && $this->input->server('REQUEST_METHOD') === 'POST') {
+			$this->form_validation->set_rules('cost', 'Cost', 'required');
+			$this->form_validation->set_rules('comment', 'Comment', 'required');
+
+			if ($this->form_validation->run()) {
+				$cost = str_replace('.', '',  $this->input->post('cost'));
+				$id = $this->input->post('id');
+				$payload = [
+					'cost' => $cost,
+					'comment_by_finance' => $this->input->post('comment'),
+				];
+				$updated = $this->report->update_ter_item($id, $payload);
+				if($updated) {
+					$response['success'] = true;
+					$response['message'] = 'Data has been saved!';
+					$status_code = 200;
+				} else {
+					$response['success'] = false;
+					$response['message'] = 'Failed to saving data, please try again later';
+					$status_code = 400;
+				}
+			} else {
+				$response['errors'] = $this->form_validation->error_array();
+				$response['message'] = 'Please fill all required fields';
+				$status_code = 422;
+			}
+			$this->send_json($response, $status_code);
+		} else {
+			exit('No direct script access allowed');
+		}
+	}
 }

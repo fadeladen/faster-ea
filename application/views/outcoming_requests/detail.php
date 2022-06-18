@@ -1259,7 +1259,7 @@
 			const status = $(this).text()
 			if (status == 'Pending') {
 				$(this).addClass('kt-badge--brand')
-			} else if (status == 'Approved' || status == 'Done') {
+			} else if (status == 'Approved' || status == 'Done' || status == 'Paid') {
 				$(this).addClass('kt-badge--success')
 			} else {
 				$(this).addClass('kt-badge--danger')

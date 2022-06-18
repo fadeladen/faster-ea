@@ -11,8 +11,8 @@
 				</svg>
 			</span>
 			<h3 class="kt-portlet__head-title">
-				Done Requests
-				<small>All requests have been approved</small>
+				Paid Requests
+				<small>All requests have been paid</small>
 			</h3>
 		</div>
 		<div class="kt-portlet__head-toolbar">

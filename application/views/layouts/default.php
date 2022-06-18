@@ -231,15 +231,6 @@
 														Requests For Review</span>
 												</a>
 											</li>
-											<!-- <li class="kt-menu__item <?= ($page == 'Pending requests' ? 'kt-menu__item--active' : '') ?>"" aria-haspopup="
-												true">
-												<a href="<?= base_url('ea_requests/incoming-requests/pending') ?>"
-													class="kt-menu__link"><i
-														class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
-														class="kt-menu__link-text">
-														Pending</span>
-												</a>
-											</li> -->
 											<li class="kt-menu__item <?= ($page == 'Rejected requests' ? 'kt-menu__item--active' : '') ?>"
 												aria-haspopup="true">
 												<a href="<?= base_url('ea_requests/incoming-requests/rejected') ?>"
@@ -249,15 +240,27 @@
 														Rejected</span>
 												</a>
 											</li>
-											<li class="kt-menu__item <?= ($page == 'Done requests' ? 'kt-menu__item--active' : '') ?>"
+											<?php if (is_finance_teams() || $this->user_data->username == 'root'): ?>
+											<li class="kt-menu__item <?= ($page == 'Paid requests' ? 'kt-menu__item--active' : '') ?>"
 												aria-haspopup="true">
-												<a href="<?= base_url('ea_requests/incoming-requests/done') ?>"
+												<a href="<?= base_url('ea_requests/incoming-requests/paid') ?>"
 													class="kt-menu__link"><i
 														class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
 														class="kt-menu__link-text">
-														Done</span>
+														Paid</span>
 												</a>
 											</li>
+											<?php else: ?>
+											<li class="kt-menu__item <?= ($page == 'Approved requests' ? 'kt-menu__item--active' : '') ?>"
+												aria-haspopup="true">
+												<a href="<?= base_url('ea_requests/incoming-requests/approved') ?>"
+													class="kt-menu__link"><i
+														class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i><span
+														class="kt-menu__link-text">
+														Approved</span>
+												</a>
+											</li>
+											<?php endif; ?>
 										</ul>
 									</div>
 								</li>

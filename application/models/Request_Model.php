@@ -69,7 +69,7 @@ class Request_Model extends CI_Model
         (
             CASE 
                 WHEN finance_status = "1" THEN "Pending"
-                WHEN finance_status = "2" THEN "Done"
+                WHEN finance_status = "2" THEN "Paid"
                 WHEN finance_status = "3" THEN "Rejected"
             END) AS finance_status_text,
         ')

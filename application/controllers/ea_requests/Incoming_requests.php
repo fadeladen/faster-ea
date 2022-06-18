@@ -38,13 +38,22 @@ class Incoming_requests extends MY_Controller {
 		$this->template->render('incoming_requests/rejected', $data);
 	}
 
-	public function done()
+	public function paid()
 	{
-		$this->template->set('page', 'Done requests');
+		$this->template->set('page', 'Paid requests');
 		$requests = $this->db->select('*')->from('ea_requests')->get()->result();
 		$data['requests'] = $requests;
-		$data['status'] = 'done';
-		$this->template->render('incoming_requests/done', $data);
+		$data['status'] = 'paid';
+		$this->template->render('incoming_requests/paid', $data);
+	}
+
+	public function approved()
+	{
+		$this->template->set('page', 'Approved requests');
+		$requests = $this->db->select('*')->from('ea_requests')->get()->result();
+		$data['requests'] = $requests;
+		$data['status'] = 'approved';
+		$this->template->render('incoming_requests/approved', $data);
 	}
 
 	public function create()
@@ -87,20 +96,19 @@ class Incoming_requests extends MY_Controller {
 			}
 		}
 
-		if($status == 'pending') {
-			$this->datatable->where('st.head_of_units_status !=', 3);
-			$this->datatable->where('st.ea_assosiate_status !=', 3);
-			$this->datatable->where('st.fco_monitor_status !=', 3);
-			$this->datatable->where('st.finance_status !=', 3);
-			$this->datatable->where('st.finance_status !=', 2);
-		}
 		if($status == 'rejected') {
 			$this->datatable->where('st.head_of_units_status =', 3);
 			$this->datatable->or_where('st.ea_assosiate_status =', 3);
 			$this->datatable->or_where('st.fco_monitor_status =', 3);
 			$this->datatable->or_where('st.finance_status =', 3);
 		}
-		if($status == 'done') {
+		if($status == 'approved') {
+			$this->datatable->where('st.head_of_units_status =', 2);
+			$this->datatable->where('st.ea_assosiate_status =', 2);
+			$this->datatable->where('st.fco_monitor_status =', 2);
+			$this->datatable->where_in('st.finance_status', [1,2]);
+		}
+		if($status == 'paid') {
 			$this->datatable->where('st.head_of_units_status =', 2);
 			$this->datatable->where('st.ea_assosiate_status =', 2);
 			$this->datatable->where('st.fco_monitor_status =', 2);

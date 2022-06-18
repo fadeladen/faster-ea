@@ -1,7 +1,7 @@
 <div class="modal-dialog" role="document">
 	<div class="modal-content">
 		<div class="modal-header">
-			<h5 class="modal-title" id="exampleModalLabel">Edit item</h5>
+			<h5 class="modal-title" id="exampleModalLabel"><?= (is_finance_teams() ? 'Edit' : 'Detail') ?> item</h5>
 			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 				<span aria-hidden="true">&times;</span>
 			</button>
@@ -11,11 +11,11 @@
 			<div class="modal-body">
 				<div class="form-group">
 					<label for="cost">Cost</label>
-					<input value="<?= $detail['cost'] ?>" type="text" class="form-control" name="cost" id="cost">
+					<input <?= (!is_finance_teams() ? 'readonly' : '') ?> value="<?= $detail['cost'] ?>" type="text" class="form-control" name="cost" id="cost">
 				</div>
 				<div class="form-group">
 					<label for="cost">Comment</label>
-                    <textarea name="comment" class="form-control" id="comment" rows="3"><?= $detail['comment_by_finance'] ?></textarea>
+                    <textarea <?= (!is_finance_teams() ? 'readonly' : '') ?> name="comment" class="form-control" id="comment" rows="3"><?= $detail['comment_by_finance'] ?></textarea>
 				</div>
 			</div>
 			<div class="modal-footer">

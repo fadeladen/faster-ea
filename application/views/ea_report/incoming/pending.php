@@ -12,22 +12,21 @@
 			</span>
 			<h3 class="kt-portlet__head-title">
 				Pending TER
-				<small>TER in progress</small>
+				<small>TER need requestor confirmation</small>
 			</h3>
 		</div>
 	</div>
 
 	<div class="kt-portlet__body">
 		<table id="table-ter" class="table table-striped"
-		data-url="<?= base_url('ea_report/incoming/datatable/') . 'pending'?>">
+			data-url="<?= base_url('ea_report/incoming/datatable/') . 'pending'?>">
 			<thead>
 				<tr>
 					<th style="width: 80px;">EA Number</th>
-					<th style="min-width: 110px;">Request for</th>
+					<th style="min-width: 110px;">Requestor</th>
 					<th style="min-width: 100px;">Total advance</th>
-					<th style="min-width: 100px;">Total expense</th>
-					<th style="min-width: 100px;">Refund</th>
-					<th style="min-width: 100px;">Reimburst</th>
+					<th style="min-width: 100px;">Request date</th>
+					<th style="min-width: 110px;">Report for</th>
 					<th style="min-width: 100px;" class="action-col">Action</th>
 				</tr>
 			</thead>
@@ -40,7 +39,9 @@
 
 <script>
 	initDatatable('#table-ter', {
-		order: [[6, 'desc']],
+		order: [
+			[5, 'desc']
+		],
 		columnDefs: [{
 			targets: 'action-col',
 			orderable: false,

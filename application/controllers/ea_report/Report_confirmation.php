@@ -382,6 +382,8 @@ class Report_Confirmation extends CI_Controller {
 		$sheet->setCellValue($dest1Row . '9', $dest1['city']);
 		$sheet->setCellValue($dest1Row . '20', $dest1['actual_lodging'][0]['cost']);
 		$sheet->setCellValue($dest1Row . '21', $dest1['max_meals_cost']);
+		$sheet->setCellValue($dest1Row . '10', $dest1['first_depar_time']);
+		$sheet->setCellValue($dest1Row . '11', $dest1['first_arriv_time']);
 		$row = $dest1Row;
 		$arriv_date = strtotime($dest1['arrival_date']);
 		$depar_date = strtotime($dest1['departure_date']);
@@ -439,11 +441,15 @@ class Report_Confirmation extends CI_Controller {
 				}
 				if($detail['destinations'][$z - 1]['departure_date'] == $dest['arrival_date']) {
 					$sheet->setCellValue($destRow . '12', $dest['city']);
+					$sheet->setCellValue($destRow . '10', $dest['first_depar_time']);
+					$sheet->setCellValue($destRow . '11', $dest['first_arriv_time']);
 					$day = 1;
 					$lodging_meals_row = $destRow;
 					$destRow++;
 				} else {
 					$lodging_meals_row = $destRow;
+					$sheet->setCellValue($destRow . '10', $dest['first_depar_time']);
+					$sheet->setCellValue($destRow . '11', $dest['first_arriv_time']);
 				}
 				$sheet->setCellValue($destRow . '8', $dest['arriv_date']);
 				$sheet->setCellValue($destRow . '9', $dest['city']);

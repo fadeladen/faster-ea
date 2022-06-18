@@ -54,9 +54,19 @@ class Incoming extends MY_Controller {
 	public function datatable($status = null)
     {	
 		$user_id = $this->user_data->userId;
-		$this->datatable->select('CONCAT("EA", ea.id) AS ea_number, ea.id as request_for,
-			ea.id as total_advance, ea.id as total_expense, ea.id as refund, ea.id as reimburst,
-			ea.id as action,TIMESTAMP(srt.submitted_at) as timestamp', true);
+		if($status == 'rejected') {
+			$this->datatable->select('CONCAT("EA", ea.id) AS ea_number,  u.username as requestor_name, ea.id as total_advance,
+			DATE_FORMAT(srt.submitted_at, "%d %M %Y - %H:%i") as request_date, srt.rejected_reason, ea.id as request_for,
+			ea.id as action, TIMESTAMP(srt.submitted_at) as timestamp', true);
+		} else if($status == 'done') {
+			$this->datatable->select('CONCAT("EA", ea.id) AS ea_number,  u.username as requestor_name, ea.id as total_advance,
+			DATE_FORMAT(srt.submitted_at, "%d %M %Y - %H:%i") as request_date, ea.id as request_for, srt.payment_receipt,
+			ea.id as action, TIMESTAMP(srt.submitted_at) as timestamp', true);
+		} else {
+			$this->datatable->select('CONCAT("EA", ea.id) AS ea_number,  u.username as requestor_name, ea.id as total_advance,
+			DATE_FORMAT(srt.submitted_at, "%d %M %Y - %H:%i") as request_date, ea.id as request_for,
+			ea.id as action, TIMESTAMP(srt.submitted_at) as timestamp', true);
+		}
         $this->datatable->from('ea_requests ea');
         $this->datatable->join('tb_userapp u', 'u.id = ea.requestor_id');
         $this->datatable->join('ea_requests_status st', 'ea.id = st.request_id');
@@ -69,7 +79,7 @@ class Incoming extends MY_Controller {
 			if (is_head_of_units() || is_line_supervisor()) {
 				$this->datatable->where('srt.head_of_units_status =', 1);
 				$this->datatable->where('srt.head_of_units_id =', $user_id);
-			} else if (is_country_director() || is_fco_monitor()) {
+			} else if (is_fco_monitor()) {
 				$this->datatable->where('srt.finance_status =', 2);
 				$this->datatable->where('srt.country_director_status =', 1);
 			} else if (is_finance_teams()) {
@@ -80,24 +90,27 @@ class Incoming extends MY_Controller {
 			}
 		}
 		if($status == 'pending') {
-			$this->datatable->where('srt.head_of_units_status !=', 3);
-			$this->datatable->where('srt.country_director_status !=', 3);
-			$this->datatable->where('srt.country_director_status !=', 2);
-			$this->datatable->where('srt.finance_status !=', 3);
-			$this->datatable->where('srt.finance_status !=', 2);
-			$this->datatable->where('srt.is_paid =', 1);
+			$this->datatable->where('srt.head_of_units_status =', 2);
+			$this->datatable->where('srt.finance_status =', 2);
+			$this->datatable->where('srt.is_need_confirmation =', 1);
+			$this->datatable->where('srt.is_paid =', 0);
+		}
+		if($status == 'rejected') {
+			$this->datatable->where('srt.head_of_units_status =', 3);
+			$this->datatable->or_where('srt.country_director_status =', 3);
+			$this->datatable->or_where('srt.finance_status =', 3);
 		}
 		if($status == 'approved') {
 			$this->datatable->where('srt.head_of_units_status =', 2);
 			$this->datatable->where('srt.country_director_status =', 2);
 			$this->datatable->where('srt.finance_status =', 2);
-			$this->datatable->where('srt.is_paid =', 1);
+			$this->datatable->where('srt.is_paid =', 0);
 		}
 		if($status == 'done') {
 			$this->datatable->where('srt.head_of_units_status =', 2);
 			$this->datatable->where('srt.country_director_status =', 2);
 			$this->datatable->where('srt.finance_status =', 2);
-			$this->datatable->where('srt.is_paid =', 2);
+			$this->datatable->where('srt.is_paid =', 1);
 		}
 
         $this->datatable->where('ea.is_ter_submitted =', 1);
@@ -105,12 +118,6 @@ class Incoming extends MY_Controller {
 		$this->datatable->edit_column('request_for', "$1", 'get_request_participants(request_for)');
 		$this->datatable->edit_column('total_advance', '<span style="font-size: 1rem;"
 		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_advance(total_advance)');
-		$this->datatable->edit_column('total_expense', '<span style="font-size: 1rem;"
-		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_expense(total_expense)');
-		$this->datatable->edit_column('refund', '<span style="font-size: 1rem;"
-		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_refund(refund)');
-		$this->datatable->edit_column('reimburst', '<span style="font-size: 1rem;"
-		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_reimburst(reimburst)');
 		$this->datatable->edit_column('ea_number', '<span style="font-size: 1rem;"
 		class="badge badge-success fw-bold">$1</span>', 'ea_number');
         echo $this->datatable->generate();
@@ -127,18 +134,18 @@ class Incoming extends MY_Controller {
 		$this->datatable->where('srt.finance_status =', 2);
 		$this->datatable->where('srt.country_director_status =', 2);
 		$this->datatable->where('srt.is_need_confirmation =', 0);
-		$this->datatable->where('srt.is_paid =', 1);
+		$this->datatable->where('srt.is_paid =', 0);
         $this->datatable->where('ea.is_ter_submitted =', 1);
 		$this->datatable->edit_column('action', "$1", 'encrypt(action)');
 		$this->datatable->edit_column('request_for', "$1", 'get_request_participants(request_for)');
 		$this->datatable->edit_column('total_advance', '<span style="font-size: 1rem;"
 		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_advance(total_advance)');
 		$this->datatable->edit_column('total_expense', '<span style="font-size: 1rem;"
-		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_expense(total_expense)');
+		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_approved_expense(total_expense)');
 		$this->datatable->edit_column('refund', '<span style="font-size: 1rem;"
-		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_refund(refund)');
+		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_approved_refund(refund)');
 		$this->datatable->edit_column('reimburst', '<span style="font-size: 1rem;"
-		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_reimburst(reimburst)');
+		class="badge badge-pill badge-secondary fw-bold">$1</span>', 'get_total_approved_reimburst(reimburst)');
 		$this->datatable->edit_column('ea_number', '<span style="font-size: 1rem;"
 		class="badge badge-success fw-bold">$1</span>', 'ea_number');
         echo $this->datatable->generate();
@@ -188,7 +195,7 @@ class Incoming extends MY_Controller {
 							$email_sent = $this->send_email_to_finance_teams($req_id, $approver_name, $user);
 						}
 					} else {
-						$payment=  get_total_refund_or_reimburst($req_id);	
+						$payment=  get_approved_total_refund_or_reimburst($req_id);	
 						$payload = [
 							'payment_type' => $payment['type'],
 							'total_payment' => $payment['total'],
@@ -604,7 +611,7 @@ class Incoming extends MY_Controller {
 				$total_payment = $this->input->post('total_payment');
 				$req_id = $this->input->post('req_id');
 				$payload = [
-					'is_paid' => 2,
+					'is_paid' => 1,
 					'payment_type' => $payment_type,
 					'total_payment' => $total_payment,
 					'payment_receipt' => $payment_receipt,
@@ -741,6 +748,24 @@ class Incoming extends MY_Controller {
 				$response['errors'] = $this->form_validation->error_array();
 				$response['message'] = 'Please fill all required fields';
 				$status_code = 422;
+			}
+			$this->send_json($response, $status_code);
+		} else {
+			exit('No direct script access allowed');
+		}
+	}
+
+	public function approve_ter_item($item_id) {
+		if ($this->input->is_ajax_request() && $this->input->server('REQUEST_METHOD') === 'POST') {
+			$updated = $this->db->where('id', $item_id)->update('ea_actual_costs', ['is_approved_by_finance' => 1]);
+			if($updated) {
+				$response['success'] = true;
+				$response['message'] = 'Data has been saved!';
+				$status_code = 200;
+			} else {
+				$response['success'] = false;
+				$response['message'] = 'Failed to saving data, please try again later';
+				$status_code = 400;
 			}
 			$this->send_json($response, $status_code);
 		} else {

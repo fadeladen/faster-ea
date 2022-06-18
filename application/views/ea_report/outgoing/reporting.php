@@ -1,3 +1,10 @@
+<style>
+	.details-container span {
+		margin-top: 2px !important;
+	}
+
+</style>
+
 <div class="details-container">
 	<div class="kt-portlet">
 		<div id="meals_lodging_table" class="kt-portlet__body">
@@ -13,31 +20,39 @@
 					</div>
 					<div class="kt-infobox__body">
 						<div class="row">
-							<label class="col-5 mb-2 col-form-label fw-bold">Requestor (prepared by)</label>
+							<label class="col-5 mb-3 col-form-label fw-bold">Requestor (prepared by)</label>
 							<div class="col-7">
 								<span style="font-size: 1rem;"
 									class="badge badge-light fw-bold"><?= $requestor_data['username'] ?></span>
 							</div>
 						</div>
 						<div class="row">
-							<label class="col-5 mb-2 col-form-label fw-bold">Division</label>
+							<label class="col-5 mb-3 col-form-label fw-bold">Requestor for</label>
 							<div class="col-7">
-								<span class="badge badge-dark fw-bold"><?= $requestor_data['unit_name'] ?></span>
-							</div>
-						</div>
-						<div class="row mb-2">
-							<label class="col-5 mb-2 col-form-label fw-bold">Purpose</label>
-							<div class="col-7">
-								<textarea readonly class="form-control" id=""
-									rows="2"><?= $detail['purpose'] ?></textarea>
+								<span style="font-size: 1rem;"
+									class="badge badge-light fw-bold"><?= $participants ?></span>
 							</div>
 						</div>
 						<div class="row">
-							<label class="col-5 mb-2 col-form-label fw-bold">Total advance
+							<label class="col-5 mb-3 col-form-label fw-bold">Originating city</label>
+							<div class="col-7">
+								<span style="font-size: 1rem;"
+									class="badge badge-light fw-bold"><?= $detail['originating_city'] ?></span>
+
+							</div>
+						</div>
+						<div class="row">
+							<label class="col-5 mb-3 col-form-label fw-bold">Total advance
 								<?= $detail['employment'] == 'Just for me' ? ' (for 1 person)' : ' (for ' . $detail['number_of_participants'] . ' persons)' ?></label>
 							<div class="col-7">
 								<span class="badge badge-pill badge-secondary fw-bold">IDR
-									<?= number_format($detail['total_destinations_cost'],2,',','.') ?></span>
+									<?= $total_advance ?></span>
+							</div>
+						</div>
+						<div class="row">
+							<label class="col-5 mb-3 col-form-label fw-bold">Request date</label>
+							<div class="col-7">
+								<span class="badge badge-light fw-bold"><?= $detail['payment_date'] ?></span>
 							</div>
 						</div>
 						<div class="p-2 mb-2 border-bottom"></div>
@@ -67,6 +82,68 @@
 								<input readonly value="<?= $dest['depar_date'] ?>" class="form-control mt-2" type="text"
 									id="depar_date" name="depar_date">
 							</div>
+						</div>
+						<div class="my-2 py-2">
+							<form class="update-dest-time-form"
+								action="<?= base_url('ea_report/outgoing/update_destination_time/') . $dest['id'] ?>">
+								<div class="row mt-3">
+									<div class="col-md-6">
+										<div class="form-group">
+											<small class="col-form-label">
+												First destination/meeting poin
+											</small>
+											<input readonly value="<?= $dest['city'] ?>" class="form-control mt-2"
+												type="text">
+										</div>
+										<div class="form-group">
+											<small for="first_depar_time" class="col-form-label">
+												Departure time
+											</small>
+											<input value="<?= $dest['first_depar_time'] ?>" class="form-control mt-2"
+												type="time" name="first_depar_time">
+										</div>
+										<div class="form-group">
+											<small for="first_arriv_time" class="col-form-label">
+												Arrival time
+											</small>
+											<input value="<?= $dest['first_arriv_time'] ?>" class="form-control mt-2"
+												type="time" name="first_arriv_time">
+										</div>
+									</div>
+									<div class="col-md-6">
+										<div class="form-group">
+											<small for="arriv_date" class="col-form-label">
+												Second destination/meeting poin
+											</small>
+											<select placeholder="Select city" class="form-control second_city"
+												name="second_city">
+												<option value="">Select city</option>
+												<?php foreach ($cities as $city): ?>
+												<option <?= ($dest['second_city'] == $city['nama'] ? 'selected' : '') ?>
+													value="<?= $city['nama'] ?>"><?= $city['nama'] ?></option>
+												<?php endforeach; ?>
+											</select>
+										</div>
+										<div class="form-group">
+											<small for="second_depar_time" class="col-form-label">
+												Departure time
+											</small>
+											<input value="<?= $dest['second_depar_time'] ?>" class="form-control mt-2"
+												type="time" name="second_depar_time">
+										</div>
+										<div class="form-group">
+											<small for="second_arriv_time" class="col-form-label">
+												Arrival time
+											</small>
+											<input value="<?= $dest['second_arriv_time'] ?>" class="form-control mt-2"
+												type="time" name="second_arriv_time">
+										</div>
+									</div>
+								</div>
+								<div class="d-flex justify-content-end my-2">
+									<button type="submit" class="btn btn-dark">Update</button>
+								</div>
+							</form>
 						</div>
 						<div class="p-2 mb-2 border-bottom"></div>
 					</div>
@@ -114,7 +191,9 @@
 									<td class="kt-datatable__cell">
 										<span style="width: 110px;">
 											<span
-												class="badge badge-pill badge-secondary fw-bold lodging_meals_budget"><?= (isset($dest['actual_lodging_items'][$night-1]['cost']) == '' ? '-' : $dest['actual_lodging_items'][$night-1]['d_cost']) ?></span>
+												class="badge badge-pill badge-secondary fw-bold lodging_meals_budget <?= $dest['actual_lodging_items'][$night-1]['d_cost'] == '' ? 'text-danger' : '' ?>">
+												<?= (isset($dest['actual_lodging_items'][$night-1]['cost']) == '' ? 'null' : $dest['actual_lodging_items'][$night-1]['d_cost']) ?>
+											</span>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
@@ -158,7 +237,8 @@
 								<tr data-row="0" class="kt-datatable__row" style="left: 0px;">
 									<td class="kt-datatable__cell fw-bold">
 										<span style="width: 120px;">
-											Meals <?= ($night == 1 || $dest['meals_text'][$night-1]['is_first_day'] == 1 || $dest['meals_text'][$night-1]['is_last_day'] == 1  ? '(75%)' : '') ?>
+											Meals
+											<?= ($night == 1 || $dest['meals_text'][$night-1]['is_first_day'] == 1 || $dest['meals_text'][$night-1]['is_last_day'] == 1  ? '(75%)' : '') ?>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
@@ -170,8 +250,8 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 110px;">
-											<span class="badge badge-pill badge-secondary fw-bold lodging_meals_budget">
-												<?= $dest['meals_text'][$night-1]['d_cost']?>
+											<span class="badge badge-pill badge-secondary fw-bold lodging_meals_budget <?= $dest['meals_text'][$night-1]['d_cost'] == '' ? 'text-danger' : '' ?>">
+												<?= ($dest['meals_text'][$night-1]['d_cost'] == '' ? 'null' : $dest['meals_text'][$night-1]['d_cost']) ?>
 											</span>
 										</span>
 									</td>
@@ -320,13 +400,13 @@
 					<p class="fw-bold">
 						Total advance receive :
 						<span class="badge badge-pill badge-secondary fw-bold">
-							<?= number_format($detail['total_destinations_cost'],2,',','.') ?>
+							<?= $total_advance ?>
 						</span>
 					</p>
 					<p class="fw-bold">
 						Total travel expense :
 						<span class="badge badge-pill badge-secondary fw-bold">
-							<?= number_format($detail['total_expense'],2,',','.') ?>
+							<?= $total_expense ?>
 						</span>
 					</p>
 					<p class="fw-bold">
@@ -376,6 +456,11 @@
 
 <script>
 	$(document).ready(function () {
+
+		$('.second_city').select2({
+			placeholder: 'Select city'
+		})
+
 		$(document).on('click', '.btn-meals-lodging', function (e) {
 			e.preventDefault()
 			const dest_id = $(this).attr('data-dest-id')
@@ -510,7 +595,7 @@
 								console.log(response)
 								if (result.value) {
 									window.location = base_url +
-										'ea_report/outgoing/pending'
+										'ea_report/outgoing'
 								}
 							})
 						},
@@ -679,6 +764,58 @@
 								if (result.value) {
 									location.reload();
 								}
+							})
+						},
+						cache: false,
+						contentType: false,
+						processData: false
+					});
+				}
+			})
+		});
+
+		$(document).on("submit", '.update-dest-time-form', function (e) {
+			e.preventDefault()
+			const formData = new FormData(this);
+			Swal.fire({
+				title: 'Update destination time?',
+				text: "",
+				type: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#3085d6',
+				cancelButtonColor: '#d33',
+				confirmButtonText: `Yes!`
+			}).then((result) => {
+				if (result.value) {
+					$.ajax({
+						type: 'POST',
+						url: $(this).attr("action"),
+						data: formData,
+						beforeSend: function () {
+							Swal.fire({
+								html: loader,
+								showConfirmButton: false,
+								allowEscapeKey: false,
+								allowOutsideClick: false,
+							});
+						},
+						error: function (xhr) {
+							const response = xhr.responseJSON;
+							Swal.fire({
+								"title": response.message,
+								"text": 'All cost and receipt are required!',
+								"type": "error",
+								"confirmButtonClass": "btn btn-dark"
+							});
+						},
+						success: function (response) {
+							Swal.fire({
+								"title": "Success!",
+								"text": response.message,
+								"type": "success",
+								"confirmButtonClass": "btn btn-dark"
+							}).then((result) => {
+								console.log(response)
 							})
 						},
 						cache: false,

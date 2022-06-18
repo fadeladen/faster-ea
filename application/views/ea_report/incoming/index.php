@@ -23,11 +23,10 @@
 			<thead>
 				<tr>
 					<th style="width: 80px;">EA Number</th>
-					<th style="min-width: 110px;">Request for</th>
+					<th style="min-width: 110px;">Requestor</th>
 					<th style="min-width: 100px;">Total advance</th>
-					<th style="min-width: 100px;">Total expense</th>
-					<th style="min-width: 100px;">Refund</th>
-					<th style="min-width: 100px;">Reimburst</th>
+					<th style="min-width: 100px;">Request date</th>
+					<th style="min-width: 110px;">Report for</th>
 					<th style="min-width: 100px;" class="action-col">Action</th>
 				</tr>
 			</thead>
@@ -41,7 +40,7 @@
 <script>
 	initDatatable('#table-ter', {
 		order: [
-			[6, 'desc']
+			[5, 'desc']
 		],
 		columnDefs: [{
 			targets: 'action-col',

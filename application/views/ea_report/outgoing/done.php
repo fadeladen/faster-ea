@@ -11,7 +11,7 @@
 				</svg>
 			</span>
 			<h3 class="kt-portlet__head-title">
-				Paid TER
+				Done TER
 				<small>TER payment has been paid</small>
 			</h3>
 		</div>
@@ -19,15 +19,15 @@
 
 	<div class="kt-portlet__body">
 		<table id="table-ter" class="table table-striped"
-			data-url="<?= base_url('ea_report/outgoing/ter_datatable/') . 'paid'?>">
+			data-url="<?= base_url('ea_report/outgoing/ter_datatable/') . 'done' ?>">
 			<thead>
 				<tr>
 					<th style="width: 80px;">EA Number</th>
 					<th style="min-width: 110px;">Requestor</th>
-					<th style="min-width: 90px;">Request base</th>
-					<th style="min-width: 90px;">Originating City</th>
-					<th style="min-width: 100px;">Total actual costs</th>
-					<th style="min-width: 120px;">Request date</th>
+					<th style="min-width: 100px;">Total advance</th>
+					<th style="min-width: 100px;">Request date</th>
+					<th style="min-width: 110px;">Report for</th>
+					<th style="min-width: 90px;" class="receipt">Payment receipt</th>
 					<th style="min-width: 100px;" class="action-col">Action</th>
 				</tr>
 			</thead>
@@ -40,7 +40,9 @@
 
 <script>
 	initDatatable('#table-ter', {
-		order: [[6, 'desc']],
+		order: [
+			[6, 'desc']
+		],
 		columnDefs: [{
 			targets: 'action-col',
 			orderable: false,
@@ -61,7 +63,26 @@
 	                   </div>
 	                `
 			}
-		}, ]
+		},{
+			targets: 'receipt',
+			orderable: false,
+			searchable: false,
+			render: function (data) {
+				return `
+						<div class="d-flex align-items-center justify-content-center">
+							<a target="_blank" class="badge badge-warning text-light"
+								href="${base_url}uploads/ter_payment_receipt/${data}">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+									fill="currentColor" class="bi bi-card-image" viewBox="0 0 16 16">
+									<path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+									<path
+										d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13zm13 1a.5.5 0 0 1 .5.5v6l-3.775-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12v.54A.505.505 0 0 1 1 12.5v-9a.5.5 0 0 1 .5-.5h13z" />
+								</svg>
+							</a>
+	                   </div>
+	                `
+			}
+		},]
 	})
 
 </script>

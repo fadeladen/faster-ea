@@ -139,14 +139,14 @@ if (!function_exists('get_request_participants')) {
 			->where('request_id', $req_id)
 			->get()->result_array();
 			$names = array_column($participants, 'name');
-			$persons = implode (", ", $names);
+			$persons = implode ("; ", $names);
 		} else {
             $participants = $ci->db->select('*')->from('ea_requests_participants')
 			->where('request_id', $req_id)
 			->get()->result_array();
 			$names = array_column($participants, 'name');
-			$persons = implode (", ", $names);
-            $persons = $request['requestor_name'] . ", $persons";
+			$persons = implode ("; ", $names);
+            $persons = $request['requestor_name'] . "; $persons";
         }
 		
         return $persons;
@@ -326,6 +326,7 @@ if (!function_exists('get_total_refund')) {
         }
         $total = $total_destinations_cost - $total_expense;
 		if($total < 0) {
+            $total = $total * -1;
             return number_format($total,2,',','.');;
 		} else {
 			return 0;
@@ -383,5 +384,172 @@ if (!function_exists('get_total_reimburst')) {
 		} else {
 			return 0;
 		}
+    }
+}
+
+if (!function_exists('get_total_approved_expense')) {
+    function get_total_approved_expense($req_id)
+    {   
+        $ci = &get_instance();
+        $ci->load->model('Report_Model', 'report');
+        $destinations = $ci->db->select('*')
+        ->from('ea_requests_destinations')
+        ->where('request_id', $req_id)
+        ->get()->result_array();
+        $total_expense = 0;
+        foreach($destinations as $dest) {
+			$items = $ci->db->select('cost')
+			->from('ea_actual_costs')
+			->where('is_approved_by_finance', 1)
+			->where('dest_id', $dest['id'])
+			->get()->result_array();
+			foreach($items as $item) {
+				$total_expense += $item['cost']; 
+			}
+		}
+        return number_format($total_expense,2,',','.');
+    }
+}
+
+if (!function_exists('get_approved_total_refund_or_reimburst')) {
+    function get_approved_total_refund_or_reimburst($req_id)
+    {   
+        $ci = &get_instance();
+        $ci->load->model('Report_Model', 'report');
+        $destinations = $ci->db->select('*')
+        ->from('ea_requests_destinations')
+        ->where('request_id', $req_id)
+        ->get()->result_array();
+        $total_destinations_cost = 0;
+        $total_dest = count($destinations);
+        for ($i = 0; $i < $total_dest; $i++) {
+            $total_destinations_cost += $destinations[$i]['total'];
+        }
+        $total_expense = 0;
+        foreach($destinations as $dest) {
+			$items = $ci->db->select('cost')
+			->from('ea_actual_costs')
+			->where('is_approved_by_finance', 1)
+			->where('dest_id', $dest['id'])
+			->get()->result_array();
+			foreach($items as $item) {
+				$total_expense += $item['cost']; 
+			}
+		}
+        $total = $total_destinations_cost - $total_expense;
+		if($total < 0) {
+			$data = [
+                'status' => 'Refund',
+                'type' => 1,
+                'total' => $total * -1,
+            ];
+		} else {
+			$data = [
+                'status' => 'Reimburst',
+                'type' => 2,
+                'total' => $total,
+            ];
+		}
+        return $data;
+    }
+}
+
+if (!function_exists('get_total_approved_reimburst')) {
+    function get_total_approved_reimburst($req_id)
+    {   
+        $ci = &get_instance();
+        $ci->load->model('Report_Model', 'report');
+        $destinations = $ci->db->select('*')
+        ->from('ea_requests_destinations')
+        ->where('request_id', $req_id)
+        ->get()->result_array();
+        $total_expense = 0;
+        $total_destinations_cost = 0;
+        $total_dest = count($destinations);
+        for ($i = 0; $i < $total_dest; $i++) {
+            $total_destinations_cost += $destinations[$i]['total'];
+        }
+        foreach($destinations as $dest) {
+			$items = $ci->db->select('cost')
+			->from('ea_actual_costs')
+			->where('is_approved_by_finance', 1)
+			->where('dest_id', $dest['id'])
+			->get()->result_array();
+			foreach($items as $item) {
+				$total_expense += $item['cost']; 
+			}
+		}
+		$total = $total_destinations_cost - $total_expense;
+		if($total > 0) {
+            return number_format($total,2,',','.');;
+		} else {
+			return 0;
+		}
+    }
+}
+
+if (!function_exists('get_total_approved_refund')) {
+    function get_total_approved_refund($req_id)
+    {   
+        $ci = &get_instance();
+        $ci->load->model('Report_Model', 'report');
+        $destinations = $ci->db->select('*')
+        ->from('ea_requests_destinations')
+        ->where('request_id', $req_id)
+        ->get()->result_array();
+        $total_expense = 0;
+        $total_destinations_cost = 0;
+        $total_dest = count($destinations);
+        for ($i = 0; $i < $total_dest; $i++) {
+            $total_destinations_cost += $destinations[$i]['total'];
+        }
+        foreach($destinations as $dest) {
+			$items = $ci->db->select('cost')
+			->from('ea_actual_costs')
+			->where('is_approved_by_finance', 1)
+			->where('dest_id', $dest['id'])
+			->get()->result_array();
+			foreach($items as $item) {
+				$total_expense += $item['cost']; 
+			}
+		}
+        $total = $total_destinations_cost - $total_expense;
+		if($total < 0) {
+            $total = $total * -1;
+            return number_format($total,2,',','.');;
+		} else {
+			return 0;
+		}
+    }
+}
+
+if (!function_exists('is_all_items_clear')) {
+    function is_all_items_clear($req_id)
+    {   
+        $ci = &get_instance();
+        $destinations = $ci->db->select('id')->from('ea_requests_destinations')
+						->where('request_id', $req_id)->get()->result_array();
+		$all_items = [];
+		foreach($destinations as $dest) {
+			$where = [
+				'dest_id' => $dest['id'],
+				'cost !=' => 0,
+				'item_name !=' => 'Meals', 
+			];
+			$items = $ci->db->select('id, item_name, cost, is_approved_by_finance')
+			->from('ea_actual_costs')
+			->where($where)
+			->get()->result_array();
+			foreach($items as $item) {
+				$all_items[] = $item; 
+			}
+		}
+		$data['total_items'] = count($all_items);
+		$data['items'] = $all_items;
+		$status = array_column($all_items, 'is_approved_by_finance');
+        if(in_array(0, $status)) {
+			return false;
+		}
+        return true;
     }
 }

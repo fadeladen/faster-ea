@@ -105,8 +105,8 @@ class Report_Model extends CI_Model
                         'meals_text' => '',
                         'is_first_day' => 0,
                         'is_last_day' => 0,
-                        'cost' => 0,
-                        'd_cost' => 0,
+                        'cost' => null,
+                        'd_cost' => null,
                     ]);
                 }
                 array_push($total_costs_arr, $total_cost_per_night);
@@ -149,8 +149,10 @@ class Report_Model extends CI_Model
         if(!$request_data) {
             return false;
         }
-        $destinations = $this->db->select('id, total, city, night, actual_lodging, actual_meals,
-        departure_date, arrival_date, project_number,
+        $destinations = $this->db->select('id, total, city, night, actual_lodging,
+        actual_meals, departure_date, arrival_date, project_number,
+        DATE_FORMAT(first_depar_time, "%H:%i") as first_depar_time, DATE_FORMAT(first_arriv_time, "%H:%i") as first_arriv_time,
+        second_city, DATE_FORMAT(second_depar_time, "%H:%i") as second_depar_time, DATE_FORMAT(second_arriv_time, "%H:%i") as second_arriv_time,
         DATE_FORMAT(departure_date, "%d/%M/%y") as depar_date, DATE_FORMAT(arrival_date, "%d/%M/%y") as arriv_date
         ')
         ->from('ea_requests_destinations')
@@ -202,7 +204,7 @@ class Report_Model extends CI_Model
     }
 
     function get_actual_costs_by_night($dest_id, $item_type, $night) {
-        $data = $this->db->select('id, dest_id, receipt, item_type, cost ,format(cost,2,"de_DE") as d_cost')
+        $data = $this->db->select('id, dest_id, is_approved_by_finance ,receipt, item_type, cost ,format(cost,2,"de_DE") as d_cost')
         ->from('ea_actual_costs')
         ->where('dest_id', $dest_id)
         ->where('item_type', $item_type)
@@ -295,6 +297,7 @@ class Report_Model extends CI_Model
             $meals_text_arr = [];
             $other_items_arr = [];
             $total_costs_arr = [];
+            $expenses_arr = [];
             for ($x = 0; $x < $night; $x++) {
                 $total_cost_per_night = 0;
                 $lodging = $this->get_actual_costs_by_night($destinations[$i]['id'], 1, $x + 1);
@@ -303,6 +306,8 @@ class Report_Model extends CI_Model
                     array_push($lodging_arr, $lodging);
                 } else {
                     array_push($lodging_arr, [
+                        'id' => null,
+                        'is_approved_by_finance' => 1,
                         'item_id' => null,
                         'item_name' => null,
                         'cost' => null,
@@ -315,6 +320,8 @@ class Report_Model extends CI_Model
                     array_push($meals_arr, $meals);
                 } else {
                     array_push($meals_arr, [
+                        'id'=> null,
+                        'is_approved_by_finance' => 1,
                         'item_id' => null,
                         'item_name' => null,
                         'cost' => null,
@@ -342,6 +349,7 @@ class Report_Model extends CI_Model
                 if($provided_meals) {
                     array_push($meals_text_arr, [
                         'id' =>  $provided_meals['id'],
+                        'is_approved_by_finance' => $provided_meals['is_approved_by_finance'],
                         'meals_text' => $provided_meals['meals_text'],
                         'is_first_day' => $provided_meals['is_first_day'],
                         'is_last_day' => $provided_meals['is_last_day'],
@@ -352,6 +360,7 @@ class Report_Model extends CI_Model
                 } else {
                     array_push($meals_text_arr, [
                         'id' =>  null,
+                        'is_approved_by_finance' => 1,
                         'meals_text' => '',
                         'is_first_day' => 0,
                         'is_last_day' => 0,
@@ -360,12 +369,19 @@ class Report_Model extends CI_Model
                     ]);
                 }
                 array_push($total_costs_arr, $total_cost_per_night);
+                $expenses_by_night =  $this->get_approved_expense_by_night($destinations[$i]['id'],  $x + 1);
+                if($expenses_by_night) {
+                    array_push($expenses_arr, $expenses_by_night);
+                } else {
+                    array_push($expenses_arr, 0);
+                }
             }
             $destinations[$i]['actual_lodging_items'] = $lodging_arr;
             $destinations[$i]['actual_meals_items'] = $meals_arr;
             $destinations[$i]['other_items'] = $other_items_arr;
             $destinations[$i]['meals_text'] = $meals_text_arr;
             $destinations[$i]['total_costs_per_night'] = $total_costs_arr;
+            $destinations[$i]['total_approved_expenses_by_night'] = $expenses_arr;
         }
         $request_data['total_destinations_cost'] = $total_destinations_cost;
         $request_data['destinations'] = $destinations;
@@ -398,7 +414,7 @@ class Report_Model extends CI_Model
     }
 
     function get_other_items_by_name($dest_id, $item_name, $night) {
-        $data = $this->db->select('id, dest_id, night, receipt, item_type, item_name, meals_text, cost ,format(cost,2,"de_DE") as d_cost')
+        $data = $this->db->select('id, dest_id, night, is_approved_by_finance ,receipt, item_type, item_name, meals_text, cost ,format(cost,2,"de_DE") as d_cost')
         ->from('ea_actual_costs')
         ->where('dest_id', $dest_id)
         ->where('item_type', 3)
@@ -409,7 +425,7 @@ class Report_Model extends CI_Model
     }
 
     function get_provided_meals($dest_id, $night) {
-        $data = $this->db->select('id, dest_id, night, is_last_day, is_first_day, receipt, item_type, item_name, meals_text, cost ,format(cost,2,"de_DE") as d_cost')
+        $data = $this->db->select('id, dest_id, night, is_last_day, is_first_day, is_approved_by_finance ,receipt, item_type, item_name, meals_text, cost ,format(cost,2,"de_DE") as d_cost')
         ->from('ea_actual_costs')
         ->where('dest_id', $dest_id)
         ->where('item_type', 3)
@@ -546,6 +562,20 @@ class Report_Model extends CI_Model
         ];
         $this->db->where('request_id', $request_id)->update('ea_report_status', $payload);
         return $this->db->affected_rows() === 1;
+    }
+
+    function get_approved_expense_by_night($dest_id, $night) {
+        $total_expense = 0;
+        $items = $this->db->select('cost')
+        ->from('ea_actual_costs')
+        ->where('is_approved_by_finance', 1)
+        ->where('dest_id', $dest_id)
+        ->where('night', $night)
+        ->get()->result_array();
+        foreach($items as $item) {
+            $total_expense += $item['cost']; 
+        }
+        return $total_expense;
     }
 
     function get_report_status($req_id) {

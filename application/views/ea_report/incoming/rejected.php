@@ -24,11 +24,10 @@
 				<tr>
 					<th style="width: 80px;">EA Number</th>
 					<th style="min-width: 110px;">Requestor</th>
-					<th style="min-width: 90px;">Request base</th>
-					<th style="min-width: 90px;">Originating City</th>
-					<th style="min-width: 100px;">Total actual costs</th>
+					<th style="min-width: 100px;">Total advance</th>
+					<th style="min-width: 100px;">Request date</th>
 					<th style="min-width: 100px;">Rejected reason</th>
-					<th style="min-width: 120px;">Request date</th>
+					<th style="min-width: 110px;">Report for</th>
 					<th style="min-width: 100px;" class="action-col">Action</th>
 				</tr>
 			</thead>
@@ -41,7 +40,7 @@
 
 <script>
 	initDatatable('#table-ter', {
-		order: [[7, 'desc']],
+		order: [[6, 'desc']],
 		columnDefs: [{
 			targets: 'action-col',
 			orderable: false,

@@ -162,12 +162,15 @@ if (!function_exists('get_total_refund_or_reimburst')) {
         ->from('ea_requests_destinations')
         ->where('request_id', $req_id)
         ->get()->result_array();
-        $total_destinations_cost = 0;
+        $request = $ci->db->select('total_advance')
+        ->from('ea_requests')
+        ->where('id', $req_id)
+        ->get()->row_array();
+        $total_advance = $request['total_advance'];
         $total_expense = 0;
         $total_dest = count($destinations);
         for ($i = 0; $i < $total_dest; $i++) {
             $total_costs_arr = [];
-            $total_destinations_cost += $destinations[$i]['total'];
             $night = $destinations[$i]['night'];
             for ($x = 0; $x < $night; $x++) {
                 $total_cost_per_night = 0;
@@ -197,7 +200,7 @@ if (!function_exists('get_total_refund_or_reimburst')) {
                 $total_expense += $total_costs_arr[$g];
             }
         }
-        $total = $total_destinations_cost - $total_expense;
+        $total = $total_advance - $total_expense;
 		if($total < 0) {
 			$data = [
                 'status' => 'Reimburst',
@@ -220,17 +223,12 @@ if (!function_exists('get_total_advance')) {
     function get_total_advance($req_id)
     {   
         $ci = &get_instance();
-        $ci->load->model('Report_Model', 'report');
-        $destinations = $ci->db->select('*')
-        ->from('ea_requests_destinations')
-        ->where('request_id', $req_id)
-        ->get()->result_array();
-        $total_destinations_cost = 0;
-        $total_dest = count($destinations);
-        for ($i = 0; $i < $total_dest; $i++) {
-            $total_destinations_cost += $destinations[$i]['total'];
-        }
-        return number_format($total_destinations_cost,2,',','.');
+        $request = $ci->db->select('total_advance')
+        ->from('ea_requests')
+        ->where('id', $req_id)
+        ->get()->row_array();
+        $total_advance = $request['total_advance'];
+        return number_format($total_advance,2,',','.');
     }
 }
 
@@ -313,11 +311,11 @@ if (!function_exists('get_approved_total_refund_or_reimburst')) {
         ->from('ea_requests_destinations')
         ->where('request_id', $req_id)
         ->get()->result_array();
-        $total_destinations_cost = 0;
-        $total_dest = count($destinations);
-        for ($i = 0; $i < $total_dest; $i++) {
-            $total_destinations_cost += $destinations[$i]['total'];
-        }
+        $request = $ci->db->select('total_advance')
+        ->from('ea_requests')
+        ->where('id', $req_id)
+        ->get()->row_array();
+        $total_advance = $request['total_advance'];
         $total_expense = 0;
         foreach($destinations as $dest) {
 			$items = $ci->db->select('cost')
@@ -329,7 +327,7 @@ if (!function_exists('get_approved_total_refund_or_reimburst')) {
 				$total_expense += $item['cost']; 
 			}
 		}
-        $total = $total_destinations_cost - $total_expense;
+        $total = $total_advance - $total_expense;
 		if($total < 0) {
 			$data = [
                 'status' => 'Reimburst',
@@ -356,12 +354,12 @@ if (!function_exists('get_total_approved_reimburst')) {
         ->from('ea_requests_destinations')
         ->where('request_id', $req_id)
         ->get()->result_array();
+        $request = $ci->db->select('total_advance')
+        ->from('ea_requests')
+        ->where('id', $req_id)
+        ->get()->row_array();
         $total_expense = 0;
-        $total_destinations_cost = 0;
-        $total_dest = count($destinations);
-        for ($i = 0; $i < $total_dest; $i++) {
-            $total_destinations_cost += $destinations[$i]['total'];
-        }
+        $total_advance = $request['total_advance'];
         foreach($destinations as $dest) {
 			$items = $ci->db->select('cost')
 			->from('ea_actual_costs')
@@ -372,7 +370,7 @@ if (!function_exists('get_total_approved_reimburst')) {
 				$total_expense += $item['cost']; 
 			}
 		}
-		$total = $total_destinations_cost - $total_expense;
+		$total = $total_advance - $total_expense;
 		if($total > 0) {
 			return '-';
         } else {
@@ -391,12 +389,12 @@ if (!function_exists('get_total_approved_refund')) {
         ->from('ea_requests_destinations')
         ->where('request_id', $req_id)
         ->get()->result_array();
+        $request = $ci->db->select('total_advance')
+        ->from('ea_requests')
+        ->where('id', $req_id)
+        ->get()->row_array();
         $total_expense = 0;
-        $total_destinations_cost = 0;
-        $total_dest = count($destinations);
-        for ($i = 0; $i < $total_dest; $i++) {
-            $total_destinations_cost += $destinations[$i]['total'];
-        }
+        $total_advance = $request['total_advance'];
         foreach($destinations as $dest) {
 			$items = $ci->db->select('cost')
 			->from('ea_actual_costs')
@@ -407,7 +405,7 @@ if (!function_exists('get_total_approved_refund')) {
 				$total_expense += $item['cost']; 
 			}
 		}
-        $total = $total_destinations_cost - $total_expense;
+        $total = $total_advance - $total_expense;
 		if($total < 0) {
             $total = $total * -1;
 			return '-';

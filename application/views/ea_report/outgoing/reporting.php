@@ -46,7 +46,7 @@
 								<?= $detail['employment'] == 'Just for me' ? ' (for 1 person)' : ' (for ' . $detail['number_of_participants'] . ' persons)' ?></label>
 							<div class="col-7">
 								<span class="badge badge-pill badge-secondary fw-bold">IDR
-									<?= $total_advance ?></span>
+									<?=  $detail['d_total_advance'] ?></span>
 							</div>
 						</div>
 						<div class="row">
@@ -400,7 +400,7 @@
 					<p class="fw-bold">
 						Total advance receive :
 						<span class="badge badge-pill badge-secondary fw-bold">
-							<?= $total_advance ?>
+							<?= $detail['d_total_advance'] ?>
 						</span>
 					</p>
 					<p class="fw-bold">

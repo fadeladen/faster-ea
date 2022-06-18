@@ -43,7 +43,7 @@
 							<label class="col-5 mb-2 col-form-label fw-bold">Total advance</label>
 							<div class="col-7">
 								<span class="badge badge-pill badge-secondary fw-bold">IDR
-									<?= number_format($report_detail['total_destinations_cost'],2,',','.') ?>
+									<?= $detail['d_total_advance'] ?>
 								</span>
 							</div>
 						</div>
@@ -354,7 +354,7 @@
 					<p class="fw-bold">
 						Total travel advance :
 						<span class="badge badge-pill badge-secondary fw-bold">
-							<?= number_format($report_detail['total_destinations_cost'],2,',','.') ?>
+							<?= $detail['d_total_advance'] ?>
 						</span>
 					</p>
 					<p class="fw-bold">

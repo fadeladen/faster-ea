@@ -192,6 +192,7 @@ class Outcoming_requests extends MY_Controller {
 			}
 			$request_id = $this->request->insert_request($payload);
 			if($request_id) {
+				$this->request->set_total_advance($request_id);
 				$sent = $this->send_email_to_head_of_units($request_id);
 				if($payload['country_director_notified'] == 'Yes') {
 					$director = $this->base_model->get_country_director();
@@ -854,6 +855,7 @@ class Outcoming_requests extends MY_Controller {
 			$level = rejected_by($request_id);
 			$email_sent = $this->send_resubmit_request_email($request_id, $level);
 			if($email_sent) {
+				$this->request->set_total_advance($request_id);
 				$updated = $this->request->resubmit_request($request_id, $level);
 				if($updated) {
 					$response['success'] = true;

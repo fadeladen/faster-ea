@@ -43,10 +43,10 @@
 							</div>
 						</div>
 						<div class="row">
-							<label class="col-3 mb-2 col-form-label fw-bold">Cash advance</label>
+							<label class="col-3 mb-2 col-form-label fw-bold">Total Cash advance</label>
 							<div class="col-9">
 								<span style="font-size: 1rem;"
-									class="badge badge-light fw-bold"><?= $total_advance ?></span>
+									class="badge badge-light fw-bold"><?= $detail['d_total_advance'] ?></span>
 							</div>
 						</div>
 						<div class="row">
@@ -431,6 +431,11 @@
 								<?= number_format($detail['total_destinations_cost'], 2, ",", ".") ?> / USD
 								<?= number_format($detail['total_destinations_cost_usd'], 0, ",", ".") ?>
 							</h5>
+						</div>
+						<div class="row mt-3">
+							<h5 class="col-md-2">Total cash advance</h5>
+							<h5 class="col-md-10">: Rp.
+								<?= $detail['d_total_advance'] ?>
 						</div>
 					</div>
 				</div>

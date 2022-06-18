@@ -407,7 +407,6 @@ class Report_Confirmation extends CI_Controller {
 				$sheet->setCellValue($item['cell'],  $item['value']);
 			}
 		}
-		$last_row = '';
 		if($dest1['night'] > 1) {
 			$lodging_meals_row = $dest1Row;
 			$night = 1;
@@ -425,8 +424,13 @@ class Report_Confirmation extends CI_Controller {
 				$lodging_meals_row++;
 				$last_row = $lodging_meals_row;
 			}	
+		} else {
+			$last_row = $dest1Row;
+			$last_row++;
+			if($last_row == $excel_config['last_cell']) {
+				$last_row = 'B';
+			}
 		}
-
 		if($total_dest > 1 ) {
 			for($z=1; $z < $total_dest; $z++) {
 				$dest = $detail['destinations'][$z];
@@ -545,7 +549,7 @@ class Report_Confirmation extends CI_Controller {
 		$writer = new Xlsx($spreadsheet);
 		$ea_number = $detail['ea_number'];
         $current_time = date('d-m-Y h:i:s');
-        $filename = "$ea_number Report_Form/$current_time";
+        $filename = "$ea_number TER_Form/$current_time";
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header("Content-Disposition: attachment; filename=$filename.xlsx");
         $writer->save('php://output');

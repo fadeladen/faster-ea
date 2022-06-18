@@ -47,7 +47,7 @@ class Request_Model extends CI_Model
         ufi.username as finance_name, ufi.email as finance_email, DATE_FORMAT(st.head_of_units_status_at, "%d %M %Y - %H:%i") as head_of_units_status_at,
         DATE_FORMAT(st.ea_assosiate_status_at, "%d %M %Y - %H:%i") as ea_assosiate_status_at,
         DATE_FORMAT(st.fco_monitor_status_at, "%d %M %Y - %H:%i") as fco_monitor_status_at, st.fco_monitor_status_at as fco_signature_date,
-        DATE_FORMAT(st.finance_status_at, "%d %M %Y - %H:%i") as finance_status_at, st.payment_receipt,
+        DATE_FORMAT(st.finance_status_at, "%d %M %Y - %H:%i") as finance_status_at, st.payment_receipt, format(r.total_advance,2,"de_DE") as d_total_advance,
         (
             CASE 
                 WHEN head_of_units_status = "1" THEN "Pending"
@@ -249,6 +249,24 @@ class Request_Model extends CI_Model
             $level . '_status_at' => date("Y-m-d H:i:s"),
         ]);
         return $this->db->affected_rows() === 1;
+    }
+
+    function set_total_advance($req_id) {
+        $destinations = $this->db->select('total')
+        ->from('ea_requests_destinations')
+        ->where('request_id', $req_id)
+        ->get()->result_array();
+        $total_destination_cost = 0;
+        foreach($destinations as $dest) {
+            $total_destination_cost += $dest['total'];
+        }
+        $total_advance = $total_destination_cost + 1000000;
+        $request = $this->db->select('travel_advance')->from('ea_requests')->where('id', $req_id)->get()->row_array();
+        if($request['travel_advance'] == 'Yes') {
+            $total_advance = $total_advance * 0.8;
+        }
+		$this->db->where('id', $req_id)->update('ea_requests', ['total_advance' => $total_advance]);
+        return true;
     }
 
     function update_payment_status($request_id, $payload) {

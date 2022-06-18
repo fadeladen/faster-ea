@@ -7,7 +7,7 @@ class Report_Model extends CI_Model
     function get_report_data_by_id($id) {
         $request_data =  $this->db->select('r.id as r_id, CONCAT("EA", r.id) AS ea_number, DATE_FORMAT(r.created_at, "%d %M %Y - %H:%i") as request_date,
         DATE_FORMAT(r.departure_date, "%d %M %Y") as d_date, DATE_FORMAT(r.return_date, "%d %M %Y") as r_date, DATE_FORMAT(st.finance_status_at, "%d %M %Y") as payment_date,
-        r.*, 
+        r.*, format(r.total_advance,2,"de_DE") as d_total_advance
         ')
         ->from('ea_requests r')
         ->join('ea_requests_status st', 'st.request_id = r.id')
@@ -137,6 +137,7 @@ class Report_Model extends CI_Model
         ufi.username as finance_name, ufi.email as finance_email, DATE_FORMAT(st.head_of_units_status_at, "%d %M %Y - %H:%i") as head_of_units_status_at,
         DATE_FORMAT(st.country_director_status_at, "%d %M %Y - %H:%i") as country_director_status_at, st.country_director_status, st.finance_status,
         DATE_FORMAT(st.finance_status_at, "%d %M %Y - %H:%i") as finance_status_at, st.payment_type, format(st.total_payment,2,"de_DE") as total_payment,
+        format(r.total_advance,2,"de_DE") as d_total_advance
         ')
             ->from('ea_requests r')
             ->join('ea_report_status st', 'st.request_id = r.id', 'left')
@@ -245,6 +246,7 @@ class Report_Model extends CI_Model
         ufi.username as finance_name, ufi.email as finance_email, DATE_FORMAT(st.head_of_units_status_at, "%d %M %Y - %H:%i") as head_of_units_status_at,
         DATE_FORMAT(st.country_director_status_at, "%d %M %Y - %H:%i") as country_director_status_at, st.country_director_status, st.finance_status,
         DATE_FORMAT(st.finance_status_at, "%d %M %Y - %H:%i") as finance_status_at, st.payment_type, format(st.total_payment,2,"de_DE") as total_payment,
+        format(r.total_advance,2,"de_DE") as d_total_advance,
         (
             CASE 
                 WHEN head_of_units_status = "1" THEN "Pending"

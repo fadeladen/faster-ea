@@ -93,6 +93,7 @@ class Outcoming_requests extends MY_Controller {
 				'finance_btn' => $finance_btn,
 				'request_status' => get_requests_status($detail['r_id']),
 				'ea_assosiate' => $this->base_model->get_ea_assosiate(),
+				'fco_monitor' => $this->base_model->get_fco_monitor(),
 				'total_advance' => get_total_advance($detail['r_id']),
 			];
 			$this->template->set('pageParent', 'Requests');
@@ -453,9 +454,12 @@ class Outcoming_requests extends MY_Controller {
 		$sheet->setCellValue('AK15', $requestor['username']);
 		$sheet->setCellValue('AL16', '$' . $detail['max_budget_usd']);
 		$sheet->setCellValue('C104', $detail['special_instructions']);
-		$sheet->setCellValue('C18', 'X');
 		if($detail['country_director_notified'] == 'Yes') {
 			$sheet->setCellValue('X18', 'X');
+		}
+
+		if($detail['employment'] == 'Just for me' || $detail['employment'] == 'For me and on behalf') {
+			$sheet->setCellValue('C18', 'X');
 		}
 
 		if($detail['employment'] == 'On behalf' || $detail['employment'] == 'For me and on behalf') {

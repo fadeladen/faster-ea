@@ -698,7 +698,7 @@
 													class="kt-badge kt-badge--inline kt-badge--pill status-badge"><?= $detail['ea_assosiate_status_text'] ?></span></span>
 										</td>
 										<td data-field="Car Model" class="kt-datatable__cell"><span
-												style="width: 110px;"><?= $detail['head_of_units_status_at'] ?></span></td>
+												style="width: 110px;"><?= ($detail['head_of_units_status'] == 2 ? $detail['head_of_units_status_at'] : '')?></span></td>
 										<td class="kt-datatable__cell">
 											<div style="width: 140px;" class="d-flex <?= $ea_assosiate_btn ?>">
 												<button data-level='ea_assosiate' data-id=<?= $detail['r_id'] ?>
@@ -728,7 +728,7 @@
 									</tr>
 									<tr data-row="2" class="kt-datatable__row" style="left: 0px;">
 										<td data-field="Order ID" class="kt-datatable__cell fw-bold"><span
-												style="width: 150px;"><?= $detail['fco_monitor_name'] ?></span></td>
+												style="width: 150px;"><?= $fco_monitor['username'] ?></span></td>
 										<td data-field="Status" data-autohide-disabled="false" class="kt-datatable__cell">
 											<span style="width: 110px;"><span
 													class="kt-badge kt-badge--dark kt-badge--inline kt-badge--pill">FCO
@@ -738,7 +738,7 @@
 													class="kt-badge kt-badge--inline kt-badge--pill status-badge"><?= $detail['fco_monitor_status_text'] ?></span></span>
 										</td>
 										<td data-field="Car Model" class="kt-datatable__cell"><span
-												style="width: 110px;"><?= $detail['ea_assosiate_status_at'] ?></span></td>
+												style="width: 110px;"><?= ($detail['ea_assosiate_status'] == 2 ? $detail['ea_assosiate_status_at'] : '')  ?></span></td>
 										<td class="kt-datatable__cell">
 											<div style="width: 140px;" class="d-flex <?= $fco_monitor_btn ?>">
 												<button data-level='fco_monitor' data-id=<?= $detail['r_id'] ?>
@@ -780,7 +780,7 @@
 											</span>
 										</td>
 										<td data-field="Car Model" class="kt-datatable__cell"><span
-												style="width: 110px;"><?= $detail['fco_monitor_status_at'] ?></span></td>
+												style="width: 110px;"><?= ($detail['fco_monitor_status'] == 2 ? $detail['fco_monitor_status_at'] : '')  ?></span></td>
 										<td class="kt-datatable__cell">
 											<div style="width: 140px;" class="d-flex flex-column <?= $finance_btn ?>">
 												<button style="padding: 0.3rem .6rem !important;" data-level='finance'

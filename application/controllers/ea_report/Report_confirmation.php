@@ -76,8 +76,8 @@ class Report_Confirmation extends CI_Controller {
         if($level == 'head_of_units') {
             $rejected_by = $detail['head_of_units_name'];
         } else if($level == 'country_director') {
-			$country_director = $this->base_model->get_country_director();
-            $rejected_by = $country_director['username'];
+			$fco_monitor = $this->base_model->get_fco_monitor();
+            $rejected_by = $fco_monitor['username'];
         } else if($level == 'finance') {
             $rejected_by = 'Finance Team';
         }

@@ -656,16 +656,18 @@ class Incoming extends MY_Controller {
 		$mail->setFrom('no-reply@faster.bantuanteknis.id', 'FASTER-FHI360');
 		if($detail['payment_type'] == 1) {
 			$data['preview'] = '
-			<p>Your TER EA#-'.$detail['r_id'].' has been reviewed by Finance team. You need to refund of IDR '.$detail['total_payment'].', please do it soon to accomplished your report</p>
+			<p>Your TER EA#-'.$detail['r_id'].' has been reviewed by Finance team. You need to refund of IDR '.$detail['total_payment'].', please do it soon.</p>
 			';
 		} else {
 			$data['preview'] = '
-			<p>Your TER EA#-'.$detail['r_id'].' has been reviewed by Finance team. We will transfer you IDR '.$detail['total_payment'].', just relax and checking your bank account soon</p>
+			<p>Your TER EA#-'.$detail['r_id'].' has been reviewed by Finance team. We will transfer to your bank account amount IDR '.$detail['total_payment'].', we will do it soon.</p>
 			';
 		}
 		 $data['content'] = '
 					 <p>Dear '.$requestor['username'].',</p> 
 					 <p>'.$data['preview'].'</p>
+					 <p>Regards,</p>
+					 <p>Finance team</p>
 					 <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
 						 <tbody>
 						 <tr>

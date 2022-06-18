@@ -200,14 +200,14 @@ if (!function_exists('get_total_refund_or_reimburst')) {
         $total = $total_destinations_cost - $total_expense;
 		if($total < 0) {
 			$data = [
-                'status' => 'Refund',
-                'type' => 1,
+                'status' => 'Reimburst',
+                'type' => 2,
                 'total' => $total * -1,
             ];
 		} else {
 			$data = [
-                'status' => 'Reimburst',
-                'type' => 2,
+                'status' => 'Refund',
+                'type' => 1,
                 'total' => $total,
             ];
 		}
@@ -280,113 +280,6 @@ if (!function_exists('get_total_expense')) {
     }
 }
 
-if (!function_exists('get_total_refund')) {
-    function get_total_refund($req_id)
-    {   
-        $ci = &get_instance();
-        $ci->load->model('Report_Model', 'report');
-        $destinations = $ci->db->select('*')
-        ->from('ea_requests_destinations')
-        ->where('request_id', $req_id)
-        ->get()->result_array();
-        $total_destinations_cost = 0;
-        $total_expense = 0;
-        $total_dest = count($destinations);
-        for ($i = 0; $i < $total_dest; $i++) {
-            $total_costs_arr = [];
-            $total_destinations_cost += $destinations[$i]['total'];
-            $night = $destinations[$i]['night'];
-            for ($x = 0; $x < $night; $x++) {
-                $total_cost_per_night = 0;
-                $lodging = $ci->report->get_actual_costs_by_night($destinations[$i]['id'], 1, $x + 1);
-                if($lodging) {
-                    $total_cost_per_night += $lodging['cost'];
-                }
-                $other_items_by_name = $ci->report->get_other_items_group_by_name($destinations[$i]['id'], $x + 1);
-                if($other_items_by_name) {
-                    for($z = 0; $z<count($other_items_by_name); $z++) {
-                        $item_cost = 0;
-                        $items_by_name = $ci->report->get_other_items_by_name($destinations[$i]['id'], $other_items_by_name[$z]['item_name'], $x + 1);
-                        foreach($items_by_name as $i_name) {
-                            $item_cost += $i_name['cost'];
-                        }
-                        $other_items_by_name[$z]['total_cost'] = $item_cost;
-                        $total_cost_per_night += $item_cost;
-                    }
-                }
-                $provided_meals =  $ci->report->get_provided_meals($destinations[$i]['id'],  $x + 1);
-                if($provided_meals) {
-                    $total_cost_per_night += $provided_meals['cost'];
-                }
-                array_push($total_costs_arr, $total_cost_per_night);
-            }
-            for($g=0;$g < count($total_costs_arr); $g++) {
-                $total_expense += $total_costs_arr[$g];
-            }
-        }
-        $total = $total_destinations_cost - $total_expense;
-		if($total < 0) {
-            $total = $total * -1;
-            return number_format($total,2,',','.');;
-		} else {
-			return 0;
-		}
-    }
-}
-
-if (!function_exists('get_total_reimburst')) {
-    function get_total_reimburst($req_id)
-    {   
-        $ci = &get_instance();
-        $ci->load->model('Report_Model', 'report');
-        $destinations = $ci->db->select('*')
-        ->from('ea_requests_destinations')
-        ->where('request_id', $req_id)
-        ->get()->result_array();
-        $total_destinations_cost = 0;
-        $total_expense = 0;
-        $total_dest = count($destinations);
-        for ($i = 0; $i < $total_dest; $i++) {
-            $total_costs_arr = [];
-            $total_destinations_cost += $destinations[$i]['total'];
-            $night = $destinations[$i]['night'];
-            for ($x = 0; $x < $night; $x++) {
-                $total_cost_per_night = 0;
-                $lodging = $ci->report->get_actual_costs_by_night($destinations[$i]['id'], 1, $x + 1);
-                if($lodging) {
-                    $total_cost_per_night += $lodging['cost'];
-                }
-                $other_items_by_name = $ci->report->get_other_items_group_by_name($destinations[$i]['id'], $x + 1);
-                if($other_items_by_name) {
-                    for($z = 0; $z<count($other_items_by_name); $z++) {
-                        $item_cost = 0;
-                        $items_by_name = $ci->report->get_other_items_by_name($destinations[$i]['id'], $other_items_by_name[$z]['item_name'], $x + 1);
-                        foreach($items_by_name as $i_name) {
-                            $item_cost += $i_name['cost'];
-                        }
-                        $other_items_by_name[$z]['total_cost'] = $item_cost;
-                        $total_cost_per_night += $item_cost;
-                    }
-                }
-                $provided_meals =  $ci->report->get_provided_meals($destinations[$i]['id'],  $x + 1);
-                if($provided_meals) {
-                    $total_cost_per_night += $provided_meals['cost'];
-                }
-                array_push($total_costs_arr, $total_cost_per_night);
-            }
-            for($g=0;$g < count($total_costs_arr); $g++) {
-                $total_expense += $total_costs_arr[$g];
-            }
-        }
-        $total = $total_destinations_cost - $total_expense;
-		if($total > 0) {
-            return number_format($total,2,',','.');;
-		} else {
-			return 0;
-		}
-    }
-}
-
 if (!function_exists('get_total_approved_expense')) {
     function get_total_approved_expense($req_id)
     {   
@@ -439,14 +332,14 @@ if (!function_exists('get_approved_total_refund_or_reimburst')) {
         $total = $total_destinations_cost - $total_expense;
 		if($total < 0) {
 			$data = [
-                'status' => 'Refund',
-                'type' => 1,
+                'status' => 'Reimburst',
+                'type' => 2,
                 'total' => $total * -1,
             ];
 		} else {
 			$data = [
-                'status' => 'Reimburst',
-                'type' => 2,
+                'status' => 'Refund',
+                'type' => 1,
                 'total' => $total,
             ];
 		}
@@ -481,9 +374,10 @@ if (!function_exists('get_total_approved_reimburst')) {
 		}
 		$total = $total_destinations_cost - $total_expense;
 		if($total > 0) {
-            return number_format($total,2,',','.');;
-		} else {
-			return 0;
+			return '-';
+        } else {
+            $total = $total * -1;
+            return number_format($total,2,',','.');
 		}
     }
 }
@@ -516,9 +410,9 @@ if (!function_exists('get_total_approved_refund')) {
         $total = $total_destinations_cost - $total_expense;
 		if($total < 0) {
             $total = $total * -1;
-            return number_format($total,2,',','.');;
+			return '-';
 		} else {
-			return 0;
+            return number_format($total,2,',','.');
 		}
     }
 }

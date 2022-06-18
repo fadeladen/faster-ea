@@ -749,9 +749,12 @@ class Requests_Confirmation extends CI_Controller {
 		$sheet->setCellValue('AK15', $requestor['username']);
 		$sheet->setCellValue('AL16', '$' . $detail['max_budget_usd']);
 		$sheet->setCellValue('C104', $detail['special_instructions']);
-		$sheet->setCellValue('C18', 'X');
 		if($detail['country_director_notified'] == 'Yes') {
 			$sheet->setCellValue('X18', 'X');
+		}
+
+		if($detail['employment'] == 'Just for me' || $detail['employment'] == 'For me and on behalf') {
+			$sheet->setCellValue('C18', 'X');
 		}
 
 		if($detail['employment'] == 'On behalf' || $detail['employment'] == 'For me and on behalf') {

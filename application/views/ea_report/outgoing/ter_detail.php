@@ -358,7 +358,7 @@
 						</span>
 					</p>
 					<p class="fw-bold">
-						Total approved expenses :
+						Total approved expense :
 						<span class="badge badge-pill badge-secondary fw-bold">
 							<?= $total_approved_expense ?>
 						</span>
@@ -496,7 +496,7 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 110px;">
-											<?= $detail['head_of_units_status_at'] ?>
+											<?= ($detail['head_of_units_status'] == 2 ? $detail['head_of_units_status_at'] : '') ?>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">

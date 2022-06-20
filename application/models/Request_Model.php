@@ -269,11 +269,6 @@ class Request_Model extends CI_Model
         return true;
     }
 
-    function update_payment_status($request_id, $payload) {
-        $this->db->where('request_id', $request_id)->update('ea_requests_status', $payload);
-        return $this->db->affected_rows() === 1;
-    }
-
     function get_excel_data_by_id($id) {
         $request_data =  $this->db->select('r.id as r_id, CONCAT("EA", r.id) AS ea_number, r.*, DATE_FORMAT(r.created_at, "%d-%M-%y") as request_date,
         DATE_FORMAT(r.departure_date, "%d-%M-%y") as departure_date, DATE_FORMAT(r.return_date, "%d-%M-%y") as return_date,
@@ -380,5 +375,21 @@ class Request_Model extends CI_Model
             return true;
         }
         return false;
+    }
+
+    function update_payment_status($request_id, $payload) {
+        $this->insert_ter($request_id);
+        $this->db->where('request_id', $request_id)->update('ea_requests_status', $payload);
+        return $this->db->affected_rows() === 1;
+    }
+
+    function insert_ter($request_id) {
+        $participants = get_request_participants_array($request_id);
+        foreach($participants as $name) {
+            $this->db->insert('ea_ter', [
+                'request_id' => $request_id,
+                'name' => $name,
+            ]);
+        }
     }
 }

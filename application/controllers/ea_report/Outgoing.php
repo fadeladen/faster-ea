@@ -51,22 +51,55 @@ class Outgoing extends MY_Controller {
 		$this->template->render('ea_report/outgoing/refund_reimburst');
 	}
 
-    public function reporting($id = null)
+	public function ter_report($id = null)
 	{
 		$id = decrypt($id);
 		$detail = $this->report->get_report_data_by_id($id);
+		$participants_data = $this->report->get_participants_data($id);
 		if($detail) {
 			if($detail['requestor_id'] == $this->user_data->userId) {
 				$requestor_data = $this->request->get_requestor_data($detail['requestor_id']);
 				$this->load->helper('report');
 				$data = [
 					'detail' => $detail,
+					'participants_data' => $participants_data,
 					'requestor_data' => $requestor_data,
 					'is_report_finished' => is_report_finished($id),
 					'participants' => get_request_participants($id),
 					'total_advance' => get_total_advance($id),
 					'total_expense' => get_total_expense($id),
 					'refund_or_reimburst' => get_total_refund_or_reimburst($id),
+					'cities' => $this->base_model->get_cities(),
+				];
+				$this->template->set('page', 'Reporting TER #' . $detail['ea_number']);
+				$this->template->render('ea_report/outgoing/ter_report', $data);
+			} else {
+				show_404();
+			}
+		} else {
+			show_404();
+		}
+	}
+
+    public function reporting($id = null)
+	{
+		$ter_id = decrypt($id);
+		$request = $this->db->select('request_id as id')->from('ea_ter')->where('id', $ter_id)->get()->row_array();
+		$request_id = $request['id'];
+		$detail = $this->report->get_report_data_by_ter($request_id, $ter_id);
+		if($detail) {
+			if($detail['requestor_id'] == $this->user_data->userId) {
+				$requestor_data = $this->request->get_requestor_data($detail['requestor_id']);
+				$this->load->helper('report');
+				$data = [
+					'detail' => $detail,
+					'ter_id' => $ter_id,
+					'requestor_data' => $requestor_data,
+					'is_report_finished' => is_report_finished($request_id),
+					'participants' => get_request_participants($request_id),
+					'total_advance' => get_total_advance($request_id),
+					'total_expense' => get_total_expense($request_id),
+					'refund_or_reimburst' => get_total_refund_or_reimburst($request_id),
 					'cities' => $this->base_model->get_cities(),
 				];
 				$this->template->set('page', 'Reporting TER #' . $detail['ea_number']);
@@ -78,12 +111,18 @@ class Outgoing extends MY_Controller {
 			show_404();
 		}
 	}
+
+	public function test_detail_ter($id) {
+		$detail = $this->report->get_ter_details($id);
+		echo json_encode($detail);
+	}
 	
     public function ter_detail($id = null)
 	{
 		$id = decrypt($id);
 		$detail = $this->report->get_ter_details($id);
 		$report_detail = $this->report->get_report_data_by_id($id);
+		$participants_data = $this->report->get_participants_data($id);
 		if($detail) {
 			$requestor_data = $this->request->get_requestor_data($detail['requestor_id']);
 			$user_id = $this->user_data->userId;
@@ -109,6 +148,7 @@ class Outgoing extends MY_Controller {
 			}
 			$data = [
 				'detail' => $detail,
+				'participants_data' => $participants_data,
 				'report_detail' => $report_detail,
 				'requestor_data' => $requestor_data,
 				'head_of_units_btn' => $head_of_units_btn,
@@ -125,7 +165,7 @@ class Outgoing extends MY_Controller {
 			];
 			$this->template->set('pageParent', 'Travel Expense Report (TER)');
 			$this->template->set('page', 'EA#' . $detail['r_id']);
-			$this->template->render('ea_report/outgoing/ter_detail', $data);
+			$this->template->render('ea_report/outgoing/ter_review', $data);
 		} else {
 			show_404();
 		}
@@ -296,6 +336,8 @@ class Outgoing extends MY_Controller {
 
 	public function meals_lodging_modal() {
 		$dest_id = $this->input->get('dest_id');
+		$ter_id = $this->input->get('ter_id');
+		$request_id = $this->input->get('request_id');
 		$night = $this->input->get('night');
 		$item_id = $this->input->get('item_id');
 		$item_type = $this->input->get('item_type');
@@ -316,6 +358,8 @@ class Outgoing extends MY_Controller {
 		}
 		$data = [
 			'dest_id' => $dest_id,
+			'ter_id' => $ter_id,
+			'request_id' => $request_id,
 			'item_type' => $item_type,
 			'night' => $night,
 			'max_budget' => $max_budget,
@@ -333,10 +377,14 @@ class Outgoing extends MY_Controller {
 
 	public function add_items_modal() {
 		$dest_id = $this->input->get('dest_id');		
+		$ter_id = $this->input->get('ter_id');		
+		$request_id = $this->input->get('request_id');		
 		$night = $this->input->get('night');	
 		$item_id = $this->input->get('item_id');
 		$data = [
 			'dest_id' => $dest_id,
+			'ter_id' => $ter_id,
+			'request_id' => $request_id,
 			'night' => $night,
 		];
 		if($item_id != 0) {
@@ -454,6 +502,8 @@ class Outgoing extends MY_Controller {
 				$this->upload->initialize($config);
 
 				$dest_id = $this->input->post('dest_id');
+				$request_id = $this->input->post('request_id');
+				$ter_id = $this->input->post('ter_id');
 				if($item_type == 1) {
 					$item_name = 'Lodging';
 				} else if($item_type == 2) {
@@ -474,7 +524,7 @@ class Outgoing extends MY_Controller {
 						$meals = $this->input->post('meals');
 						$night = $this->input->post('night');
 						$day_status = $this->input->post('day_status');
-						$update_meals = $this->update_provided_meals($dest_id, $night, $meals, $day_status);
+						$update_meals = $this->update_provided_meals($request_id, $ter_id, $dest_id, $night, $meals, $day_status);
 						if($update_meals) {
 							$updated = $this->report->update_actual_costs($item_id, $payload);
 						} else {
@@ -513,7 +563,7 @@ class Outgoing extends MY_Controller {
 								$meals = $this->input->post('meals');
 								$night = $this->input->post('night');
 								$day_status = $this->input->post('day_status');
-								$update_meals = $this->update_provided_meals($dest_id, $night, $meals, $day_status);
+								$update_meals = $this->update_provided_meals($request_id, $ter_id, $dest_id, $night, $meals, $day_status);
 								if($update_meals) {
 									$updated = $this->report->update_actual_costs($item_id, $payload);
 								} else {
@@ -528,6 +578,8 @@ class Outgoing extends MY_Controller {
 						} else {
 							$night = $this->input->post('night');
 							$payload = [
+								'request_id' => $request_id,
+								'ter_id' => $ter_id,
 								'dest_id' => $dest_id,
 								'cost' => $clean_actual_cost,
 								'item_type' =>$item_type,
@@ -538,7 +590,7 @@ class Outgoing extends MY_Controller {
 							if($item_type == 2) {
 								$meals = $this->input->post('meals');
 								$day_status = $this->input->post('day_status');
-								$insert_meals = $this->insert_provided_meals($dest_id, $night, $meals, $day_status);
+								$insert_meals = $this->insert_provided_meals($request_id, $ter_id, $dest_id, $night, $meals, $day_status);
 								if($insert_meals) {
 									$updated = $this->report->insert_actual_costs($payload);
 								} else {
@@ -579,7 +631,7 @@ class Outgoing extends MY_Controller {
 		}
 	}
 
-	private function insert_provided_meals($dest_id, $night, $meals, $day_status) {
+	private function insert_provided_meals($request_id, $ter_id, $dest_id, $night, $meals, $day_status) {
 		$text = implode(',', $meals);
 		$dest_max_budget = $this->report->get_dest_max_budget($dest_id);
 		$meals_budget = $dest_max_budget['max_meals_budget'] + 0;
@@ -596,6 +648,8 @@ class Outgoing extends MY_Controller {
 		}
 		$cost = $this->count_meals($meals_budget, $text, $night, $is_last_night);
 		$payload = [
+			'request_id' => $request_id,
+			'ter_id' => $ter_id,
 			'dest_id' => $dest_id,
 			'cost' => $cost,
 			'item_type' => 3,
@@ -607,8 +661,15 @@ class Outgoing extends MY_Controller {
 		];
 		if($day_status == 2) {
 			$night += 1;
+			$deleted = $this->db->where([
+				'ter_id' => $ter_id,
+				'dest_id' => $dest_id,
+				'night' => $night,
+			])->delete('ea_actual_costs');
 			for($x = $night; $x <= $total_night; $x++) {
 				$other_payload = [
+					'request_id' => $request_id,
+					'ter_id' => $ter_id,
 					'dest_id' => $dest_id,
 					'cost' => 0,
 					'item_type' => 3,
@@ -617,6 +678,8 @@ class Outgoing extends MY_Controller {
 					'night' => $night,
 				];
 				$meals_payload = [
+					'request_id' => $request_id,
+					'ter_id' => $ter_id,
 					'dest_id' => $dest_id,
 					'cost' => $meals_budget,
 					'item_type' => 2,
@@ -625,6 +688,8 @@ class Outgoing extends MY_Controller {
 					'night' => $night,
 				];
 				$lodging_payload = [
+					'request_id' => $request_id,
+					'ter_id' => $ter_id,
 					'dest_id' => $dest_id,
 					'cost' => 0,
 					'item_type' => 1,
@@ -632,10 +697,12 @@ class Outgoing extends MY_Controller {
 					'meals_text' => null,
 					'night' => $night,
 				];
-				$this->report->insert_actual_costs($other_payload);
-				$this->report->insert_actual_costs($meals_payload);
-				$this->report->insert_actual_costs($lodging_payload);
-				$night++;
+				if($deleted) {
+					$this->report->insert_actual_costs($other_payload);
+					$this->report->insert_actual_costs($meals_payload);
+					$this->report->insert_actual_costs($lodging_payload);
+					$night++;
+				}
 			}
 		}
 		$updated = $this->report->insert_actual_costs($payload);
@@ -645,7 +712,7 @@ class Outgoing extends MY_Controller {
 		return false;
 	}
 
-	private function update_provided_meals($dest_id, $night, $meals, $day_status) {
+	private function update_provided_meals($request_id, $ter_id, $dest_id, $night, $meals, $day_status) {
 		$text = implode(',', $meals);
 		$dest_max_budget = $this->report->get_dest_max_budget($dest_id);
 		$meals_budget = $dest_max_budget['max_meals_budget'] + 0;
@@ -677,6 +744,8 @@ class Outgoing extends MY_Controller {
 			$night += 1;
 			for($x = $night; $x <= $total_night; $x++) {
 				$other_payload = [
+					'request_id' => $request_id,
+					'ter_id' => $ter_id,
 					'dest_id' => $dest_id,
 					'cost' => 0,
 					'item_type' => 3,
@@ -685,6 +754,8 @@ class Outgoing extends MY_Controller {
 					'night' => $night,
 				];
 				$meals_payload = [
+					'request_id' => $request_id,
+					'ter_id' => $ter_id,
 					'dest_id' => $dest_id,
 					'cost' => $meals_budget,
 					'item_type' => 2,
@@ -693,6 +764,8 @@ class Outgoing extends MY_Controller {
 					'night' => $night,
 				];
 				$lodging_payload = [
+					'request_id' => $request_id,
+					'ter_id' => $ter_id,
 					'dest_id' => $dest_id,
 					'cost' => 0,
 					'item_type' => 1,
@@ -701,6 +774,7 @@ class Outgoing extends MY_Controller {
 					'night' => $night,
 				];
 				$deleted = $this->db->where([
+					'ter_id' => $ter_id,
 					'dest_id' => $dest_id,
 					'night' => $night,
 				])->delete('ea_actual_costs');
@@ -745,6 +819,8 @@ class Outgoing extends MY_Controller {
 			$this->form_validation->set_rules('item_name', 'Item', 'required');
 			$this->form_validation->set_rules('cost[]', 'Cost', 'required');
 			$dest_id = $this->input->post('dest_id');
+			$ter_id = $this->input->post('ter_id');
+			$request_id = $this->input->post('request_id');
 			if (empty($_FILES['receipt']['name']))
 			{
 				$this->form_validation->set_rules('receipt', 'Receipt', 'required');
@@ -794,6 +870,8 @@ class Outgoing extends MY_Controller {
 					$clean_cost = str_replace('.', '',  $costs[$i]);
 					$payload = [
 						'dest_id' => $dest_id,
+						'ter_id' => $ter_id,
+						'request_id' => $request_id,
 						'item_type' => 3,
 						'item_name' => $item_name,
 						'cost' => $clean_cost,
@@ -896,10 +974,9 @@ class Outgoing extends MY_Controller {
 		}
 		$this->send_json($response, $status_code);
 	}
-	
 
 	public function ter_form($id) {
-		$detail = $this->report->get_excel_report_by_id($id);
+		$detail = $this->report->get_total_excel_report_by_id($id);
 		$total_days = get_total_days($id);
 		$total_max_lodging_budget = $this->report->get_total_max_lodging_budget($id);
 		if($total_days <= 7) {
@@ -958,7 +1035,6 @@ class Outgoing extends MY_Controller {
 		$sheet->setCellValue($dest1Row . '8', $dest1['arriv_date']);
 		$sheet->setCellValue($dest1Row . '9', $dest1['city']);
 		$sheet->setCellValue($dest1Row . '20', $dest1['actual_lodging'][0]['cost']);
-		$sheet->setCellValue($dest1Row . '21', $dest1['max_meals_cost']);
 		$sheet->setCellValue($dest1Row . '10', $dest1['first_depar_time']);
 		$sheet->setCellValue($dest1Row . '11', $dest1['first_arriv_time']);
 		$row = $dest1Row;
@@ -977,8 +1053,8 @@ class Outgoing extends MY_Controller {
 			$day++;
 			$row++;
 		}
-		if(!empty($dest1['other_items'][0])) {
-			$current_night_items = $this->report->get_excel_other_items_by_night($dest1['id'], 1);
+		if(!empty($dest1['other_items'][0]) || !empty($dest1['provided_meals'][0])) {
+			$current_night_items = $this->report->get_total_excel_other_items_by_night($id, $dest1['id'], 1);
 			$other_items_cell = $this->get_other_items_cell($current_night_items, $dest1Row);
 			foreach($other_items_cell as $item) {
 				$sheet->setCellValue($item['cell'],  $item['value']);
@@ -989,8 +1065,7 @@ class Outgoing extends MY_Controller {
 			$night = 1;
 			for ($x = 0; $x < $dest1['night']; $x++) {
 				$sheet->setCellValue($lodging_meals_row . '20', $dest1['actual_lodging'][$x]['cost']);
-				$sheet->setCellValue($lodging_meals_row . '21', $dest1['max_meals_cost']);
-				$current_night_items = $this->report->get_excel_other_items_by_night($dest1['id'], $night++);
+				$current_night_items = $this->report->get_total_excel_other_items_by_night($id, $dest1['id'], $night++);
 				$other_items_cell = $this->get_other_items_cell($current_night_items, $lodging_meals_row);
 				foreach($other_items_cell as $item) {
 					$sheet->setCellValue($item['cell'],  $item['value']);
@@ -1035,7 +1110,6 @@ class Outgoing extends MY_Controller {
 				$sheet->setCellValue($destRow . '8', $dest['arriv_date']);
 				$sheet->setCellValue($destRow . '9', $dest['city']);
 				$sheet->setCellValue($destRow . '20', $dest['actual_lodging'][0]['cost']);
-				$sheet->setCellValue($destRow . '21', $dest['max_meals_cost']);
 				$row = $destRow;
 				$arriv_date = strtotime($dest['arrival_date']);
 				$depar_date = strtotime($dest['departure_date']);
@@ -1059,35 +1133,25 @@ class Outgoing extends MY_Controller {
 					$last_row = $row;
 					$row++;
 				}
-				if(!empty($dest['other_items'][0])) {
-					$current_night_items = $this->report->get_excel_other_items_by_night($dest['id'], 1);
-					$other_items_cell = $this->get_other_items_cell($current_night_items, $destRow);
-					foreach($other_items_cell as $item) {
-						$sheet->setCellValue($item['cell'], $item['value']);
+				$night = 1;
+				for ($x = 0; $x < $dest['night']; $x++) {
+					if($lodging_meals_row == 'B') {
+						$lodging_meals_row = $excel_config['last_cell'];
+						if($detail['destinations'][$z - 1]['departure_date'] == $dest['arrival_date']) {
+							$sheet->setCellValue($lodging_meals_row . '12', $dest['city']);
+						}
 					}
-				}
-				if($dest['night'] > 1) {
-					$night = 1;
-					for ($x = 0; $x < $dest['night']; $x++) {
-						if($lodging_meals_row == 'B') {
-							$lodging_meals_row = $excel_config['last_cell'];
-							if($detail['destinations'][$z - 1]['departure_date'] == $dest['arrival_date']) {
-								$sheet->setCellValue($lodging_meals_row . '12', $dest['city']);
-							}
-						}
-						$sheet->setCellValue($lodging_meals_row . '20', $dest['actual_lodging'][$x]['cost']);
-						$sheet->setCellValue($lodging_meals_row . '21', $dest['max_meals_cost']);
-						$current_night_items = $this->report->get_excel_other_items_by_night($dest['id'], $night++);
-						$other_items_cell = $this->get_other_items_cell($current_night_items, $lodging_meals_row);
-						foreach($other_items_cell as $item) {
-							$sheet->setCellValue($item['cell'],  $item['value']);
-						}
-						if($lodging_meals_row == $excel_config['last_cell']) {
-							$lodging_meals_row = 'B';
-						}
-						$lodging_meals_row++;
-					}	
-				}
+					$sheet->setCellValue($lodging_meals_row . '20', $dest['actual_lodging'][$x]['cost']);
+					$current_night_items = $this->report->get_total_excel_other_items_by_night($id, $dest['id'], $night++);
+					$other_items_cell = $this->get_other_items_cell($current_night_items, $lodging_meals_row);
+					foreach($other_items_cell as $item) {
+						$sheet->setCellValue($item['cell'],  $item['value']);
+					}
+					if($lodging_meals_row == $excel_config['last_cell']) {
+						$lodging_meals_row = 'B';
+					}
+					$lodging_meals_row++;
+				}	
 			}
 		}
 
@@ -1127,6 +1191,231 @@ class Outgoing extends MY_Controller {
 		$ea_number = $detail['ea_number'];
         $current_time = date('d-m-Y h:i:s');
         $filename = "$ea_number TER_Form/$current_time";
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header("Content-Disposition: attachment; filename=$filename.xlsx");
+        $writer->save('php://output');
+		$this->delete_signature();
+	}
+
+	public function ter_form_by_ter_id() {
+		$id = $this->input->get('ter_id'); 
+		$req_id = $this->input->get('req_id'); 
+		$detail = $this->report->get_report_data_by_ter($req_id, $id);
+		$total_days = get_total_days($req_id);
+		$total_max_lodging_budget = $this->report->get_total_max_lodging_budget($req_id);
+		if($total_days <= 7) {
+			$excel_config = [
+				'file_name' => 'ea_report.xlsx',
+				'date_submitted_cell' => 'G5',
+				'travel_date_cell' => 'K5',
+				'last_cell' => 'I',
+				'max_lodging_budget_cell' => 'K20',
+				'project_number_cell' => 'L20',
+			];
+		} else if($total_days > 7 && $total_days <= 14) {
+			$excel_config = [
+				'file_name' => 'ea_report_2_minggu.xlsx',
+				'date_submitted_cell' => 'N5',
+				'travel_date_cell' => 'R5',
+				'last_cell' => 'P',
+				'max_lodging_budget_cell' => 'R20',
+				'project_number_cell' => 'S20',
+			];
+		} else if($total_days > 14 && $total_days <= 21) {
+			$excel_config = [
+				'file_name' => 'ea_report_3_minggu.xlsx',
+				'date_submitted_cell' => 'U5',
+				'travel_date_cell' => 'Y5',
+				'last_cell' => 'W',
+				'max_lodging_budget_cell' => 'Y20',
+				'project_number_cell' => 'Z20',
+			];
+		} else {
+			$excel_config = [
+				'file_name' => 'ea_report_4_minggu.xlsx',
+				'date_submitted_cell' => 'AB5',
+				'travel_date_cell' => 'AF5',
+				'last_cell' => 'AD',
+				'max_lodging_budget_cell' => 'AF20',
+				'project_number_cell' => 'AG20',
+			];
+		}
+		$inputFileName = FCPATH.'assets/excel/' . $excel_config['file_name'];
+		$reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+		$spreadsheet = $reader->load($inputFileName);
+		$sheet = $spreadsheet->getActiveSheet();
+		$sheet->setCellValue('B5', 'Name: ' . $detail['report_for']);
+		$sheet->setCellValue($excel_config['date_submitted_cell'], $detail['submitted_at']);
+		$sheet->setCellValue($excel_config['travel_date_cell'], $detail['departure_date'] . ' - ' . $detail['return_date']);
+		$sheet->setCellValue($excel_config['max_lodging_budget_cell'], $total_max_lodging_budget);
+		$total_dest = count($detail['destinations']);
+		
+		// 1st Destinations
+		$dest1 = $detail['destinations'][0];
+		$project_number = $dest1['project_number'];
+		$sheet->setCellValue($excel_config['project_number_cell'], " $project_number");
+		$sheet->setCellValue('C39', " $project_number");
+		$dest1Row = get_destination_row($dest1['arrival_date']);
+		$sheet->setCellValue($dest1Row . '8', $dest1['arriv_date']);
+		$sheet->setCellValue($dest1Row . '9', $dest1['city']);
+		$sheet->setCellValue($dest1Row . '20', $dest1['actual_lodging_items'][0]['cost']);
+		$sheet->setCellValue($dest1Row . '10', $dest1['first_depar_time']);
+		$sheet->setCellValue($dest1Row . '11', $dest1['first_arriv_time']);
+		$row = $dest1Row;
+		$arriv_date = strtotime($dest1['arrival_date']);
+		$depar_date = strtotime($dest1['departure_date']);
+		$datediff = $depar_date - $arriv_date;
+		$days = ($datediff / (60 * 60 * 24));
+		$day = 0;
+		for ($x = 0; $x <= $days; $x++) {
+			$next_day = strtotime("+$day day", strtotime($dest1['arrival_date']));
+			$sheet->setCellValue($row . '9', $dest1['city']);
+			$sheet->setCellValue($row . '8', date('d/M/y', $next_day));
+			if($row == $excel_config['last_cell']) {
+				$row = 'B';
+			}
+			$day++;
+			$row++;
+		}
+		if(!empty($dest1['other_items'][0]) || !empty($dest1['provided_meals'][0])) {
+			$current_night_items = $this->report->get_excel_other_items_by_night_and_ter($id, $dest1['id'], 1);
+			$other_items_cell = $this->get_other_items_cell($current_night_items, $dest1Row);
+			foreach($other_items_cell as $item) {
+				$sheet->setCellValue($item['cell'],  $item['value']);
+			}
+		}
+		if($dest1['night'] > 1) {
+			$lodging_meals_row = $dest1Row;
+			$night = 1;
+			for ($x = 0; $x < $dest1['night']; $x++) {
+				$sheet->setCellValue($lodging_meals_row . '20', $dest1['actual_lodging_items'][$x]['cost']);
+				$current_night_items = $this->report->get_excel_other_items_by_night_and_ter($id, $dest1['id'], $night++);
+				$other_items_cell = $this->get_other_items_cell($current_night_items, $lodging_meals_row);
+				foreach($other_items_cell as $item) {
+					$sheet->setCellValue($item['cell'],  $item['value']);
+				}
+				if($lodging_meals_row == $excel_config['last_cell']) {
+					$lodging_meals_row = 'B';
+				}
+				$lodging_meals_row++;
+				$last_row = $lodging_meals_row;
+			}	
+		} else {
+			$last_row = $dest1Row;
+			$last_row++;
+			if($last_row == $excel_config['last_cell']) {
+				$last_row = 'B';
+			}
+		}
+		if($total_dest > 1 ) {
+			for($z=1; $z < $total_dest; $z++) {
+				$dest = $detail['destinations'][$z];
+				$destRow = $last_row;
+				$last_depar_date = strtotime($detail['destinations'][$z-1]['departure_date']);
+				$current_arriv_date = strtotime($dest['arrival_date']);
+				$diff = $current_arriv_date - $last_depar_date;
+				$day_diffs = ($diff / (60 * 60 * 24));
+				$day = 0;
+				for ($v = 0; $v < $day_diffs; $v++) {
+					$destRow++;
+				}
+				if($detail['destinations'][$z - 1]['departure_date'] == $dest['arrival_date']) {
+					$sheet->setCellValue($destRow . '12', $dest['city']);
+					$sheet->setCellValue($destRow . '10', $dest['first_depar_time']);
+					$sheet->setCellValue($destRow . '11', $dest['first_arriv_time']);
+					$day = 1;
+					$lodging_meals_row = $destRow;
+					$destRow++;
+				} else {
+					$lodging_meals_row = $destRow;
+					$sheet->setCellValue($destRow . '10', $dest['first_depar_time']);
+					$sheet->setCellValue($destRow . '11', $dest['first_arriv_time']);
+				}
+				$sheet->setCellValue($destRow . '8', $dest['arriv_date']);
+				$sheet->setCellValue($destRow . '9', $dest['city']);
+				$sheet->setCellValue($destRow . '20', $dest['actual_lodging_items'][0]['cost']);
+				$row = $destRow;
+				$arriv_date = strtotime($dest['arrival_date']);
+				$depar_date = strtotime($dest['departure_date']);
+				$datediff = $depar_date - $arriv_date;
+				$days = ($datediff / (60 * 60 * 24));
+				$x = 1;
+				if($days == 1) {
+					$x = 0;
+				} 
+				if($total_dest == $z + 1 && $detail['destinations'][$z - 1]['departure_date'] != $dest['arrival_date']) {
+					$x = 0;
+				}
+				for ($x; $x <= $days; $x++) {
+					$next_day = strtotime("+$day day", strtotime($dest['arrival_date']));
+					$sheet->setCellValue($row . '9', $dest['city']);
+					$sheet->setCellValue($row . '8', date('d/M/y', $next_day));
+					if($row == $excel_config['last_cell']) {
+						$row = 'B';
+					}
+					$day++;
+					$last_row = $row;
+					$row++;
+				}
+				$night = 1;
+				for ($x = 0; $x < $dest['night']; $x++) {
+					if($lodging_meals_row == 'B') {
+						$lodging_meals_row = $excel_config['last_cell'];
+						if($detail['destinations'][$z - 1]['departure_date'] == $dest['arrival_date']) {
+							$sheet->setCellValue($lodging_meals_row . '12', $dest['city']);
+						}
+					}
+					$sheet->setCellValue($lodging_meals_row . '20', $dest['actual_lodging_items'][$x]['cost']);
+					$current_night_items = $this->report->get_excel_other_items_by_night_and_ter($id, $dest['id'], $night++);
+					$other_items_cell = $this->get_other_items_cell($current_night_items, $lodging_meals_row);
+					foreach($other_items_cell as $item) {
+						$sheet->setCellValue($item['cell'],  $item['value']);
+					}
+					if($lodging_meals_row == $excel_config['last_cell']) {
+						$lodging_meals_row = 'B';
+					}
+					$lodging_meals_row++;
+				}
+			}
+		}
+
+		// Signature
+		$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+		$drawing->setName('Traveler signature');
+		$signature = $this->extractImageFromAPI($detail['requestor_signature']);
+		$drawing->setPath($signature['image_path']); // put your path and image here
+		$drawing->setCoordinates('C34');
+		$drawing->setHeight(35);
+		$drawing->setOffsetY(-15);
+		$drawing->setWorksheet($spreadsheet->getActiveSheet());
+
+		if($detail['head_of_units_status'] == 2) {
+			$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+			$drawing->setName('Supervisor signature');
+			$signature = $this->extractImageFromAPI($detail['head_of_units_signature']);
+			$drawing->setPath($signature['image_path']); // put your path and image here
+			$drawing->setCoordinates('G34');
+			$drawing->setHeight(35);
+			$drawing->setOffsetY(-15);
+			$drawing->setWorksheet($spreadsheet->getActiveSheet());
+		}
+		
+		if($detail['country_director_status'] == 2) {
+			$drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+			$drawing->setName('Country Director signature');
+			$signature = $this->extractImageFromAPI($detail['country_director_signature']);
+			$drawing->setPath($signature['image_path']); // put your path and image here
+			$drawing->setCoordinates('L34');
+			$drawing->setHeight(35);
+			$drawing->setOffsetY(-15);
+			$drawing->setWorksheet($spreadsheet->getActiveSheet());
+		}
+
+		$writer = new Xlsx($spreadsheet);
+		$ea_number = $detail['ea_number'];
+		$name = $detail['report_for'];
+        $current_time = date('d-m-Y h:i:s');
+        $filename = "$ea_number $name TER_Form/$current_time";
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header("Content-Disposition: attachment; filename=$filename.xlsx");
         $writer->save('php://output');

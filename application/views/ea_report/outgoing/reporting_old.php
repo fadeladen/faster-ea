@@ -10,20 +10,52 @@
 		<div id="meals_lodging_table" class="kt-portlet__body">
 			<div class="kt-infobox">
 				<div class="kt-infobox__header border-bottom ml-4 pb-1">
-					<div class="d-flex align-items-center justify-content-between w-100 mb-2">
-						<h3 class="text-dark fw-600">Reporting TER <span
-								class="badge badge-success fw-bold ml-3">#<?= $detail['ea_number'] ?>
-							</span>
-						</h3>
-						<a class="btn btn-primary d-block"
-							href="<?= base_url('ea_report/outgoing/ter_report/') . encrypt($detail['r_id']) ?>">Back to
-							TER Detail</a>
-					</div>
+					<h3 class="text-dark fw-600">Reporting TER <span
+							class="badge badge-success fw-bold ml-3">#<?= $detail['ea_number'] ?></span></h3>
 				</div>
 
 				<div class="kt-infobox">
 					<div class="kt-infobox__header border-bottom pb-1">
-						<h4 class="text-dark fw-600">Report for: <span class="fw-bolder ml-2"><?= $detail['report_for'] ?></span></h4>
+						<h4 class="text-dark fw-600">Requestor information</h4>
+					</div>
+					<div class="kt-infobox__body">
+						<div class="row">
+							<label class="col-5 mb-3 col-form-label fw-bold">Requestor (prepared by)</label>
+							<div class="col-7">
+								<span style="font-size: 1rem;"
+									class="badge badge-light fw-bold"><?= $requestor_data['username'] ?></span>
+							</div>
+						</div>
+						<div class="row">
+							<label class="col-5 mb-3 col-form-label fw-bold">Request for</label>
+							<div class="col-7">
+								<span style="font-size: 1rem;"
+									class="badge badge-light fw-bold"><?= $participants ?></span>
+							</div>
+						</div>
+						<div class="row">
+							<label class="col-5 mb-3 col-form-label fw-bold">Originating city</label>
+							<div class="col-7">
+								<span style="font-size: 1rem;"
+									class="badge badge-light fw-bold"><?= $detail['originating_city'] ?></span>
+
+							</div>
+						</div>
+						<div class="row">
+							<label class="col-5 mb-3 col-form-label fw-bold">Total advance
+								<?= $detail['employment'] == 'Just for me' ? ' (for 1 person)' : ' (for ' . $detail['number_of_participants'] . ' persons)' ?></label>
+							<div class="col-7">
+								<span class="badge badge-pill badge-secondary fw-bold">IDR
+									<?=  $detail['d_total_advance'] ?></span>
+							</div>
+						</div>
+						<div class="row">
+							<label class="col-5 mb-3 col-form-label fw-bold">Request date</label>
+							<div class="col-7">
+								<span class="badge badge-light fw-bold"><?= $detail['payment_date'] ?></span>
+							</div>
+						</div>
+						<div class="p-2 mb-2 border-bottom"></div>
 					</div>
 				</div>
 
@@ -51,10 +83,75 @@
 									id="depar_date" name="depar_date">
 							</div>
 						</div>
+						<div class="my-2 py-2">
+							<form class="update-dest-time-form"
+								action="<?= base_url('ea_report/outgoing/update_destination_time/') . $dest['id'] ?>">
+								<div class="row mt-3">
+									<div class="col-md-6">
+										<div class="form-group">
+											<small class="col-form-label">
+												First destination/meeting poin
+											</small>
+											<input readonly value="<?= $dest['city'] ?>" class="form-control mt-2"
+												type="text">
+										</div>
+										<div class="form-group">
+											<small for="first_depar_time" class="col-form-label">
+												Departure time
+											</small>
+											<input value="<?= $dest['first_depar_time'] ?>" class="form-control mt-2"
+												type="time" name="first_depar_time">
+										</div>
+										<div class="form-group">
+											<small for="first_arriv_time" class="col-form-label">
+												Arrival time
+											</small>
+											<input value="<?= $dest['first_arriv_time'] ?>" class="form-control mt-2"
+												type="time" name="first_arriv_time">
+										</div>
+									</div>
+									<div class="col-md-6">
+										<div class="form-group">
+											<small for="arriv_date" class="col-form-label">
+												Second destination/meeting poin
+											</small>
+											<select placeholder="Select city" class="form-control second_city"
+												name="second_city">
+												<option value="">Select city</option>
+												<?php foreach ($cities as $city): ?>
+												<option <?= ($dest['second_city'] == $city['nama'] ? 'selected' : '') ?>
+													value="<?= $city['nama'] ?>"><?= $city['nama'] ?></option>
+												<?php endforeach; ?>
+											</select>
+										</div>
+										<div class="form-group">
+											<small for="second_depar_time" class="col-form-label">
+												Departure time
+											</small>
+											<input value="<?= $dest['second_depar_time'] ?>" class="form-control mt-2"
+												type="time" name="second_depar_time">
+										</div>
+										<div class="form-group">
+											<small for="second_arriv_time" class="col-form-label">
+												Arrival time
+											</small>
+											<input value="<?= $dest['second_arriv_time'] ?>" class="form-control mt-2"
+												type="time" name="second_arriv_time">
+										</div>
+									</div>
+								</div>
+								<div class="d-flex justify-content-end my-2">
+									<button type="submit" class="btn btn-dark">Update</button>
+								</div>
+							</form>
+						</div>
 						<div class="p-2 mb-2 border-bottom"></div>
 					</div>
 					<?php $day = 0 ?>
 					<?php for ($night = 1; $night <= $dest['night']; $night++): ?>
+					<?php
+						$total_cost_per_night = $dest['actual_lodging_items'][$night-1]['cost'] + $dest['actual_meals_items'][$night-1]['cost'];
+					?>
 					<div class="py-2 border-bottom ml-2">
 						<h5 class="text-dark fw-bold">
 							<?= ordinal($night) ?> night:
@@ -123,7 +220,6 @@
 											<button
 												data-item-id="<?= (isset($dest['actual_lodging_items'][$night-1]['id']) ? $dest['actual_lodging_items'][$night-1]['id'] : 0) ?>"
 												data-item-type="1" data-night="<?= $night ?>"
-												data-ter-id="<?= $ter_id ?>" data-req-id="<?= $detail['r_id'] ?>"
 												data-dest-id="<?= $dest['id'] ?>"
 												class="btn btn-meals-lodging btn-sm btn-info">
 												<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
@@ -142,7 +238,7 @@
 									<td class="kt-datatable__cell fw-bold">
 										<span style="width: 120px;">
 											Meals
-											<?= ($night == 1 || $dest['provided_meals'][$night-1]['is_first_day'] == 1 || $dest['provided_meals'][$night-1]['is_last_day'] == 1  ? '(75%)' : '') ?>
+											<?= ($night == 1 || $dest['meals_text'][$night-1]['is_first_day'] == 1 || $dest['meals_text'][$night-1]['is_last_day'] == 1  ? '(75%)' : '') ?>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
@@ -154,16 +250,15 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 110px;">
-											<span
-												class="badge badge-pill badge-secondary fw-bold lodging_meals_budget <?= $dest['provided_meals'][$night-1]['d_cost'] == '' ? 'text-danger' : '' ?>">
-												<?= ($dest['provided_meals'][$night-1]['d_cost'] == '' ? 'null' : $dest['provided_meals'][$night-1]['d_cost']) ?>
+											<span class="badge badge-pill badge-secondary fw-bold lodging_meals_budget <?= $dest['meals_text'][$night-1]['d_cost'] == '' ? 'text-danger' : '' ?>">
+												<?= ($dest['meals_text'][$night-1]['d_cost'] == '' ? 'null' : $dest['meals_text'][$night-1]['d_cost']) ?>
 											</span>
 										</span>
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
 											<span class="badge badge-pill badge-secondary fw-bold lodging_meals_budget">
-												<?= $dest['provided_meals'][$night - 1]['meals_text'] ?>
+												<?= $dest['meals_text'][$night - 1]['meals_text'] ?>
 											</span>
 										</span>
 									</td>
@@ -172,7 +267,6 @@
 											<button
 												data-item-id="<?= (isset($dest['actual_meals_items'][$night-1]['id']) ? $dest['actual_meals_items'][$night-1]['id'] : 0) ?>"
 												data-item-type="2" data-night="<?= $night ?>"
-												data-ter-id="<?= $ter_id ?>" data-req-id="<?= $detail['r_id'] ?>"
 												data-dest-id="<?= $dest['id'] ?>"
 												class="btn btn-meals-lodging btn-sm btn-info">
 												<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
@@ -256,8 +350,8 @@
 									</td>
 									<td class="kt-datatable__cell">
 										<span style="width: 90px;">
-											<button data-id="0" data-night="<?= $night ?>" data-ter-id="<?= $ter_id ?>"
-												data-req-id="<?= $detail['r_id'] ?>" data-dest-id="<?= $dest['id'] ?>"
+											<button data-id="0" data-night="<?= $night ?>"
+												data-dest-id="<?= $dest['id'] ?>"
 												class="btn btn-add-items btn-sm btn-success">
 												Add items
 											</button>
@@ -312,7 +406,7 @@
 					<p class="fw-bold">
 						Total travel expense :
 						<span class="badge badge-pill badge-secondary fw-bold">
-							<?= number_format($detail['total_expense'],2,',','.') ?>
+							<?= $total_expense ?>
 						</span>
 					</p>
 					<p class="fw-bold">
@@ -324,7 +418,7 @@
 				</div>
 				<?php if ($is_report_finished): ?>
 				<div id="finished_btn" class="ml-3 pl-2 mt-3">
-					<a target="_blank" href="<?= base_url('ea_report/outgoing/ter_form_by_ter_id?ter_id=') . $ter_id . '&req_id=' . $detail['r_id']?>"
+					<a target="_blank" href="<?= base_url('ea_report/outgoing/ter_form/') . $detail['r_id'] ?>"
 						class="btn btn btn-success">
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
 							class="bi bi-file-earmark-spreadsheet" viewBox="0 0 16 16">
@@ -335,7 +429,7 @@
 							Download Excel
 						</span>
 					</a>
-					<!-- <button <?= ($detail['is_ter_submitted'] == 1 ? 'disabled' : '') ?> data-id="<?= $detail['r_id'] ?>"
+					<button <?= ($detail['is_ter_submitted'] == 1 ? 'disabled' : '') ?> data-id="<?= $detail['r_id'] ?>"
 						type="button" id="btn_submit_report" class="btn btn-primary ml-2">
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
 							class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
@@ -347,7 +441,7 @@
 						<span class="ml-1">
 							Submit report
 						</span>
-					</button> -->
+					</button>
 				</div>
 				<?php else : ?>
 				<div id="report_notes">
@@ -370,8 +464,6 @@
 		$(document).on('click', '.btn-meals-lodging', function (e) {
 			e.preventDefault()
 			const dest_id = $(this).attr('data-dest-id')
-			const ter_id = $(this).attr('data-ter-id')
-			const request_id = $(this).attr('data-req-id')
 			const item_type = $(this).attr('data-item-type')
 			const item_id = $(this).attr('data-item-id')
 			const night = $(this).attr('data-night')
@@ -379,7 +471,7 @@
 			const current_lodging_budget = $(this).attr('data-current-lodging')
 			const current_meals_budget = $(this).attr('data-current-meals')
 			$.get(base_url +
-				`ea_report/outgoing/meals_lodging_modal?dest_id=${dest_id}&item_type=${item_type}&night=${night}&item_id=${item_id}&max_budget=${max_budget}&current_meals_budget=${current_meals_budget}&current_lodging_budget=${current_lodging_budget}&ter_id=${ter_id}&request_id=${request_id}`,
+				`ea_report/outgoing/meals_lodging_modal?dest_id=${dest_id}&item_type=${item_type}&night=${night}&item_id=${item_id}&max_budget=${max_budget}&current_meals_budget=${current_meals_budget}&current_lodging_budget=${current_lodging_budget}`,
 				function (html) {
 					$('#myModal').html(html)
 					$('#cost').number(true, 0, '', '.');
@@ -391,12 +483,10 @@
 		$(document).on('click', '.btn-add-items', function (e) {
 			e.preventDefault()
 			const dest_id = $(this).attr('data-dest-id')
-			const ter_id = $(this).attr('data-ter-id')
-			const request_id = $(this).attr('data-req-id')
 			const night = $(this).attr('data-night')
 			const item_id = $(this).attr('data-id')
 			$.get(base_url +
-				`ea_report/outgoing/add_items_modal?dest_id=${dest_id}&night=${night}&item_id=${item_id}&ter_id=${ter_id}&request_id=${request_id}`,
+				`ea_report/outgoing/add_items_modal?dest_id=${dest_id}&night=${night}&item_id=${item_id}`,
 				function (html) {
 					$('#myModal').html(html)
 					$('#cost').number(true, 0, '', '.');

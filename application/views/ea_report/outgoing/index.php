@@ -48,7 +48,7 @@
 			render: function (data) {
 				return `
 						<div class="d-flex flex-column align-items-start">
-                            <a href="${base_url}ea_report/outgoing/reporting/${data}"
+                            <a href="${base_url}ea_report/outgoing/ter_report/${data}"
 								 class="btn btn-sm btn-danger mb-2">
 								<div class="d-flex align-items-center justify-content-center">
 								<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">

@@ -18,6 +18,8 @@
 			action="<?= base_url('ea_report/outgoing/insert_actual_costs') ?>" id="meals-lodging-form">
 			<div class="modal-body">
 				<input type="text" class="d-none" name="dest_id" id="dest_id" value="<?= $dest_id ?>">
+				<input type="text" class="d-none" name="ter_id" id="ter_id" value="<?= $ter_id ?>">
+				<input type="text" class="d-none" name="request_id" id="request_id" value="<?= $request_id ?>">
 				<input type="text" class="d-none" name="item_type" id="item_type" value="<?= $item_type ?>">
 				<input type="text" class="d-none" name="night" id="night" value="<?= $night ?>">
 				<?php if ($item_type == 1): ?>

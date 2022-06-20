@@ -51,350 +51,493 @@
 							<label class="col-5 mb-2 col-form-label fw-bold">Actual expense</label>
 							<div class="col-7">
 								<span class="badge badge-pill badge-secondary fw-bold">IDR
-									<?= number_format($report_detail['total_expense'],2,',','.') ?>
+									<?= get_total_all_ter_expense($detail['r_id']) ?>
 								</span>
 							</div>
 						</div>
 						<div class="p-2 mb-2 border-bottom"></div>
-					</div>
-				</div>
+						<div class="kt-datatable kt-datatable--default kt-datatable--brand kt-datatable--loaded">
+							<table class="kt-datatable__table mb-5 pb-3" id="html_table" width="100%"
+								style="display: block;">
+								<thead class="kt-datatable__head">
+									<tr class="kt-datatable__row" style="left: 0px;">
+										<th class="kt-datatable__cell kt-datatable__cell--sort"><span
+												style="width: 110px;">Name</span></th>
+										<th class="kt-datatable__cell kt-datatable__cell--sort">
+											<span style="width: 140px;">Total Expense</span>
+										</th>
+										<th class="kt-datatable__cell kt-datatable__cell--sort">
+											<span style="width: 90px;">Status</span></th>
+										<th class="kt-datatable__cell kt-datatable__cell--sort">
+											<span style="width: 180px;">Action</span>
+										</th>
+									</tr>
+								</thead>
+								<tbody class="kt-datatable__body">
+									<?php foreach ($participants_data as $part): ?>
+									<tr data-row="0" class="kt-datatable__row" style="left: 0px;">
+										<td data-field="Status" data-autohide-disabled="false"
+											class="kt-datatable__cell">
+											<span class="fw-bold" style="width: 110px;">
+												<?= $part['name'] ?>
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 140px;">
+												<span class="badge badge-pill badge-secondary fw-bold">
+													<?= get_total_expense_by_ter($detail['r_id'], $part['id']) ?>
+												</span>
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 90px;">
+												<?php if (is_ter_report_finished($detail['r_id'], $part['id'])): ?>
+												<span
+													class="kt-badge kt-badge--success kt-badge--inline kt-badge--pill">
+													Complete
+												</span>
+												<?php else: ?>
+												<span class="kt-badge kt-badge--brand kt-badge--inline kt-badge--pill">
+													Pending
+												</span>
+												<?php endif; ?>
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 180px;">
+												<div class="d-flex">
+													<a target="_blank"
+														href="<?= base_url('ea_report/outgoing/ter_form_by_ter_id?ter_id=') . $part['id'] . '&req_id=' . $detail['r_id']?>"
+														class="btn btn-sm btn btn-success">
+														<div class="d-flex align-items-center justify-content-center">
+															<svg xmlns="http://www.w3.org/2000/svg" width="14"
+																height="14" fill="currentColor"
+																class="bi bi-file-earmark-spreadsheet"
+																viewBox="0 0 16 16">
+																<path
+																	d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V9H3V2a1 1 0 0 1 1-1h5.5v2zM3 12v-2h2v2H3zm0 1h2v2H4a1 1 0 0 1-1-1v-1zm3 2v-2h3v2H6zm4 0v-2h3v1a1 1 0 0 1-1 1h-2zm3-3h-3v-2h3v2zm-7 0v-2h3v2H6z" />
+															</svg>
+															<small class="ml-1">
+																Excel
+															</small>
+														</div>
+													</a>
+												</div>
+											</span>
+										</td>
+									</tr>
+									<?php endforeach; ?>
+									<tr data-row="0" class="kt-datatable__row" style="left: 0px;">
+										<td data-field="Status" data-autohide-disabled="false"
+											class="kt-datatable__cell">
+											<h5 class="fw-bold mt-3 text-dark" style="width: 110px;">
+												Total:
+											</h5>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 140px;">
+												<span class="badge badge-pill badge-secondary fw-bold">
+													<?= get_total_all_ter_expense($detail['r_id']) ?>
+												</span>
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 90px;">
 
-				<?php foreach ($detail['destinations'] as $dest): ?>
-				<div class="kt-infobox">
-					<div class="kt-infobox__header border-bottom pb-1">
-						<h4 class="text-dark fw-600"><?= $dest['order'] ?> destination
-							<span>(<?= ($dest['country'] == 1 ? $dest['city'] .'/Indonesia' : $dest['city']) ?>)
-								<!-- , <?= $dest['night'] ?> night) -->
-							</span>
-						</h4>
-					</div>
-					<div class="kt-infobox__body">
-						<div class="row mb-2">
-							<div class="col-md-6 mt-2">
-								<small for="arriv_date" class="col-form-label">
-									Arrival date
-								</small>
-								<input readonly value="<?= $dest['arriv_date'] ?>" class="form-control mt-2" type="text"
-									id="arriv_date" name="arriv_date">
-							</div>
-							<div class="col-md-6 mt-2">
-								<small for="departure_date" class="col-form-label">
-									Departure date
-								</small>
-								<input readonly value="<?= $dest['depar_date'] ?>" class="form-control mt-2" type="text"
-									id="depar_date" name="depar_date">
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<div style="width: 180px;" class="d-flex">
+
+											</div>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<div id="finished_btn" class="ml-3 pl-2 mt-3">
+								<a target="_blank"
+									href="<?= base_url('ea_report/outgoing/ter_form/') . $detail['r_id'] ?>"
+									class="btn btn btn-success">
+									<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+										class="bi bi-file-earmark-spreadsheet" viewBox="0 0 16 16">
+										<path
+											d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V9H3V2a1 1 0 0 1 1-1h5.5v2zM3 12v-2h2v2H3zm0 1h2v2H4a1 1 0 0 1-1-1v-1zm3 2v-2h3v2H6zm4 0v-2h3v1a1 1 0 0 1-1 1h-2zm3-3h-3v-2h3v2zm-7 0v-2h3v2H6z" />
+									</svg>
+									<span class="ml-1">
+										Preview trip report
+									</span>
+								</a>
 							</div>
 						</div>
-						<div class="p-2 mb-2 border-bottom"></div>
 					</div>
-					<?php $day = 0 ?>
-					<?php for ($night = 1; $night <= $dest['night']; $night++): ?>
-					<div
-						class="py-2 border-bottom ml-2 <?= ($dest['actual_lodging_items'][$night-1]['cost'] == 0.00 && $dest['meals_text'][$night-1]['cost'] == 0.00) ? 'd-none' : '' ?>">
-						<h5 class="text-dark fw-bold">
-							<?= ordinal($night) ?> night:
-						</h5>
-					</div>
-					<div class="kt-datatable kt-datatable--default kt-datatable--brand kt-datatable--loaded">
-						<table
-							class="kt-datatable__table <?= ($dest['actual_lodging_items'][$night-1]['cost'] == 0.00 && $dest['meals_text'][$night-1]['cost'] == 0.00) ? 'd-none' : '' ?>"
-							id="html_table" width="100%" style="display: block;">
-							<thead class="kt-datatable__head">
-								<tr class="kt-datatable__row" style="left: 0px;">
-									<th class="kt-datatable__cell kt-datatable__cell--sort"><span
-											style="width: 120px;">Item</span></th>
-									<th class="kt-datatable__cell kt-datatable__cell--sort">
-										<span style="width: 160px;">Actual cost</span></th>
-									<th class="kt-datatable__cell kt-datatable__cell--sort">
-										<span style="width: 90px;">Receipt</span></th>
-									<th class="kt-datatable__cell kt-datatable__cell--sort">
-										<span style="width: 200px;">Action</span></th>
-									<th class="kt-datatable__cell kt-datatable__cell--sort">
-										<span style="width: 140px;">Status</span></th>
-								</tr>
-							</thead>
-							<tbody class="kt-datatable__body">
-								<tr data-row="0" class="kt-datatable__row" style="left: 0px;">
-									<td class="kt-datatable__cell fw-bold">
-										<span style="width: 120px;">
-											Lodging
-										</span>
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 160px;">
-											<span
-												class="badge badge-pill badge-secondary fw-bold lodging_meals_budget"><?= (isset($dest['actual_lodging_items'][$night-1]['cost']) == '' ? '-' : $dest['actual_lodging_items'][$night-1]['d_cost']) ?></span>
-										</span>
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 90px;">
-											<?php if (isset($dest['actual_lodging_items'][$night-1]['receipt']) == null): ?>
-											<span class="badge badge-pill badge-secondary fw-bold">
-												-
-											</span>
-											<?php else : ?>
-											<a target="_blank" class="badge badge-warning text-light"
-												href="<?= base_url('uploads/ea_items_receipt/') ?><?= $dest['actual_lodging_items'][$night-1]['receipt']  ?>">
-												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-													fill="currentColor" class="bi bi-card-image" viewBox="0 0 16 16">
-													<path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
-													<path
-														d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13zm13 1a.5.5 0 0 1 .5.5v6l-3.775-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12v.54A.505.505 0 0 1 1 12.5v-9a.5.5 0 0 1 .5-.5h13z" />
-												</svg>
-											</a>
-											<?php endif; ?>
-										</span>
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 200px;">
-											<div class="d-flex">
-												<?php if (is_finance_teams()): ?>
-												<button
-													<?= ($dest['actual_lodging_items'][$night-1]['is_approved_by_finance'] == 1) ? 'disabled' : '' ?>
-													data-id="<?= $dest['actual_lodging_items'][$night-1]['id'] ?>"
-													class="btn btn-approve-item btn-sm btn-success mr-1">
-													<span class="ml-1">Approve</span>
-												</button>
-												<button data-id="<?= $dest['actual_lodging_items'][$night-1]['id'] ?>"
-													class="btn btn-edit-item btn-sm btn-info">
-													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-														fill="currentColor" class="bi bi-pencil-square"
-														viewBox="0 0 16 16">
-														<path
-															d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-														<path fill-rule="evenodd"
-															d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-													</svg>
-													<span class="ml-1">Edit</span>
-												</button>
-												<?php else: ?>
-												<button data-id="<?= $dest['actual_lodging_items'][$night-1]['id'] ?>"
-													class="btn btn-edit-item btn-sm btn-info">
-													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-														fill="currentColor" class="bi bi-info-circle"
-														viewBox="0 0 16 16">
-														<path
-															d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-														<path
-															d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
-													</svg>
-													<span class="ml-1">Detail</span>
-												</button>
-												<?php endif; ?>
-
-											</div>
-										</span>
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 140px;">
-											<?php if ($dest['actual_lodging_items'][$night-1]['is_approved_by_finance'] == 1): ?>
-											<span class="kt-badge kt-badge--success kt-badge--inline kt-badge--pill">
-												Approved
-											</span>
-											<?php else: ?>
-
-											<?php endif; ?>
-										</span>
-									</td>
-								</tr>
-								<tr data-row="0" class="kt-datatable__row" style="left: 0px;">
-									<td class="kt-datatable__cell fw-bold">
-										<span style="width: 120px;">
-											Meals
-											<?= ($dest['meals_text'][$night-1]['is_first_day'] == 1 || $dest['meals_text'][$night-1]['is_last_day'] == 1  ? '(75%)' : '') ?>
-										</span>
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 160px;">
-											<span class="badge badge-pill badge-secondary fw-bold lodging_meals_budget">
-												<?= $dest['meals_text'][$night-1]['d_cost']?>
-											</span>
-											-
-											<span class="badge badge-pill badge-secondary fw-bold lodging_meals_budget">
-												<?= $dest['meals_text'][$night-1]['meals_text']?>
-											</span>
-										</span>
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 90px;">
-
-										</span>
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 200px;">
-											<div class="d-flex">
-												<?php if (is_finance_teams()): ?>
-												<button
-													<?= ($dest['meals_text'][$night-1]['is_approved_by_finance'] == 1) ? 'disabled' : '' ?>
-													data-id="<?= $dest['meals_text'][$night-1]['id'] ?>"
-													class="btn btn-approve-item btn-sm btn-success mr-1">
-													<span class="ml-1">Approve</span>
-												</button>
-												<button data-id="<?= $dest['meals_text'][$night-1]['id'] ?>"
-													class="btn btn-edit-item btn-sm btn-info">
-													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-														fill="currentColor" class="bi bi-pencil-square"
-														viewBox="0 0 16 16">
-														<path
-															d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-														<path fill-rule="evenodd"
-															d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-													</svg>
-													<span class="ml-1">Edit</span>
-												</button>
-												<?php else: ?>
-												<button data-id="<?= $dest['meals_text'][$night-1]['id'] ?>"
-													class="btn btn-edit-item btn-sm btn-info">
-													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-														fill="currentColor" class="bi bi-info-circle"
-														viewBox="0 0 16 16">
-														<path
-															d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-														<path
-															d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
-													</svg>
-													<span class="ml-1">Detail</span>
-												</button>
-												<?php endif; ?>
-											</div>
-										</span>
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 140px;">
-											<?php if ($dest['meals_text'][$night-1]['is_approved_by_finance'] == 1): ?>
-											<span class="kt-badge kt-badge--success kt-badge--inline kt-badge--pill">
-												Approved
-											</span>
-											<?php else: ?>
-
-											<?php endif; ?>
-										</span>
-									</td>
-								</tr>
-								<?php if (!empty($dest['other_items'][$night-1])): ?>
-								<?php foreach ($dest['other_items'][$night-1] as $items): ?>
-								<tr data-row="0" class="kt-datatable__row" style="left: 0px;">
-									<td class="kt-datatable__cell fw-bold">
-										<span style="width: 120px;">
-											<?= $items['item_name'] ?>
-										</span>
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 160px;">
-											<span class="badge badge-pill badge-secondary fw-bold">
-												<?= number_format($items['total_cost'],2,',','.') ?>
-											</span>
-										</span>
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 90px;">
-
-										</span>
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 200px;">
-											<button data-req-id="<?= $detail['r_id'] ?>" data-night="<?= $night ?>"
-												data-dest-id="<?= $dest['id'] ?>" data-id="<?= $items['id'] ?>"
-												data-item-name="<?= $items['item_name'] ?>"
-												class="btn btn-items-info btn-sm btn-info">
-												<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-													fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
-													<path
-														d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-													<path
-														d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
-												</svg>
-												<span class="ml-1">Detail</span>
-											</button>
-										</span>
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 140px;">
-
-										</span>
-									</td>
-								</tr>
-								<?php endforeach; ?>
-								<?php endif; ?>
-								<tr style="background-color: #f8f9fa !important;" data-row="0" class="kt-datatable__row"
-									style="left: 0px;">
-									<td class="kt-datatable__cell fw-bold">
-										<span style="width: 120px;">
-											<h5 class="text-dark fw-800 m-0">
-												Sub total
-											</h5>
-										</span>
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 160px;">
-											<span class="badge badge-pill badge-secondary fw-bold">
-												<?= number_format($dest['total_approved_expenses_by_night'][$night-1],2,',','.') ?>
-											</span>
-										</span>
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 90px;">
-
-										</span>
-									</td>
-									<td class="kt-datatable__cell">
-										<span style="width: 200px;">
-
-										</span>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-					<?php endfor; ?>
-				</div>
-				<?php endforeach; ?>
-				<div class="pl-4 ml-3 pb-2 pt-3 border-bottom border-top">
-					<h4>Summarized:</h4>
-					<p class="fw-bold">
-						Total travel advance :
-						<span class="badge badge-pill badge-secondary fw-bold">
-							<?= $detail['d_total_advance'] ?>
-						</span>
-					</p>
-					<p class="fw-bold">
-						Total approved expense :
-						<span class="badge badge-pill badge-secondary fw-bold">
-							<?= $total_approved_expense ?>
-						</span>
-					</p>
-					<p class="fw-bold">
-						<?= $refund_or_reimburst['status'] ?> :
-						<span class="badge badge-pill badge-secondary fw-bold">
-							<?= number_format($refund_or_reimburst['total'],2,',','.') ?>
-						</span>
-					</p>
-					<div class="my-2 fw-bold">
-						<p>Status:
-							<span
-								class="badge badge-pill badge-secondary fw-bold">
-								<?= ($is_clear || $detail['country_director_status'] == 2 ? 'Clear' : 'Need confirmation') ?>
-							</span>
-						</p>
-					</div>
-				</div>
-				<div id="finished_btn" class="ml-3 pl-4 mt-5">
-					<a target="_blank" href="<?= base_url('ea_report/outgoing/ter_form/') . $detail['r_id'] ?>"
-						class="btn btn btn-success">
-						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
-							class="bi bi-file-earmark-spreadsheet" viewBox="0 0 16 16">
-							<path
-								d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V9H3V2a1 1 0 0 1 1-1h5.5v2zM3 12v-2h2v2H3zm0 1h2v2H4a1 1 0 0 1-1-1v-1zm3 2v-2h3v2H6zm4 0v-2h3v1a1 1 0 0 1-1 1h-2zm3-3h-3v-2h3v2zm-7 0v-2h3v2H6z" />
-						</svg>
-						<span class="ml-1">
-							Download Excel
-						</span>
-					</a>
 				</div>
 			</div>
 		</div>
 	</div>
 
+	<?php foreach ($detail['reports'] as $report): ?>
+	<div class="kt-portlet">
+		<div class="kt-portlet__body">
+			<div class="kt-infobox">
+				<div class="kt-infobox__header border-bottom pb-1 ml-4">
+					<h3 class="text-dark fw-800">Review TER for: <span
+							class="fw-bolder ml-2"><?= $report['report_for'] ?></span> </h3>
+				</div>
+				<div class="kt-infobox__body">
+					<?php foreach ($report['destinations'] as $dest): ?>
+					<div class="kt-infobox">
+						<div class="kt-infobox__header border-bottom pb-1">
+							<h4 class="text-dark fw-600"><?= $dest['order'] ?> destination
+								<span>(<?= ($dest['country'] == 1 ? $dest['city'] .'/Indonesia' : $dest['city']) ?>)
+									, <?= $dest['night'] ?> night)
+								</span>
+							</h4>
+						</div>
+						<div class="kt-infobox__body">
+							<div class="row mb-2">
+								<div class="col-md-6 mt-2">
+									<small for="arriv_date" class="col-form-label">
+										Arrival date
+									</small>
+									<input readonly value="<?= $dest['arriv_date'] ?>" class="form-control mt-2"
+										type="text" id="arriv_date" name="arriv_date">
+								</div>
+								<div class="col-md-6 mt-2">
+									<small for="departure_date" class="col-form-label">
+										Departure date
+									</small>
+									<input readonly value="<?= $dest['depar_date'] ?>" class="form-control mt-2"
+										type="text" id="depar_date" name="depar_date">
+								</div>
+							</div>
+							<div class="p-2 mb-2 border-bottom"></div>
+						</div>
+						<?php $day = 0 ?>
+						<?php for ($night = 1; $night <= $dest['night']; $night++): ?>
+						<div
+							class="py-2 border-bottom ml-2 <?= ($dest['actual_lodging_items'][$night-1]['cost'] == 0.00 && $dest['meals_text'][$night-1]['cost'] == 0.00) ? '' : '' ?>">
+							<h5 class="text-dark fw-bold">
+								<?= ordinal($night) ?> night:
+							</h5>
+						</div>
+						<div class="kt-datatable kt-datatable--default kt-datatable--brand kt-datatable--loaded">
+							<table
+								class="kt-datatable__table <?= ($dest['actual_lodging_items'][$night-1]['cost'] == 0.00 && $dest['meals_text'][$night-1]['cost'] == 0.00) ? '' : '' ?>"
+								id="html_table" width="100%" style="display: block;">
+								<thead class="kt-datatable__head">
+									<tr class="kt-datatable__row" style="left: 0px;">
+										<th class="kt-datatable__cell kt-datatable__cell--sort"><span
+												style="width: 120px;">Item</span></th>
+										<th class="kt-datatable__cell kt-datatable__cell--sort">
+											<span style="width: 160px;">Actual cost</span></th>
+										<th class="kt-datatable__cell kt-datatable__cell--sort">
+											<span style="width: 90px;">Receipt</span></th>
+										<th class="kt-datatable__cell kt-datatable__cell--sort">
+											<span style="width: 200px;">Action</span></th>
+										<th class="kt-datatable__cell kt-datatable__cell--sort">
+											<span style="width: 140px;">Status</span></th>
+									</tr>
+								</thead>
+								<tbody class="kt-datatable__body">
+									<tr data-row="0" class="kt-datatable__row" style="left: 0px;">
+										<td class="kt-datatable__cell fw-bold">
+											<span style="width: 120px;">
+												Lodging
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 160px;">
+												<span
+													class="badge badge-pill badge-secondary fw-bold lodging_meals_budget"><?= (isset($dest['actual_lodging_items'][$night-1]['cost']) == '' ? '-' : $dest['actual_lodging_items'][$night-1]['d_cost']) ?></span>
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 90px;">
+												<?php if (isset($dest['actual_lodging_items'][$night-1]['receipt']) == null): ?>
+												<span class="badge badge-pill badge-secondary fw-bold">
+													-
+												</span>
+												<?php else : ?>
+												<a target="_blank" class="badge badge-warning text-light"
+													href="<?= base_url('uploads/ea_items_receipt/') ?><?= $dest['actual_lodging_items'][$night-1]['receipt']  ?>">
+													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+														fill="currentColor" class="bi bi-card-image"
+														viewBox="0 0 16 16">
+														<path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+														<path
+															d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13zm13 1a.5.5 0 0 1 .5.5v6l-3.775-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12v.54A.505.505 0 0 1 1 12.5v-9a.5.5 0 0 1 .5-.5h13z" />
+													</svg>
+												</a>
+												<?php endif; ?>
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 200px;">
+												<div class="d-flex">
+													<?php if (is_finance_teams()): ?>
+													<button
+														<?= ($dest['actual_lodging_items'][$night-1]['is_approved_by_finance'] == 1 || $dest['actual_lodging_items'][$night-1]['cost'] == 0.00 && $dest['meals_text'][$night-1]['cost'] == 0.00) ? 'disabled' : '' ?>
+														data-id="<?= $dest['actual_lodging_items'][$night-1]['id'] ?>"
+														class="btn btn-approve-item btn-sm btn-success mr-1">
+														<span class="ml-1">Approve</span>
+													</button>
+													<button
+														data-id="<?= $dest['actual_lodging_items'][$night-1]['id'] ?>"
+														class="btn btn-edit-item btn-sm btn-info">
+														<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+															fill="currentColor" class="bi bi-pencil-square"
+															viewBox="0 0 16 16">
+															<path
+																d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+															<path fill-rule="evenodd"
+																d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+														</svg>
+														<span class="ml-1">Edit</span>
+													</button>
+													<?php else: ?>
+													<button
+														data-id="<?= $dest['actual_lodging_items'][$night-1]['id'] ?>"
+														class="btn btn-edit-item btn-sm btn-info">
+														<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+															fill="currentColor" class="bi bi-info-circle"
+															viewBox="0 0 16 16">
+															<path
+																d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+															<path
+																d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+														</svg>
+														<span class="ml-1">Detail</span>
+													</button>
+													<?php endif; ?>
+
+												</div>
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 140px;">
+												<?php if ($dest['actual_lodging_items'][$night-1]['is_approved_by_finance'] == 1 || $dest['actual_lodging_items'][$night-1]['cost'] == 0.00 && $dest['meals_text'][$night-1]['cost'] == 0.00): ?>
+												<span
+													class="kt-badge kt-badge--success kt-badge--inline kt-badge--pill">
+													Approved
+												</span>
+												<?php else: ?>
+
+												<?php endif; ?>
+											</span>
+										</td>
+									</tr>
+									<tr data-row="0" class="kt-datatable__row" style="left: 0px;">
+										<td class="kt-datatable__cell fw-bold">
+											<span style="width: 120px;">
+												Meals
+												<?= ($dest['meals_text'][$night-1]['is_first_day'] == 1 || $dest['meals_text'][$night-1]['is_last_day'] == 1  ? '(75%)' : '') ?>
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 160px;">
+												<span
+													class="badge badge-pill badge-secondary fw-bold lodging_meals_budget">
+													<?= $dest['meals_text'][$night-1]['d_cost']?>
+												</span>
+												-
+												<span
+													class="badge badge-pill badge-secondary fw-bold lodging_meals_budget">
+													<?= $dest['meals_text'][$night-1]['meals_text']?>
+												</span>
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 90px;">
+
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 200px;">
+												<div class="d-flex">
+													<?php if (is_finance_teams()): ?>
+													<button
+														<?= ($dest['meals_text'][$night-1]['is_approved_by_finance'] == 1 || $dest['actual_lodging_items'][$night-1]['cost'] == 0.00 && $dest['meals_text'][$night-1]['cost'] == 0.00) ? 'disabled' : '' ?>
+														data-id="<?= $dest['meals_text'][$night-1]['id'] ?>"
+														class="btn btn-approve-item btn-sm btn-success mr-1">
+														<span class="ml-1">Approve</span>
+													</button>
+													<button data-id="<?= $dest['meals_text'][$night-1]['id'] ?>"
+														class="btn btn-edit-item btn-sm btn-info">
+														<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+															fill="currentColor" class="bi bi-pencil-square"
+															viewBox="0 0 16 16">
+															<path
+																d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+															<path fill-rule="evenodd"
+																d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+														</svg>
+														<span class="ml-1">Edit</span>
+													</button>
+													<?php else: ?>
+													<button data-id="<?= $dest['meals_text'][$night-1]['id'] ?>"
+														class="btn btn-edit-item btn-sm btn-info">
+														<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+															fill="currentColor" class="bi bi-info-circle"
+															viewBox="0 0 16 16">
+															<path
+																d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+															<path
+																d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+														</svg>
+														<span class="ml-1">Detail</span>
+													</button>
+													<?php endif; ?>
+												</div>
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 140px;">
+												<?php if ($dest['meals_text'][$night-1]['is_approved_by_finance'] == 1 || $dest['actual_lodging_items'][$night-1]['cost'] == 0.00 && $dest['meals_text'][$night-1]['cost'] == 0.00): ?>
+												<span
+													class="kt-badge kt-badge--success kt-badge--inline kt-badge--pill">
+													Approved
+												</span>
+												<?php else: ?>
+
+												<?php endif; ?>
+											</span>
+										</td>
+									</tr>
+									<?php if (!empty($dest['other_items'][$night-1])): ?>
+									<?php foreach ($dest['other_items'][$night-1] as $items): ?>
+									<tr data-row="0" class="kt-datatable__row" style="left: 0px;">
+										<td class="kt-datatable__cell fw-bold">
+											<span style="width: 120px;">
+												<?= $items['item_name'] ?>
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 160px;">
+												<span class="badge badge-pill badge-secondary fw-bold">
+													<?= number_format($items['total_cost'],2,',','.') ?>
+												</span>
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 90px;">
+
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 200px;">
+												<button data-req-id="<?= $detail['r_id'] ?>" data-night="<?= $night ?>"
+													data-dest-id="<?= $dest['id'] ?>" data-id="<?= $items['id'] ?>"
+													data-item-name="<?= $items['item_name'] ?>"
+													class="btn btn-items-info btn-sm btn-info">
+													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+														fill="currentColor" class="bi bi-info-circle"
+														viewBox="0 0 16 16">
+														<path
+															d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+														<path
+															d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+													</svg>
+													<span class="ml-1">Detail</span>
+												</button>
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 140px;">
+
+											</span>
+										</td>
+									</tr>
+									<?php endforeach; ?>
+									<?php endif; ?>
+									<tr style="background-color: #f8f9fa !important;" data-row="0"
+										class="kt-datatable__row" style="left: 0px;">
+										<td class="kt-datatable__cell fw-bold">
+											<span style="width: 120px;">
+												<h5 class="text-dark fw-800 m-0">
+													Sub total
+												</h5>
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 160px;">
+												<span class="badge badge-pill badge-secondary fw-bold">
+													<?= number_format($dest['total_approved_expenses_by_night'][$night-1],2,',','.') ?>
+												</span>
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 90px;">
+
+											</span>
+										</td>
+										<td class="kt-datatable__cell">
+											<span style="width: 200px;">
+
+											</span>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<?php endfor; ?>
+					</div>
+					<?php endforeach; ?>
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php endforeach; ?>
+	<div class="kt-portlet">
+		<div class="kt-portlet__body">
+			<div class="kt-infobox">
+				<div class="kt-infobox__header border-bottom pb-1">
+					<h4 class="text-dark fw-600">Summarized</h4>
+				</div>
+				<div class="kt-infobox__body">
+					<div class="pb-2">
+						<p class="fw-bold">
+							Total travel advance :
+							<span class="badge badge-pill badge-secondary fw-bold">
+								<?= $detail['d_total_advance'] ?>
+							</span>
+						</p>
+						<p class="fw-bold">
+							Total approved expense :
+							<span class="badge badge-pill badge-secondary fw-bold">
+								<?= $total_approved_expense ?>
+							</span>
+						</p>
+						<p class="fw-bold">
+							<?= $refund_or_reimburst['status'] ?> :
+							<span class="badge badge-pill badge-secondary fw-bold">
+								<?= number_format($refund_or_reimburst['total'],2,',','.') ?>
+							</span>
+						</p>
+						<div class="my-2 fw-bold">
+							<p>Status:
+								<span class="badge badge-pill badge-secondary fw-bold">
+									<?= ($is_clear || $detail['country_director_status'] == 2 ? 'Clear' : 'Need confirmation') ?>
+								</span>
+							</p>
+						</div>
+					</div>
+					<div class="mt-3">
+						<a target="_blank" href="<?= base_url('ea_report/outgoing/ter_form/') . $detail['r_id'] ?>"
+							class="btn btn btn-success">
+							<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+								class="bi bi-file-earmark-spreadsheet" viewBox="0 0 16 16">
+								<path
+									d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V9H3V2a1 1 0 0 1 1-1h5.5v2zM3 12v-2h2v2H3zm0 1h2v2H4a1 1 0 0 1-1-1v-1zm3 2v-2h3v2H6zm4 0v-2h3v1a1 1 0 0 1-1 1h-2zm3-3h-3v-2h3v2zm-7 0v-2h3v2H6z" />
+							</svg>
+							<span class="ml-1">
+								Download excel
+							</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	<div class="kt-portlet">
 		<div class="kt-portlet__body">
 			<div class="kt-infobox">
